@@ -1,738 +1,502 @@
-@extends('layouts.app')
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login & Signup</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-@section('title', 'Sign in to Your Account | GoErudite')
-@section('description', 'Sign in to your GoErudite account to access digital textbooks, manage e-book services, and use secure learning tools for schools and publishers.')
-@section('keywords', 'GoErudite login, GoErudite sign in, digital textbook login, school e-book portal, publisher account access')
-
-@section('content')
-
-        <style>
-        .header {
-            background-color: #EFF3F7;
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to right, #4d7cfe, #b24dfe);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             padding: 20px;
-            text-align: center;
+            overflow-x: hidden;
         }
 
-        .logo {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-            margin-top: 5rem;
-        }
-
-        .logo-icon {
-            width: 35px;
-            height: 35px;
-            background-color: #ff6b35;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 20px;
-        }
-
-        .logo-text {
-            font-size: 24px;
-            font-weight: 600;
-        }
-
-        .logo-text span {
-            color: #ff6b35;
-        }
-
-        h1 {
-            font-size: 32px;
-            margin-bottom: 40px;
-        }
-
-        .user-types {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 30px;
-            max-width: 700px;
-            margin: 0 auto;
-        }
-
-        /* CARD */
-        .user-type {
-            background: white;
-            padding: 25px;
-            border-radius: 12px;
-            cursor: pointer;
+        .container {
             position: relative;
-            overflow: hidden;
-            transition: transform 0.35s ease, box-shadow 0.35s ease;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-            animation: floatCard 4.5s ease-in-out infinite;
-        }
-
-        /* Alternate timing for natural feel */
-        .user-type:nth-child(2) {
-            animation-delay: 1.2s;
-        }
-
-        /* Hover Interaction */
-        .user-type:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
-        }
-
-        /* Glow line animation */
-        .user-type::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(120deg, transparent, rgba(0, 130, 126, 0.15), transparent);
-            transform: translateX(-100%);
-            transition: transform 0.6s ease;
-        }
-
-        .user-type:hover::before {
-            transform: translateX(100%);
-        }
-
-        /* Text animation */
-        .user-type h3 {
-            font-size: 18px;
-            color: #000;
-            margin-bottom: 6px;
-            transition: color 0.3s ease, transform 0.3s ease;
-        }
-
-        .user-type p {
-            font-size: 13px;
-            color: #000;
-            transition: opacity 0.3s ease;
-        }
-
-        .user-type:hover h3 {
-            color: #ff7a00;
-            transform: translateX(4px);
-        }
-
-        .user-type:hover p {
-            opacity: 0.85;
-        }
-
-        /* KEYFRAMES */
-        @keyframes floatCard {
-            0%   { transform: translateY(0); }
-            50%  { transform: translateY(-6px); }
-            100% { transform: translateY(0); }
-        }
-
-        /* MOBILE OPTIMIZATION */
-        @media (max-width: 575px) {
-            .user-types {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-
-            .user-type {
-                animation: none; 
-            }
-        }
-
-        .profile-box {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: #fff;
-            border-radius: 8px;
-        }
-
-        /* LEFT */
-        .profile-left h3 {
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
-
-        .profile-left label {
-            font-size: 13px;
-            font-weight: 500;
-            display: block;
-            margin-bottom: 6px;
-        }
-
-        .profile-left input {
             width: 100%;
-            padding: 10px 12px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 13px;
+            max-width: 400px;
+            height: 500px;
+            perspective: 1000px;
         }
 
-        /* RIGHT */
-        .upload-logo {
-            width: 90px;
-            height: 90px;
-            border: 2px dashed #dcdcdc;
-            border-radius: 50%;
+        .form-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform-style: preserve-3d;
+        }
+
+        .form-container.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .form-side {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px 30px;
             display: flex;
-            align-items: center;
+            flex-direction: column;
             justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-align: center;
         }
 
-        .upload-logo span {
-            font-size: 11px;
+        .signup-form {
+            transform: rotateY(180deg);
+        }
+
+        .form-title {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #b24dfe, #0f1624);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #15537A;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.8);
+            font-size: 16px;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .form-input:focus {
+            border-color: #667eea;
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+        }
+
+        .form-input::placeholder {
             color: #999;
         }
 
-        .upload-logo:hover {
-            border-color: #00827e;
-            background: rgba(0,130,126,0.05);
+        .form-button {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #b24dfe, #0f1624);
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
         }
 
-        /* RESPONSIVE */
-        @media (max-width: 576px) {
-            .profile-box {
-                flex-direction: column;
-                align-items: flex-start;
-            }
+        .form-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
 
-            .profile-right {
-                align-self: center;
+        .form-button:hover::before {
+            left: 100%;
+        }
+
+        .form-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .form-button:active {
+            transform: translateY(0);
+        }
+
+        .switch-form {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .switch-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .switch-link:hover {
+            color: #764ba2;
+            text-decoration: underline;
+        }
+
+        .floating-shapes {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .shape:nth-child(1) {
+            width: 80px;
+            height: 80px;
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .shape:nth-child(2) {
+            width: 60px;
+            height: 60px;
+            top: 20%;
+            right: 10%;
+            animation-delay: 2s;
+        }
+
+        .shape:nth-child(3) {
+            width: 40px;
+            height: 40px;
+            bottom: 10%;
+            left: 20%;
+            animation-delay: 4s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px) rotate(0deg);
+                opacity: 0.5;
+            }
+            50% {
+                transform: translateY(-20px) rotate(180deg);
+                opacity: 0.8;
             }
         }
 
+        .input-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            transition: color 0.3s ease;
+            font-size: 30px;
+        }
+
+        .form-input:focus + .input-icon {
+            color: #667eea;
+        }
+
+        .password-toggle {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .loading {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .form-button.loading {
+            pointer-events: none;
+        }
+
+        .form-button.loading .loading {
+            display: inline-block;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            .container {
+                max-width: 350px;
+                height: 480px;
+            }
+            
+            .form-side {
+                padding: 30px 20px;
+            }
+            
+            .form-title {
+                font-size: 1.8rem;
+                margin-bottom: 25px;
+            }
+            
+            .form-input {
+                padding: 12px 15px;
+                font-size: 15px;
+            }
+            
+            .form-button {
+                padding: 12px;
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .container {
+                max-width: 320px;
+                height: 460px;
+            }
+            
+            .form-side {
+                padding: 25px 15px;
+            }
+            
+            .form-title {
+                font-size: 1.6rem;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                max-width: 450px;
+                height: 550px;
+            }
+            
+            .form-side {
+                padding: 50px 40px;
+            }
+        }
+
+        /* Success message */
+        .success-message {
+            background: linear-gradient(135deg, #b24dfe, #0f1624);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-align: center;
+            transform: translateY(-20px);
+            opacity: 0;
+            animation: slideIn 0.5s ease forwards;
+        }
+
+        @keyframes slideIn {
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+       
     </style>
+</head>
+<body>
+    <div class="floating-shapes">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
 
-       <div class="header">
-            <div class="logo">
-                <div class="logo-text"> 
-                    <img src="https://i.postimg.cc/LX4qQXh4/Logo-Icon.png" alt="Header Logo" width="150">
+    <div class="container">
+        <div class="form-container" id="formContainer">
+            <!-- Login Form -->
+            <div class="form-side login-form">                
+                <div class="login-title-wrapper">
+                    <h2 class="form-title">Welcome Back</h2>
                 </div>
-            </div>
+                @if(session('error'))
+                    <div class="success-message" style="background: linear-gradient(135deg, #ff4d4d, #b30000);">
+                        {{ session('error') }}
+                    </div>
+                @endif
 
-            <h1 class="text-dark mb-3">Sign in to your account</h1>
-            @if (session('success'))
-                <div class="alert alert-success mt-3">
-                    {{ session('success') }}
-                </div>
-            @endif
-
-            @if ($errors->any())
-                <div class="alert alert-danger mt-3">
-                    <ul class="mb-0">
+                {{-- Validation Errors --}}
+                @if ($errors->any())
+                    <div class="success-message" style="background: linear-gradient(135deg, #ff4d4d, #b30000);">
                         @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
+                            <div>{{ $error }}</div>
                         @endforeach
-                    </ul>
-                </div>
-            @endif
-
-            <div class="user-types">
-                <div class="user-type" onclick="showForm('administrator')">
-                    <h3>Administrator</h3>
-                    <p>For Principals & Admins Coaching/Institute</p>
-                </div>
-                <div class="user-type" onclick="showForm('distributor')">
-                    <h3>Distributor</h3>
-                    <p>For Warehouse Owner</p>
-                </div>
-                <div class="user-type" onclick="showForm('retailer')">
-                    <h3>Retailer</h3>
-                    <p>For Bookshop Owner</p>
-                </div>
-                <div class="user-type" onclick="showForm('publisher')">
-                    <h3>Publisher</h3>
-                    <p>For Content Creators</p>
-                </div>
+                    </div>
+                @endif
+                
+                <form id="loginForm" method="POST" action="{{ route('login.submit') }}">
+                    @csrf
+                    <div class="form-group">
+                        <input type="email" name="email" class="form-input" placeholder="Email Address" required>
+                        <span class="input-icon">📧</span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <input type="password" name="password" class="form-input" placeholder="Password" required>
+                        <span class="input-icon password-toggle" onclick="togglePassword(this)">👁️</span>
+                    </div>
+                    
+                    <button type="submit" class="form-button" id="loginBtn">
+                        <div class="loading"></div>
+                        Sign In
+                    </button>
+                </form>
+                
+                <!-- <div class="switch-form">
+                    Don't have an account? 
+                    <a href="#" class="switch-link" onclick="flipForm()">Sign Up</a>
+                </div> -->
             </div>
+
+            
         </div>
-
-    <!-- Administrator Form -->
-    <div id="administrator-form" class="form-section">
-        <div class="form-header">
-            <button class="back-btn" onclick="hideAllForms()">Back</button>
-            <div>
-                <div class="form-title">School Administrator</div>
-                <div class="form-subtitle">Principals & Admins Coaching/Institute</div>
-            </div>
-        </div>
-
-        <form method="POST" action="{{ route('user.register') }}" enctype="multipart/form-data">
-            @csrf
-
-            <input type="hidden" name="role" value="administrator">
-
-            <div class="profile-box">
-                <div class="profile-left">
-                    <h3 class="text-dark">Complete Your Profile</h3>
-                </div>
-
-                <div class="profile-right">
-                    <label class="upload-logo">
-                        <input type="file" name="document" hidden>
-                        <span>Upload Logo</span>
-                    </label>
-                </div>
-            </div>
-
-            <div class="form-grid">
-
-                <div class="form-group full-width">
-                    <label>School Name / Institute Name</label>
-                    <input type="text" name="business_name" placeholder="Enter name" required>
-                </div>
-
-                <div class="form-group">
-                    <label>School Type</label>
-                    <select name="school_type">
-                        <option value="">Select School Type</option>
-                        <option value="Primary School">Primary School</option>
-                        <option value="Secondary School">Secondary School</option>
-                        <option value="High School">High School</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Institute Type</label>
-                    <select name="institute_type">
-                        <option value="">Select Institute Type</option>
-                        <option value="Coaching Center">Coaching Center</option>
-                        <option value="Training Institute">Training Institute</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Mobile Number</label>
-                    <input type="text" name="mobile" placeholder="+91" required>
-                </div>
-
-                <div class="form-group">
-                    <label>Email Address</label>
-                    <input type="email" name="email" placeholder="Enter email" required>
-                </div>
-
-                <div class="form-group full-width">
-                    <label>Registered Address</label>
-                    <textarea name="address" placeholder="Enter address"></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label>GST Number (If Available)</label>
-                    <input type="text" name="gst" placeholder="Enter GST Number">
-                </div>
-
-                <div class="form-group">
-                    <label>UDISE Code</label>
-                    <input type="text" name="udise_code" placeholder="Enter UDISE Code">
-                </div>
-
-                <div class="form-group">
-                    <label>PAN Number</label>
-                    <input type="text" name="pan" placeholder="Example: ABCDE1234F">
-                </div>
-
-                <div class="form-group">
-                    <label>City</label>
-                    <input type="text" name="city" placeholder="Enter City Name">
-                </div>
-
-                <div class="form-group">
-                    <label>State</label>
-                    <select name="state">
-                        <option value="">Select State</option>
-                        <option value="Delhi">Delhi</option>
-                        <option value="Maharashtra">Maharashtra</option>
-                        <option value="Karnataka">Karnataka</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>PIN Code</label>
-                    <input type="text" name="pincode" placeholder="Enter PIN Code">
-                </div>
-
-                <div class="checkbox-group">
-                    <input type="checkbox" name="confirm" required>
-                    <label>
-                        I confirm that all information provided is accurate and that all commercial decisions made using the platform are my sole responsibility.
-                    </label>
-                </div>
-
-            </div>
-
-            <button type="submit" class="submit-btn">Submit Application ›</button>
-
-            <div class="terms">
-                By registering, you agree to our
-                <a href="{{ url('privacy-policy') }}">Terms & Conditions</a> and
-                <a href="{{ url('privacy-policy') }}">Privacy Policy</a>.
-            </div>
-        </form>
-
     </div>
 
-    <!-- Distributor Form -->
-    <div id="distributor-form" class="form-section">
-
-        <div class="form-header">
-            <button type="button" class="back-btn" onclick="hideAllForms()">Back</button>
-            <div>
-                <div class="form-title">Distributor</div>
-                <div class="form-subtitle">For Warehouse Owner</div>
-            </div>
-        </div>
-
-        <h2 class="text-dark mb-3">Complete Your Profile</h2>
-
-        <form method="POST" action="{{ route('user.register') }}" enctype="multipart/form-data">
-            @csrf
-
-            <input type="hidden" name="role" value="distributor">
-
-            <div class="form-grid">
-
-                <div class="form-group full-width">
-                    <label>Contact Person Name</label>
-                    <input type="text" name="contact_person" placeholder="Enter name" required>
-                </div>
-
-                <div class="form-group">
-                    <label>Business / Firm Name</label>
-                    <input type="text" name="business_name" placeholder="Enter Firm/Trade Name" required>
-                </div>
-
-                <div class="form-group">
-                    <label>Distributor Category</label>
-                    <select name="distributor_category" required>
-                        <option value="">Select Category</option>
-                        <option value="Books Distributor">Books Distributor</option>
-                        <option value="Stationery Distributor">Stationery Distributor</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Mobile Number</label>
-                    <input type="text" name="mobile" placeholder="+91" required>
-                </div>
-
-                <div class="form-group">
-                    <label>Email Address</label>
-                    <input type="email" name="email" placeholder="Enter email" required>
-                </div>
-
-                <div class="form-group full-width">
-                    <label>Registered Address</label>
-                    <textarea name="address" placeholder="Enter address"></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label>GST Number</label>
-                    <input type="text" name="gst" placeholder="Enter GST Number">
-                </div>
-
-                <div class="form-group">
-                    <label>Upload Trade License <span>(Required)</span></label>
-                    <input type="file" name="document" required>
-                </div>
-
-                <div class="form-group">
-                    <label>PAN Number</label>
-                    <input type="text" name="pan" placeholder="Example: ABCDE1234F">
-                </div>
-
-                <div class="form-group">
-                    <label>City</label>
-                    <input type="text" name="city" placeholder="Enter City Name">
-                </div>
-
-                <div class="form-group">
-                    <label>State</label>
-                    <select name="state">
-                        <option value="">Select State</option>
-                        <option value="Delhi">Delhi</option>
-                        <option value="Maharashtra">Maharashtra</option>
-                        <option value="Karnataka">Karnataka</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>PIN Code</label>
-                    <input type="text" name="pincode" placeholder="Enter PIN Code">
-                </div>
-
-                <div class="checkbox-group">
-                    <input type="checkbox" name="confirm" required>
-                    <label>
-                        I confirm that all information provided is accurate and that all commercial decisions made using the platform are my sole responsibility.
-                    </label>
-                </div>
-
-            </div>
-
-            <button type="submit" class="submit-btn">Submit Application ›</button>
-
-            <div class="terms">
-                By registering, you agree to our
-                <a href="{{ url('privacy-policy') }}">Terms & Conditions</a> and
-                <a href="{{ url('privacy-policy') }}">Privacy Policy</a>.
-            </div>
-
-        </form>
-    </div>
-
-
-    <!-- Retailer Form -->
-    <div id="retailer-form" class="form-section">
-
-        <div class="form-header">
-            <button type="button" class="back-btn" onclick="hideAllForms()">Back</button>
-            <div>
-                <div class="form-title">Retailer</div>
-                <div class="form-subtitle">For Bookshop Owner</div>
-            </div>
-        </div>
-
-        <h2 class="text-dark mb-3">Complete Your Profile</h2>
-
-        <form method="POST" action="{{ route('user.register') }}" enctype="multipart/form-data">
-            @csrf
-
-            <input type="hidden" name="role" value="retailer">
-
-            <div class="form-grid">
-
-                <div class="form-group full-width">
-                    <label>Shop Name</label>
-                    <input type="text" name="business_name" placeholder="Enter shop name" required>
-                </div>
-
-                <div class="form-group">
-                    <label>Contact Person Name</label>
-                    <input type="text" name="contact_person" placeholder="Enter name" required>
-                </div>
-
-                <div class="form-group">
-                    <label>Business Category</label>
-                    <select name="business_category" required>
-                        <option value="">Select Category</option>
-                        <option value="Book Store">Book Store</option>
-                        <option value="Stationery Shop">Stationery Shop</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Mobile Number</label>
-                    <input type="text" name="mobile" placeholder="+91" required>
-                </div>
-
-                <div class="form-group">
-                    <label>Email Address</label>
-                    <input type="email" name="email" placeholder="Enter email" required>
-                </div>
-
-                <div class="form-group full-width">
-                    <label>Shop Address</label>
-                    <textarea name="address" placeholder="Enter address"></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label>GST Number (If Available)</label>
-                    <input type="text" name="gst" placeholder="Enter GST Number">
-                </div>
-
-                <div class="form-group">
-                    <label>Trade License</label>
-                    <input type="file" name="document">
-                </div>
-
-                <div class="form-group">
-                    <label>PAN Number</label>
-                    <input type="text" name="pan" placeholder="Example: ABCDE1234F">
-                </div>
-
-                <div class="form-group">
-                    <label>City</label>
-                    <input type="text" name="city" placeholder="Enter City Name">
-                </div>
-
-                <div class="form-group">
-                    <label>State</label>
-                    <select name="state">
-                        <option value="">Select State</option>
-                        <option value="Delhi">Delhi</option>
-                        <option value="Maharashtra">Maharashtra</option>
-                        <option value="Karnataka">Karnataka</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>PIN Code</label>
-                    <input type="text" name="pincode" placeholder="Enter PIN Code">
-                </div>
-
-                <div class="checkbox-group">
-                    <input type="checkbox" name="confirm" required>
-                    <label>
-                        I confirm that all information provided is accurate and that all commercial decisions made using the platform are my sole responsibility.
-                    </label>
-                </div>
-
-            </div>
-
-            <button type="submit" class="submit-btn">Submit Application ›</button>
-
-            <div class="terms">
-                By registering, you agree to our
-                <a href="{{ url('privacy-policy') }}">Terms & Conditions</a> and
-                <a href="{{ url('privacy-policy') }}">Privacy Policy</a>.
-            </div>
-
-        </form>
-    </div>
-
-
-    <!-- Publisher Form -->
-    <div id="publisher-form" class="form-section">
-
-        <div class="form-header">
-            <button type="button" class="back-btn" onclick="hideAllForms()">Back</button>
-            <div>
-                <div class="form-title">Publisher</div>
-                <div class="form-subtitle">For Content Creators</div>
-            </div>
-        </div>
-
-        <h2 class="text-dark mb-3">Complete Your Profile</h2>
-
-        <form method="POST" action="{{ route('user.register') }}" enctype="multipart/form-data">
-            @csrf
-
-            <input type="hidden" name="role" value="publisher">
-
-            <div class="form-grid">
-
-                <div class="form-group full-width">
-                    <label>Publishing House Name</label>
-                    <input type="text" name="business_name" placeholder="Enter publisher name" required>
-                </div>
-
-                <div class="form-group">
-                    <label>Contact Person Name</label>
-                    <input type="text" name="contact_person" placeholder="Enter name" required>
-                </div>
-
-                <div class="form-group">
-                    <label>Publisher Type</label>
-                    <select name="publisher_type" required>
-                        <option value="">Select Type</option>
-                        <option value="Educational Publisher">Educational Publisher</option>
-                        <option value="Trade Publisher">Trade Publisher</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Mobile Number</label>
-                    <input type="text" name="mobile" placeholder="+91" required>
-                </div>
-
-                <div class="form-group">
-                    <label>Email Address</label>
-                    <input type="email" name="email" placeholder="Enter email" required>
-                </div>
-
-                <div class="form-group full-width">
-                    <label>Registered Address</label>
-                    <textarea name="address" placeholder="Enter address"></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label>GST Number</label>
-                    <input type="text" name="gst" placeholder="Enter GST Number">
-                </div>
-
-                <div class="form-group">
-                    <label>Registration Certificate</label>
-                    <input type="file" name="document">
-                </div>
-
-                <div class="form-group">
-                    <label>PAN Number</label>
-                    <input type="text" name="pan" placeholder="Example: ABCDE1234F">
-                </div>
-
-                <div class="form-group">
-                    <label>City</label>
-                    <input type="text" name="city" placeholder="Enter City Name">
-                </div>
-
-                <div class="form-group">
-                    <label>State</label>
-                    <select name="state">
-                        <option value="">Select State</option>
-                        <option value="Delhi">Delhi</option>
-                        <option value="Maharashtra">Maharashtra</option>
-                        <option value="Karnataka">Karnataka</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>PIN Code</label>
-                    <input type="text" name="pincode" placeholder="Enter PIN Code">
-                </div>
-
-                <div class="checkbox-group">
-                    <input type="checkbox" name="confirm" required>
-                    <label>
-                        I confirm that all information provided is accurate and that all commercial decisions made using the platform are my sole responsibility.
-                    </label>
-                </div>
-
-            </div>
-
-            <button type="submit" class="submit-btn">Submit Application ›</button>
-
-            <div class="terms">
-                By registering, you agree to our
-                <a href="{{ url('privacy-policy') }}">Terms & Conditions</a> and
-                <a href="{{ url('privacy-policy') }}">Privacy Policy</a>.
-            </div>
-
-        </form>
-    </div>
-
-
-
-@endsection
-
-@push('scripts')
-<script>
-    function showForm(type) {
-        // Hide all forms
-        hideAllForms();
-        
-        // Show selected form
-        const formId = type + '-form';
-        document.getElementById(formId).classList.add('active');
-        
-        // Scroll to form
-        document.getElementById(formId).scrollIntoView({ behavior: 'smooth' });
-    }
-
-    function hideAllForms() {
-        const forms = document.querySelectorAll('.form-section');
-        forms.forEach(form => form.classList.remove('active'));
-        
-        // Scroll to top
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    // Prevent form submission for demo
-    // document.querySelectorAll('form').forEach(form => {
-    //     form.addEventListener('submit', function(e) {
-    //         e.preventDefault();
-    //         alert('Form submitted successfully! (Demo)');
-    //     });
-    // });
-</script>
-@endpush
+    <script>
+        function flipForm() {
+            const formContainer = document.getElementById('formContainer');
+            formContainer.classList.toggle('flipped');
+        }
+
+        function togglePassword(icon) {
+            const input = icon.previousElementSibling;
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.textContent = '🙈';
+            } else {
+                input.type = 'password';
+                icon.textContent = '👁️';
+            }
+        }
+
+        // Handle form submissions
+        // document.getElementById('loginForm').addEventListener('submit', function(e) {
+        //     e.preventDefault();
+        //     const btn = document.getElementById('loginBtn');
+        //     btn.classList.add('loading');
+            
+        //     // Simulate API call
+        //     setTimeout(() => {
+        //         btn.classList.remove('loading');
+        //         showSuccessMessage('Login successful! Welcome back!');
+        //     }, 2000);
+        // });
+        document.getElementById('loginForm').addEventListener('submit', function () {
+            const btn = document.getElementById('loginBtn');
+            btn.disabled = true;
+            btn.querySelector('.btn-text').style.display = 'none';
+            btn.querySelector('.loading').style.display = 'inline-block';
+        });
+
+
+        document.getElementById('signupForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('signupBtn');
+            const passwords = this.querySelectorAll('input[type="password"]');
+            
+            if (passwords[0].value !== passwords[1].value) {
+                alert('Passwords do not match!');
+                return;
+            }
+            
+            btn.classList.add('loading');
+            
+            // Simulate API call
+            setTimeout(() => {
+                btn.classList.remove('loading');
+                showSuccessMessage('Account created successfully! Welcome!');
+            }, 2000);
+        });
+
+        function showSuccessMessage(message) {
+            const activeForm = document.querySelector('.form-side:not([style*="transform"])') || 
+                             document.querySelector('.login-form');
+            const existingMessage = activeForm.querySelector('.success-message');
+            
+            if (existingMessage) {
+                existingMessage.remove();
+            }
+            
+            const successDiv = document.createElement('div');
+            successDiv.className = 'success-message';
+            successDiv.textContent = message;
+            
+            const form = activeForm.querySelector('form');
+            activeForm.insertBefore(successDiv, form);
+            
+            setTimeout(() => {
+                successDiv.remove();
+            }, 3000);
+        }
+
+        // Add input focus animations
+        document.querySelectorAll('.form-input').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'translateY(-2px)';
+            });
+            
+            input.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'translateY(0)';
+            });
+        });
+
+        // Add floating animation to shapes on scroll/interaction
+        document.addEventListener('mousemove', function(e) {
+            const shapes = document.querySelectorAll('.shape');
+            shapes.forEach((shape, index) => {
+                const speed = (index + 1) * 0.01;
+                const x = e.clientX * speed;
+                const y = e.clientY * speed;
+                shape.style.transform = `translate(${x}px, ${y}px)`;
+            });
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Tab') {
+                const focusedElement = document.activeElement;
+                if (focusedElement.classList.contains('form-input')) {
+                    focusedElement.style.borderColor = '#667eea';
+                }
+            }
+        });
+    </script>
+</body>
+</html>

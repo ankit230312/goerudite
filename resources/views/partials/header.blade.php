@@ -55,7 +55,7 @@
                 </li>
 
                 <li class="nav-item">
-                     <a href="{{ route('login') }}" class="btn btn-getstarted">
+                     <a href="{{ route('login-register') }}" class="btn btn-getstarted">
                         Get Started
                      </a>
                 </li>

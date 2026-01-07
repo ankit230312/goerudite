@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\DashboardController;
 
 Route::get('/', function () {
     return view('home');
@@ -15,6 +16,33 @@ Route::get('pricing', [HomeController::class, 'pricing'])->name('pricing');
 Route::get('about-us', [HomeController::class, 'about'])->name('about');
 Route::get('contact-us', [HomeController::class, 'contact'])->name('contact');
 Route::get('catalog', [HomeController::class, 'catalog'])->name('catalog');
-Route::get('login', [HomeController::class, 'login'])->name('login');
 
+
+Route::get('login-register', [HomeController::class, 'login_register'])->name('login-register');
 Route::post('register-user', [HomeController::class, 'store'])->name('user.register');
+
+Route::get('login', [HomeController::class, 'login'])->name('login');
+Route::post('login-submit', [HomeController::class, 'login_submit'])->name('login.submit');
+Route::get('logout', [HomeController::class, 'logout'])->name('logout');
+
+
+// admin panel
+Route::middleware(['auth', 'role:administrator'])->group(function () {
+    Route::get('/admin/dashboard', [DashboardController::class, 'admin'])->name('admin.dashboard');
+});
+
+// distributor panel
+Route::middleware(['auth', 'role:distributor'])->group(function () {
+    Route::get('/distributor/dashboard', [DashboardController::class, 'distributor'])->name('distributor.dashboard');
+});
+
+// retailer panel
+Route::middleware(['auth', 'role:retailer'])->group(function () {
+    Route::get('/retailer/dashboard', [DashboardController::class, 'retailer'])->name('retailer.dashboard');
+});
+
+// publisher panel
+Route::middleware(['auth', 'role:publisher'])->group(function () {
+    Route::get('/publisher/dashboard', [DashboardController::class, 'publisher'])->name('publisher.dashboard');
+});
+

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 
 
@@ -55,6 +56,11 @@ class HomeController extends Controller
         ]);
     }
 
+    public function login_register()
+    {
+        return view('login-register');
+    }
+
     public function login()
     {
         return view('login');
@@ -100,5 +106,47 @@ class HomeController extends Controller
         User::create($data);
 
         return back()->with('success', 'Application submitted successfully');
+    }
+
+    public function login_submit(Request $request)
+    {
+        $credentials = $request->validate([
+            'email'    => 'required|email',
+            'password' => 'required'
+        ]);
+
+        if (Auth::attempt($credentials)) {
+
+            $request->session()->regenerate();
+            $user = Auth::user();
+
+            // Role based redirect
+            switch ($user->role) {
+                case 'administrator':
+                    return redirect()->route('admin.dashboard');
+                case 'distributor':
+                    return redirect()->route('distributor.dashboard');
+                case 'retailer':
+                    return redirect()->route('retailer.dashboard');
+                case 'publisher':
+                    return redirect()->route('publisher.dashboard');
+                default:
+                    Auth::logout();
+                    return back()->withErrors(['email' => 'Invalid role']);
+            }
+        }
+
+        return back()->withErrors([
+            'email' => 'Invalid email or password',
+        ]);
+    }
+
+    public function logout(Request $request)
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect('login');
     }
 }
