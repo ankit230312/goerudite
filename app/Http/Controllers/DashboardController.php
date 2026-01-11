@@ -15,6 +15,11 @@ class DashboardController extends Controller
         return view('admin.dashboard');
     }
 
+    public function student_record()
+    {
+        return view('admin.student-record');
+    }
+
     public function distributor()
     {
         return view('distributor.dashboard');
@@ -29,4 +34,10 @@ class DashboardController extends Controller
     {
         return view('publisher.dashboard');
     }
+
+    public function profile()
+    {
+        return view('admin.profile');
+    }
+    
 }

@@ -7,7 +7,8 @@
 <nav>
     @if(auth()->user()->role === 'administrator')
         <a href="{{ route('admin.dashboard') }}" class="menu-item active">🏠 Admin Hub</a>
-        <a href="#" class="menu-item">👥 Student Records</a>
+        <a href="{{ route('admin.student_record') }}" class="menu-item">👥 Student Records</a>
+        <a href="{{ route('admin.profile') }}" class="menu-item">👥 School Profile</a>
         <a href="#" class="menu-item">📨 RFQ Inbox</a>
     @endif
 

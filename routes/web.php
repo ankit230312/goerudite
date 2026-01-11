@@ -29,6 +29,8 @@ Route::get('logout', [HomeController::class, 'logout'])->name('logout');
 // admin panel
 Route::middleware(['auth', 'role:administrator'])->group(function () {
     Route::get('/admin/dashboard', [DashboardController::class, 'admin'])->name('admin.dashboard');
+    Route::get('/admin/student-record', [DashboardController::class, 'student_record'])->name('admin.student_record');
+    Route::get('/admin/profile', [DashboardController::class, 'profile'])->name('admin.profile');
 });
 
 // distributor panel
