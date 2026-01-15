@@ -18,57 +18,57 @@
         </div>
 
         <!-- Form -->
-        <form>
+        <form id="profileForm" enctype="multipart/form-data">
 
             <div class="profile-grid">
                 <div>
                     <label>School Name / Institute Name</label>
-                    <input type="text">
+                    <input type="text" name="business_name" value="{{ $profile->business_name }}">
                 </div>
 
                 <div>
                     <label>School Type / Institute Type</label>
-                    <input type="text">
+                    <input type="text" name="school_type" value="{{ $profile->school_type }}">
                 </div>
 
                 <div>
                     <label>Email Address</label>
-                    <input type="email">
+                    <input type="email" name="email" value="{{ $profile->email }}">
                 </div>
 
                 <div>
                     <label>Mobile Number</label>
-                    <input type="text" value="+91">
+                    <input type="text" name="mobile" value="{{ $profile->mobile }}">
                 </div>
 
                 <div>
                     <label>Registered Address</label>
-                    <input type="text">
+                    <input type="text" name="address" value="{{ $profile->address }}">
                 </div>
 
                 <div>
                     <label>Total Students</label>
-                    <input type="number">
+                    <input type="number" name="total_students" value="{{ $profile->total_students }}">
                 </div>
 
                 <div>
                     <label>State</label>
-                    <input type="text">
+                    <input type="text" name="state" value="{{ $profile->state }}">
                 </div>
 
                 <div>
                     <label>Website Link</label>
-                    <input type="text">
+                    <input type="text" name="website" value="{{ $profile->website }}">
                 </div>
 
                 <div>
                     <label>Established In</label>
-                    <input type="text">
+                    <input type="text" name="established" value="{{ $profile->established }}">
                 </div>
 
                 <div>
                     <label>Board</label>
-                    <input type="text">
+                    <input type="text" name="board" value="{{ $profile->board }}">
                 </div>
                 <div>
                     <label>Password</label>
@@ -79,7 +79,7 @@
             <!-- About -->
             <div class="about-box">
                 <label>About</label>
-                <textarea rows="4"></textarea>
+                <textarea rows="4">{{ $profile->about }}</textarea>
             </div>
 
             <!-- Footer -->

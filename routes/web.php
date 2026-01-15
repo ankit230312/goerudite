@@ -30,6 +30,9 @@ Route::get('logout', [HomeController::class, 'logout'])->name('logout');
 Route::middleware(['auth', 'role:administrator'])->group(function () {
     Route::get('/admin/dashboard', [DashboardController::class, 'admin'])->name('admin.dashboard');
     Route::get('/admin/student-record', [DashboardController::class, 'student_record'])->name('admin.student_record');
+    Route::post('/admin/save-class', [DashboardController::class, 'save_class'])->name('admin.save-class');
+    Route::post('/admin/update-class', [DashboardController::class, 'update_class'])->name('admin.class.update');
+    Route::post('/admin/delete-class', [DashboardController::class, 'delete_class'])->name('admin.class.delete');
     Route::get('/admin/profile', [DashboardController::class, 'profile'])->name('admin.profile');
 });
 
