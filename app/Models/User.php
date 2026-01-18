@@ -22,6 +22,7 @@ class User extends Authenticatable
         'business_name',
         'contact_person',
         'publisher_type',
+        'school_type',
         'business_category',
         'mobile',
         'email',
@@ -32,7 +33,13 @@ class User extends Authenticatable
         'state',
         'pincode',
         'document',
-        'password'
+        'password',
+        'total_students',
+        'website_link',
+        'established',
+        'board',
+        'about',
+        'profile'
     ];
 
     /**

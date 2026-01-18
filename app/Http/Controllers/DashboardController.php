@@ -147,5 +147,49 @@ class DashboardController extends Controller
         $profile = User::find(auth()->id());
         return view('admin.profile',compact('profile'));
     }
+
+    public function update_profile(Request $request)
+    {
+        try {
+    
+            $data = $request->validate([
+                'business_name' => 'required',
+                'school_type' => 'nullable',
+                'email' => 'required|email',
+                'mobile' => 'required',
+                'address' => 'nullable',
+                'total_students' => 'nullable|numeric',
+                'state' => 'nullable',
+                'website_link' => 'nullable',
+                'established' => 'nullable',
+                'board' => 'nullable',
+                'about' => 'nullable',
+                'profile' => 'nullable|image|max:2048',
+            ]);
+
+            if ($request->hasFile('profile')) {
+                $data['profile'] = $request->file('profile')->store('profiles','public');
+            }
+
+            User::updateOrCreate(
+                ['id' => auth()->id()],
+                $data
+            );
+
+            return response()->json(['status' => true]);
+        } catch (\Exception $e) {
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function rfq_inbox()
+    {
+        return view('admin.rfq-inbox');
+    }
     
 }

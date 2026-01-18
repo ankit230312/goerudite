@@ -34,6 +34,9 @@ Route::middleware(['auth', 'role:administrator'])->group(function () {
     Route::post('/admin/update-class', [DashboardController::class, 'update_class'])->name('admin.class.update');
     Route::post('/admin/delete-class', [DashboardController::class, 'delete_class'])->name('admin.class.delete');
     Route::get('/admin/profile', [DashboardController::class, 'profile'])->name('admin.profile');
+    Route::post('/admin/profile/update', [DashboardController::class, 'update_profile'])->name('admin.profile.update');
+
+    Route::get('/admin/rfq-inbox', [DashboardController::class, 'rfq_inbox'])->name('admin.rfq_inbox');
 });
 
 // distributor panel

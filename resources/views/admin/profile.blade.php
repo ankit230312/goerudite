@@ -12,8 +12,13 @@
         <div class="profile-header">
             <div></div>
             <div class="logo-upload">
-                <div class="logo-circle"></div>
-                <span class="change-logo">Change Logo</span>
+                <div class="logo-circle"
+                    style="background-image:url('{{ asset('storage/'.$profile->profile) }}')"></div>
+
+                    <span class="change-logo" onclick="document.getElementById('logoInput').click()">
+                        Change Logo
+                    </span>
+                
             </div>
         </div>
 
@@ -58,7 +63,7 @@
 
                 <div>
                     <label>Website Link</label>
-                    <input type="text" name="website" value="{{ $profile->website }}">
+                    <input type="text" name="website_link" value="{{ $profile->website_link }}">
                 </div>
 
                 <div>
@@ -70,17 +75,18 @@
                     <label>Board</label>
                     <input type="text" name="board" value="{{ $profile->board }}">
                 </div>
-                <div>
+                <!-- <div>
                     <label>Password</label>
                     <input type="password">
-                </div>
+                </div> -->
             </div>
 
             <!-- About -->
             <div class="about-box">
                 <label>About</label>
-                <textarea rows="4">{{ $profile->about }}</textarea>
+                <textarea rows="4" name="about">{{ $profile->about }}</textarea>
             </div>
+            <input type="file" name="profile" hidden id="logoInput">
 
             <!-- Footer -->
             <div class="profile-footer">
@@ -96,6 +102,33 @@
     </div>
 
 </main>
+
+<script>
+document.getElementById('profileForm').addEventListener('submit', function(e){
+    e.preventDefault();
+
+    let formData = new FormData(this);
+
+    fetch("{{ route('admin.profile.update') }}", {
+        method: "POST",
+        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.status){
+            Toastify({
+                text: "Profile updated successfully",
+                duration: 3000,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "linear-gradient(135deg,#0f9b0f,#00ff87)"
+            }).showToast();
+            setTimeout(() => location.reload(), 800);
+        }
+    });
+});
+</script>
 
 
 @endsection
