@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use App\Models\User;
 use App\Models\SchoolClass;
+use App\Models\Rfq;
 
 
 class DashboardController extends Controller
@@ -189,7 +190,79 @@ class DashboardController extends Controller
 
     public function rfq_inbox()
     {
-        return view('admin.rfq-inbox');
+        $activeRfqs = Rfq::where('status', 'active')->where('user_id', auth()->id())->get();
+        $historyRfqs = Rfq::where('status', 'closed')->where('user_id', auth()->id())->get();
+        return view('admin.rfq-inbox', compact('activeRfqs', 'historyRfqs'));
     }
-    
+
+    public function store_rfq(Request $request)
+    {
+        $request->validate([
+            'school_name' => 'required',
+            'city' => 'required',
+            'academic_session' => 'required',
+            'books' => 'required|array',
+            'delivery_from' => 'required|date',
+            'delivery_to' => 'required|date',
+            'urgency' => 'required',
+            'evaluation_criteria' => 'required|array',
+            'rfq_closing_date' => 'required|date',
+            'notes' => 'nullable',
+            'confirm_rfq' => 'required|accepted'
+        ]);
+
+        Rfq::create([
+            'user_id' => auth()->id(),
+            'school_name' => $request->school_name,
+            'city' => $request->city,
+            'academic_session' => $request->academic_session,
+            'books' => $request->books,
+            'delivery_from' => $request->delivery_from,
+            'delivery_to' => $request->delivery_to,
+            'urgency' => $request->urgency,
+            'evaluation_criteria' => $request->evaluation_criteria,
+            'rfq_closing_date' => $request->rfq_closing_date,
+            'notes' => $request->notes,
+            'confirmed' => true,
+        ]);
+
+        return response()->json(['status' => true, 'message' => 'RFQ created successfully']);
+    }
+
+    public function update_rfq(Request $request, $id)
+    {
+        $rfq = Rfq::where('id', $id)->where('user_id', auth()->id())->firstOrFail();
+
+        $request->validate([
+            'school_name' => 'required',
+            'city' => 'required',
+            'academic_session' => 'required',
+            'books' => 'required|array',
+            'delivery_from' => 'required|date',
+            'delivery_to' => 'required|date',
+            'urgency' => 'required',
+            'evaluation_criteria' => 'required|array',
+            'rfq_closing_date' => 'required|date',
+            'notes' => 'nullable',
+        ]);
+
+        $rfq->update($request->all());
+
+        return response()->json(['status' => true, 'message' => 'RFQ updated successfully']);
+    }
+
+    public function close_rfq($id)
+    {
+        $rfq = Rfq::where('id', $id)->where('user_id', auth()->id())->firstOrFail();
+        $rfq->update(['status' => 'closed']);
+
+        return response()->json(['status' => true, 'message' => 'RFQ closed successfully']);
+    }
+
+    public function rfq_details($id)
+    {
+        $rfq = Rfq::where('id', $id)->where('user_id', auth()->id())->firstOrFail();
+        return response()->json(['success' => true, 'rfq' => $rfq]);
+    }
+
 }

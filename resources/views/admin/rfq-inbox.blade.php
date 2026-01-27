@@ -1,6 +1,207 @@
 @extends('layouts.dashboard')
 
 @section('content')
+    <style>
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.55);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+        }
+
+        .modal-box.rfq-box {
+            width: 95%;
+            max-width: 1100px;
+            background: #fff;
+            border-radius: 14px;
+            padding: 22px 26px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+
+        .rfq-header-modal {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #000;
+            padding: 14px 18px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .rfq-header-modal h3 {
+            color: #fff;
+            font-size: 18px;
+        }
+
+        .btn-save {
+            background: #ff7a18;
+            border: none;
+            color: #fff;
+            padding: 6px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+       .form-title {
+            font-size: 15px;
+            font-weight: 600;
+            margin: 20px 0 10px;
+            color: #ff6b1a; 
+            /* #ff6b1a */
+        }
+
+
+        .rfq-basic-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        @media(max-width: 900px) {
+            .rfq-basic-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media(max-width: 600px) {
+            .rfq-basic-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+
+        .rfq-box label {
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .rfq-box input[type="text"],
+        .rfq-box input[type="number"],
+        .rfq-box input[type="date"],
+        .rfq-box select,
+        .rfq-box textarea {
+            width: 100%;
+            padding: 9px 10px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 13px;
+        }
+
+        .rfq-box input[type="checkbox"] {
+            width: auto;
+            margin-right: 8px;
+        }
+
+        .rfq-box textarea {
+            resize: none;
+        }
+
+
+        .book-row {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr 1fr 1fr 1fr 80px 20px;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        .book-row select,
+        .book-row input {
+            font-size: 13px;
+        }
+
+        .delete-book {
+            background: none;
+            border: none;
+            color: #ff4d4f;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+
+        .add-title-btn {
+            background: #fff;
+            border: 1px dashed #ff7a18;
+            color: #ff7a18;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+
+        .rfq-checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .rfq-checkbox-grid label {
+            font-size: 13px;
+        }
+
+
+        .confirmation-box {
+            background: #fff8f2;
+            border: 1px solid #ffd8b5;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-top: 15px;
+        }
+
+
+        .rfq-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 25px;
+            flex-wrap: wrap;        
+            gap: 10px;
+        }
+
+        .footer-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-dark {
+            background: #222;
+            color: #fff;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 8px;
+        }
+
+        .btn-outline {
+            border: 1px solid #ff7a18;
+            background: #fff;
+            color: #ff7a18;
+            padding: 8px 14px;
+            border-radius: 8px;
+        }
+
+        .btn-solid {
+            background: #ff7a18;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+        }
+
+        
+        
+    </style>
 
     <main class="content">
 
@@ -20,60 +221,84 @@
 
         <!-- ACTIVE RFQs -->
         <div id="activeTab" class="rfq-list">
-
+            @forelse($activeRfqs as $rfq)
             <div class="rfq-card">
                 <div class="rfq-left">
-                    <span class="rfq-id">RFQ-101</span>
-                    <span class="status open">Open</span>
+                    <span class="rfq-id">RFQ-{{ $rfq->id }}</span>
+                    <span class="status open">{{ ucfirst($rfq->status) }}</span>
 
-                    <h4>CBSE Class 10 Complete Set</h4>
+                    <h4>{{ $rfq->school_name }} - {{ $rfq->academic_session }}</h4>
 
                     <div class="rfq-meta">
-                        <span>📅 2024-03-10</span>
-                        <span>📦 Quantity: 500</span>
+                        <span>📅 {{ $rfq->created_at->format('Y-m-d') }}</span>
+                        <span>📦 Books: {{ count($rfq->books) }}</span>
                     </div>
                 </div>
 
                 <div class="rfq-right">
                     <div class="quote-count">
-                        <strong>3</strong>
+                        <strong>0</strong>
                         <span>Quotes Received</span>
                     </div>
-                    <a href="#" class="view-link">View Details ➜</a>
+                    <a href="#" class="view-link" onclick="viewDetails({{ $rfq->id }})">View Details ➜</a>
                 </div>
             </div>
-
+            @empty
+            <p>No active RFQs found.</p>
+            @endforelse
         </div>
 
         <!-- HISTORY RFQs -->
         <div id="historyTab" class="rfq-list" style="display:none;">
-
+            @forelse($historyRfqs as $rfq)
             <div class="rfq-card">
                 <div class="rfq-left">
-                    <span class="rfq-id">RFQ-102</span>
-                    <span class="status closed">Closed</span>
+                    <span class="rfq-id">RFQ-{{ $rfq->id }}</span>
+                    <span class="status closed">{{ ucfirst($rfq->status) }}</span>
 
-                    <h4>ICSE Math Lab Manuals</h4>
+                    <h4>{{ $rfq->school_name }} - {{ $rfq->academic_session }}</h4>
 
                     <div class="rfq-meta">
-                        <span>📅 2024-03-12</span>
-                        <span>📦 Quantity: 150</span>
+                        <span>📅 {{ $rfq->created_at->format('Y-m-d') }}</span>
+                        <span>📦 Books: {{ count($rfq->books) }}</span>
                     </div>
                 </div>
 
                 <div class="rfq-right">
                     <div class="quote-count">
-                        <strong>5</strong>
+                        <strong>0</strong>
                         <span>Quotes Received</span>
                     </div>
-                    <a href="#" class="view-link">View Details ➜</a>
+                    <a href="#" class="view-link" onclick="viewDetails({{ $rfq->id }})">View Details ➜</a>
                 </div>
             </div>
-
+            @empty
+            <p>No history RFQs found.</p>
+            @endforelse
         </div>
 
     </main>
 
+    <!-- view details modal -->
+    <div id="viewDetailsModal" class="modal">
+        <div class="modal-box rfq-box">
+            <div class="rfq-header-modal">
+                <h3>RFQ Details</h3>
+                <button class="btn-save" onclick="editRfq()">Edit</button>
+            </div>
+
+            <div id="detailsContent">
+                <!-- Details will be loaded here -->
+            </div>
+
+            <div class="rfq-footer">
+                <button class="btn-dark" onclick="closeRfq()">Close RFQ</button>
+                <div class="footer-actions">
+                    <button class="btn-outline" onclick="closeModal();">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- create rfq modal -->
     <div id="createRfqModal" class="modal">
@@ -85,53 +310,110 @@
                 <button class="btn-save">Save</button>
             </div>
 
-            <!-- BASIC INFO -->
-            <div class="rfq-basic-grid">
-                <div>
-                    <label>Class</label>
-                    <input type="text" placeholder="Enter Class">
+            <form id="rfqForm">
+                @csrf
+                <!-- BASIC INFO -->
+                <h5 class="form-title">School Identification</h5>
+                <div class="rfq-basic-grid">
+                    <div>
+                        <label>School Name</label>
+                        <input type="text" name="school_name" value="{{ auth()->user()->business_name ?? '' }}" readonly>
+                    </div>
+
+                    <div>
+                        <label>City</label>
+                        <input type="text" name="city" placeholder="Enter City Name" required>
+                    </div>
+
+                    <div>
+                        <label>Academic Session</label>
+                        <select name="academic_session" required>
+                            <option value="">Select Academic Session</option>
+                            <option value="2024-25">2024-25</option>
+                            <option value="2025-26">2025-26</option>
+                            <option value="2026-27">2026-27</option>
+                            <option value="2027-28">2027-28</option>
+                        </select>
+                    </div>
                 </div>
 
-                <div>
-                    <label>Class Strength (Total Quantity)</label>
-                    <input type="number" placeholder="Total Quantity">
+                <!-- BOOKS SECTION -->
+                <h5 class="form-title">Book Requirement</h5>
+                <div id="booksWrapper">
+                    <div class="book-row">
+                        <input type="text" name="class_name[]" placeholder="Class Name" required>
+                        <input type="text" name="subject[]" placeholder="Subject" required>
+                        <input type="text" name="book_title[]" placeholder="Book Title" required>
+                        <select name="publisher[]">
+                            <option>Publisher</option>
+                            <option>NCERT</option>
+                            <option>Oxford</option>
+                            <option>Other</option>
+                        </select>
+                        <input type="text" name="edition[]" placeholder="Edition / Year">
+                        <input type="number" name="quantity[]" placeholder="Qty" required min="1">
+                        <button type="button" class="delete-book">🗑</button>
+                    </div>
                 </div>
 
-                <div>
-                    <label>Session</label>
-                    <input type="text" placeholder="2024-25">
+                <button type="button" class="add-title-btn" onclick="addBookRow()">+ Add Title</button>
+                <h5 class="form-title">Timeline & Priority</h5>
+
+                <div class="rfq-basic-grid">
+                    <div>
+                        <label>Delivery From</label>
+                        <input type="date" name="delivery_from" required>
+                    </div>
+
+                    <div>
+                        <label>Delivery To</label>
+                        <input type="date" name="delivery_to" required>
+                    </div>
+
+                    <div>
+                        <label>Urgency Level</label>
+                        <select name="urgency" required>
+                            <option>Normal</option>
+                            <option>Time-sensitive</option>
+                            <option>Flexible</option>
+                        </select>
+                    </div>
                 </div>
-            </div>
 
-            <!-- BOOKS SECTION -->
-            <h4 class="section-title">Class Books & Materials</h4>
+                <h5 class="form-title">Comparison & Closure</h5>
 
-            <div id="booksWrapper">
-
-                <div class="book-row">
-                    <input type="text" placeholder="Books Name / Subject">
-                    <input type="text" placeholder="Preference (CBSE / ICSE / State)">
-                    <select>
-                        <option>English</option>
-                        <option>Hindi</option>
-                        <option>Regional</option>
-                    </select>
-                    <button class="delete-book">🗑</button>
+                <div class="rfq-checkbox-grid">
+                    <label><input type="checkbox" name="evaluation[]" value="price"> Price</label>
+                    <label><input type="checkbox" name="evaluation[]" value="delivery"> Delivery Timeline</label>
+                    <label><input type="checkbox" name="evaluation[]" value="publisher"> Publisher Availability</label>
+                    <label><input type="checkbox" name="evaluation[]" value="relationship"> Existing Relationship</label>
                 </div>
 
-            </div>
-
-            <button class="add-title-btn" onclick="addBookRow()">+ Add Title</button>
-
-            <!-- FOOTER -->
-            <div class="rfq-footer">
-                <button class="btn-dark">+ Add Another Class Set</button>
-
-                <div class="footer-actions">
-                    <button class="btn-outline" onclick="closeModal();">Cancel</button>
-                    <button class="btn-solid">Publish Class Wise RFQ</button>
+                <div style="margin-top:10px;">
+                    <label>RFQ Closing Date</label>
+                    <input type="date" name="rfq_closing_date" required>
                 </div>
-            </div>
+
+                <h5 class="form-title">Additional Notes</h5>
+                <textarea name="notes" rows="3" placeholder="Optional notes for suppliers"></textarea>
+
+                <div class="confirmation-box">
+                    <label>
+                        <input type="checkbox" name="confirm_rfq" required>
+                        I confirm that this RFQ is created by the school for quotation purposes only.
+                    </label>
+                </div>
+
+                <!-- FOOTER -->
+                <div class="rfq-footer">
+                    <button type="button" class="btn-dark">+ Add Another Class Set</button>
+
+                    <div class="footer-actions">
+                        <button type="button" class="btn-outline" onclick="closeModal();">Cancel</button>
+                        <button type="button" class="btn-solid" onclick="submitRfqForm()">Publish Class Wise RFQ</button>
+                    </div>
+                </div>
+            </form>
 
         </div>
     </div>
@@ -158,13 +440,17 @@
         function addBookRow() {
             let row = `
             <div class="book-row">
-                <input type="text" placeholder="Books Name / Subject">
-                <input type="text" placeholder="Preference">
-                <select>
-                    <option>English</option>
-                    <option>Hindi</option>
-                    <option>Regional</option>
+                <input type="text" placeholder="Class Name">
+                <input type="text" placeholder="Subject">
+                <input type="text" placeholder="Book Title">
+                <select name="publisher[]">
+                    <option>Publisher</option>
+                    <option>NCERT</option>
+                    <option>Oxford</option>
+                    <option>Other</option>
                 </select>
+                <input type="text" name="edition[]" placeholder="Edition / Year">
+                <input type="number" name="quantity[]" placeholder="Qty">
                 <button class="delete-book" onclick="this.parentElement.remove()">🗑</button>
             </div>`;
             document.getElementById('booksWrapper').insertAdjacentHTML('beforeend', row);
@@ -176,6 +462,120 @@
 
         function closeModal() {
             document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+        }
+
+        function viewDetails(id) {
+            fetch(`/admin/rfq-details/${id}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const rfq = data.rfq;
+                        let content = `
+                            <h5>School: ${rfq.school_name}</h5>
+                            <p>City: ${rfq.city}</p>
+                            <p>Session: ${rfq.academic_session}</p>
+                            <p>Delivery: ${rfq.delivery_from} to ${rfq.delivery_to}</p>
+                            <p>Urgency: ${rfq.urgency}</p>
+                            <p>Closing Date: ${rfq.rfq_closing_date}</p>
+                            <p>Notes: ${rfq.notes || 'N/A'}</p>
+                            <h6>Books:</h6>
+                            <ul>
+                        `;
+                        rfq.books.forEach(book => {
+                            content += `<li>${book.class_name} - ${book.subject} - ${book.book_title} (${book.quantity})</li>`;
+                        });
+                        content += '</ul>';
+                        document.getElementById('detailsContent').innerHTML = content;
+                        const modal = document.getElementById('viewDetailsModal');
+                        modal.dataset.rfqId = id;
+                        modal.style.display = 'flex';
+                    }
+                });
+        }
+
+        function editRfq() {
+            // Implement edit functionality - could open the create modal in edit mode
+            alert('Edit functionality to be implemented');
+        }
+
+        function closeRfq() {
+            if (confirm('Are you sure you want to close this RFQ?')) {
+                const id = document.querySelector('#viewDetailsModal').dataset.rfqId;
+                fetch(`/admin/close-rfq/${id}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status) {
+                        alert('RFQ closed successfully');
+                        location.reload();
+                    }
+                });
+            }
+        }
+
+        function submitRfqForm() {
+            const form = document.getElementById('rfqForm');
+            const formData = new FormData(form);
+
+            // Collect books data
+            const books = [];
+            const classNames = formData.getAll('class_name[]');
+            const subjects = formData.getAll('subject[]');
+            const bookTitles = formData.getAll('book_title[]');
+            const publishers = formData.getAll('publisher[]');
+            const editions = formData.getAll('edition[]');
+            const quantities = formData.getAll('quantity[]');
+
+            for (let i = 0; i < classNames.length; i++) {
+                books.push({
+                    class_name: classNames[i],
+                    subject: subjects[i],
+                    book_title: bookTitles[i],
+                    publisher: publishers[i],
+                    edition: editions[i],
+                    quantity: quantities[i]
+                });
+            }
+
+            formData.append('books', JSON.stringify(books));
+
+            // Show loading
+            const submitBtn = document.querySelector('#rfqForm button[type="button"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Submitting...';
+            submitBtn.disabled = true;
+
+            fetch('/admin/store-rfq', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                     'X-CSRF-TOKEN': document.querySelector('input[name=_token]').value
+                }
+                
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status) {
+                    alert('RFQ created successfully!');
+                    closeModal();
+                    location.reload();
+                } else {
+                    alert('Error: ' + (data.message || 'Something went wrong'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Network error. Please try again.');
+            })
+            .finally(() => {
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            });
         }
     </script>
 
