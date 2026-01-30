@@ -199,6 +199,61 @@
             border-radius: 8px;
         }
 
+        /* View Details Modal Enhancements */
+        .rfq-details-content {
+            display: grid;
+            gap: 20px;
+        }
+
+        .rfq-details-section {
+            background: #f9f9f9;
+            border-radius: 10px;
+            padding: 15px;
+            border-left: 4px solid #ff7a18;
+        }
+
+        .rfq-details-section h5 {
+            margin: 0 0 10px 0;
+            color: #333;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .rfq-details-section p {
+            margin: 5px 0;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .rfq-details-section h6 {
+            margin: 15px 0 10px 0;
+            color: #ff6b1a;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .rfq-details-section ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .rfq-details-section li {
+            background: #fff;
+            margin-bottom: 8px;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+            font-size: 13px;
+            color: #444;
+        }
+
+        .rfq-details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
         
         
     </style>
@@ -231,7 +286,7 @@
 
                     <div class="rfq-meta">
                         <span>📅 {{ $rfq->created_at->format('Y-m-d') }}</span>
-                        <span>📦 Books: {{ count($rfq->books) }}</span>
+                        <span>📦 Books: {{ count(json_decode($rfq->books, true) ?? []) }}</span>
                     </div>
                 </div>
 
@@ -260,7 +315,7 @@
 
                     <div class="rfq-meta">
                         <span>📅 {{ $rfq->created_at->format('Y-m-d') }}</span>
-                        <span>📦 Books: {{ count($rfq->books) }}</span>
+                        <span>📦 Books: {{ count(json_decode($rfq->books, true) ?? []) }}</span>
                     </div>
                 </div>
 
@@ -284,7 +339,7 @@
         <div class="modal-box rfq-box">
             <div class="rfq-header-modal">
                 <h3>RFQ Details</h3>
-                <button class="btn-save" onclick="editRfq()">Edit</button>
+                <!-- <button clasy'/s="btn-save" onclick="editRfq()">Edit</button> -->
             </div>
 
             <div id="detailsContent">
@@ -292,9 +347,30 @@
             </div>
 
             <div class="rfq-footer">
-                <button class="btn-dark" onclick="closeRfq()">Close RFQ</button>
+                <button class="btn-dark" onclick="openCloseRfqModal()">Close RFQ</button>
                 <div class="footer-actions">
                     <button class="btn-outline" onclick="closeModal();">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- close rfq confirmation modal -->
+    <div id="closeRfqModal" class="modal">
+        <div class="modal-box" style="max-width: 400px;">
+            <div class="rfq-header-modal">
+                <h3>Confirm Close RFQ</h3>
+            </div>
+
+            <div style="padding: 20px; text-align: center;">
+                <p style="margin-bottom: 20px; color: #555;">Are you sure you want to close this RFQ?</p>
+                <p style="font-size: 12px; color: #777;">This action cannot be undone.</p>
+            </div>
+
+            <div class="rfq-footer">
+                <div class="footer-actions">
+                    <button class="btn-outline" onclick="closeModal();">Cancel</button>
+                    <button class="btn-dark" onclick="confirmCloseRfq()">Close RFQ</button>
                 </div>
             </div>
         </div>
@@ -464,27 +540,56 @@
             document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
         }
 
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}-${month}-${year}`;
+        }
+
         function viewDetails(id) {
             fetch(`/admin/rfq-details/${id}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
                         const rfq = data.rfq;
+                        let books = rfq.books;
+
+                        // convert string → array
+                        if (typeof books === 'string') {
+                            books = JSON.parse(books);
+                        }
+
                         let content = `
-                            <h5>School: ${rfq.school_name}</h5>
-                            <p>City: ${rfq.city}</p>
-                            <p>Session: ${rfq.academic_session}</p>
-                            <p>Delivery: ${rfq.delivery_from} to ${rfq.delivery_to}</p>
-                            <p>Urgency: ${rfq.urgency}</p>
-                            <p>Closing Date: ${rfq.rfq_closing_date}</p>
-                            <p>Notes: ${rfq.notes || 'N/A'}</p>
-                            <h6>Books:</h6>
-                            <ul>
+                            <div class="rfq-details-content">
+                                <div class="rfq-details-grid">
+                                    <div class="rfq-details-section">
+                                        <h5>School Information</h5>
+                                        <p><strong>School:</strong> ${rfq.school_name}</p>
+                                        <p><strong>City:</strong> ${rfq.city}</p>
+                                        <p><strong>Session:</strong> ${rfq.academic_session}</p>
+                                    </div>
+                                    <div class="rfq-details-section">
+                                        <h5>Timeline & Priority</h5>
+                                        <p><strong>Delivery:</strong> ${formatDate(rfq.delivery_from)} to ${formatDate(rfq.delivery_to)}</p>
+                                        <p><strong>Urgency:</strong> ${rfq.urgency}</p>
+                                        <p><strong>Closing Date:</strong> ${formatDate(rfq.rfq_closing_date)}</p>
+                                    </div>
+                                </div>
+                                <div class="rfq-details-section">
+                                    <h5>Additional Notes</h5>
+                                    <p>${rfq.notes || 'N/A'}</p>
+                                </div>
+                                <div class="rfq-details-section">
+                                    <h6>Book Requirements</h6>
+                                    <ul>
                         `;
-                        rfq.books.forEach(book => {
-                            content += `<li>${book.class_name} - ${book.subject} - ${book.book_title} (${book.quantity})</li>`;
+
+                        books.forEach(book => {
+                            content += `<li><strong>${book.class_name} - ${book.subject}</strong><br>${book.book_title} (${book.quantity})</li>`;
                         });
-                        content += '</ul>';
+                        content += '</ul></div></div>';
                         document.getElementById('detailsContent').innerHTML = content;
                         const modal = document.getElementById('viewDetailsModal');
                         modal.dataset.rfqId = id;
@@ -495,27 +600,27 @@
 
         function editRfq() {
             // Implement edit functionality - could open the create modal in edit mode
-            alert('Edit functionality to be implemented');
         }
 
-        function closeRfq() {
-            if (confirm('Are you sure you want to close this RFQ?')) {
-                const id = document.querySelector('#viewDetailsModal').dataset.rfqId;
-                fetch(`/admin/close-rfq/${id}`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Content-Type': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status) {
-                        alert('RFQ closed successfully');
-                        location.reload();
-                    }
-                });
-            }
+        function openCloseRfqModal() {
+            document.getElementById('closeRfqModal').style.display = 'flex';
+        }
+
+        function confirmCloseRfq() {
+            const id = document.querySelector('#viewDetailsModal').dataset.rfqId;
+            fetch(`/admin/close-rfq/${id}`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('input[name=_token]').value,
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status) {
+                    location.reload();
+                }
+            });
         }
 
         function submitRfqForm() {
@@ -561,16 +666,12 @@
             .then(response => response.json())
             .then(data => {
                 if (data.status) {
-                    alert('RFQ created successfully!');
                     closeModal();
                     location.reload();
-                } else {
-                    alert('Error: ' + (data.message || 'Something went wrong'));
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Network error. Please try again.');
             })
             .finally(() => {
                 submitBtn.textContent = originalText;

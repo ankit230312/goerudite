@@ -10,6 +10,7 @@ use Illuminate\Validation\ValidationException;
 use App\Models\User;
 use App\Models\SchoolClass;
 use App\Models\Rfq;
+use App\Models\PurchaseRecord;
 
 
 class DashboardController extends Controller
@@ -197,36 +198,50 @@ class DashboardController extends Controller
 
     public function store_rfq(Request $request)
     {
-        $request->validate([
-            'school_name' => 'required',
-            'city' => 'required',
-            'academic_session' => 'required',
-            'books' => 'required|array',
-            'delivery_from' => 'required|date',
-            'delivery_to' => 'required|date',
-            'urgency' => 'required',
-            'evaluation_criteria' => 'required|array',
-            'rfq_closing_date' => 'required|date',
-            'notes' => 'nullable',
-            'confirm_rfq' => 'required|accepted'
-        ]);
+        try {
 
-        Rfq::create([
-            'user_id' => auth()->id(),
-            'school_name' => $request->school_name,
-            'city' => $request->city,
-            'academic_session' => $request->academic_session,
-            'books' => $request->books,
-            'delivery_from' => $request->delivery_from,
-            'delivery_to' => $request->delivery_to,
-            'urgency' => $request->urgency,
-            'evaluation_criteria' => $request->evaluation_criteria,
-            'rfq_closing_date' => $request->rfq_closing_date,
-            'notes' => $request->notes,
-            'confirmed' => true,
-        ]);
+            $books = json_decode($request->books, true);
+            $request->merge(['books' => $books,'evaluation_criteria' => $request->evaluation]);
+            $request->validate([
+                'school_name' => 'required',
+                'city' => 'required',
+                'academic_session' => 'required',
+                'books' => 'required|array',
+                'delivery_from' => 'required|date',
+                'delivery_to' => 'required|date',
+                'urgency' => 'required',
+                'evaluation_criteria' => 'required|array',
+                'rfq_closing_date' => 'required|date',
+                'notes' => 'nullable',
+                'confirm_rfq' => 'required|accepted'
+            ]);
 
-        return response()->json(['status' => true, 'message' => 'RFQ created successfully']);
+            
+
+            Rfq::create([
+                'user_id' => auth()->id(),
+                'school_name' => $request->school_name,
+                'city' => $request->city,
+                'academic_session' => $request->academic_session,
+                'books' => json_encode($books),
+                'delivery_from' => $request->delivery_from,
+                'delivery_to' => $request->delivery_to,
+                'urgency' => $request->urgency,
+                'evaluation_criteria' => json_encode($request->evaluation_criteria),
+                'rfq_closing_date' => $request->rfq_closing_date,
+                'notes' => $request->notes,
+                'confirmed' => true,
+            ]);
+
+            return response()->json(['status' => true, 'message' => 'RFQ created successfully']);
+         } catch (\Exception $e) {
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     public function update_rfq(Request $request, $id)
@@ -263,6 +278,177 @@ class DashboardController extends Controller
     {
         $rfq = Rfq::where('id', $id)->where('user_id', auth()->id())->firstOrFail();
         return response()->json(['success' => true, 'rfq' => $rfq]);
+    }
+
+    public function manage_records()
+    {
+        $purchase_records = PurchaseRecord::where('user_id', auth()->id())->latest()->get();
+        return view('admin.manage-records', compact('purchase_records'));
+    }
+
+    public function save_purchase_record(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'record_name' => 'required|string|max:255',
+                'invoice_no' => 'nullable|string|max:255',
+                'purchase_date' => 'required|date',
+                'item_name' => 'required|string|max:255',
+                'gst_details' => 'nullable|string|max:255',
+                'delivery_status' => 'required|in:delivered,pending,cancelled',
+                'payment_status' => 'required|in:paid,pending,partial',
+                'supplier' => 'required|string|max:255',
+                'quantity' => 'required|integer|min:1',
+                'amount' => 'required|numeric|min:0',
+                'invoice_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+                'return_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+                'document_name' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            ]);
+
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
+
+            $data = $validator->validated();
+            $data['user_id'] = auth()->id();
+
+            // Handle file uploads
+            if ($request->hasFile('invoice_file')) {
+                $data['invoice_file'] = $request->file('invoice_file')->store('purchase_records', 'public');
+            }
+            if ($request->hasFile('return_file')) {
+                $data['return_file'] = $request->file('return_file')->store('purchase_records', 'public');
+            }
+            if ($request->hasFile('document_name')) {
+                $data['document_name'] = $request->file('document_name')->store('purchase_records', 'public');
+            }
+
+            PurchaseRecord::create($data);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Purchase record saved successfully'
+            ]);
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => false,
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function update_purchase_record(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'id' => 'required|exists:purchase_records,id',
+                'record_name' => 'required|string|max:255',
+                'invoice_no' => 'nullable|string|max:255',
+                'purchase_date' => 'required|date',
+                'item_name' => 'required|string|max:255',
+                'gst_details' => 'nullable|string|max:255',
+                'delivery_status' => 'required|in:delivered,pending,cancelled',
+                'payment_status' => 'required|in:paid,pending,partial',
+                'supplier' => 'required|string|max:255',
+                'quantity' => 'required|integer|min:1',
+                'amount' => 'required|numeric|min:0',
+                'invoice_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+                'return_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+                'document_name' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            ]);
+
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
+
+            $record = PurchaseRecord::where('id', $request->id)->where('user_id', auth()->id())->firstOrFail();
+
+            $data = $validator->validated();
+            unset($data['id']); // Remove id from data array
+
+            // Handle file uploads (only if new files are provided)
+            if ($request->hasFile('invoice_file')) {
+                $data['invoice_file'] = $request->file('invoice_file')->store('purchase_records', 'public');
+            }
+            if ($request->hasFile('return_file')) {
+                $data['return_file'] = $request->file('return_file')->store('purchase_records', 'public');
+            }
+            if ($request->hasFile('document_name')) {
+                $data['document_name'] = $request->file('document_name')->store('purchase_records', 'public');
+            }
+
+            $record->update($data);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Purchase record updated successfully'
+            ]);
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => false,
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function delete_purchase_record(Request $request)
+    {
+        try {
+            $record = PurchaseRecord::where('id', $request->id)->where('user_id', auth()->id())->firstOrFail();
+            $record->delete();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Purchase record deleted successfully'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function download_invoice($id)
+    {
+        try {
+            $record = PurchaseRecord::where('id', $id)->where('user_id', auth()->id())->firstOrFail();
+
+            if (!$record->invoice_file) {
+                return response()->json(['status' => false, 'message' => 'No invoice file found'], 404);
+            }
+
+            $filePath = storage_path('app/public/' . $record->invoice_file);
+
+            if (!file_exists($filePath)) {
+                return response()->json(['status' => false, 'message' => 'File not found'], 404);
+            }
+
+            return response()->download($filePath, basename($record->invoice_file));
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
 }

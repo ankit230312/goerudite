@@ -36,11 +36,19 @@ Route::middleware(['auth', 'role:administrator'])->group(function () {
     Route::get('/admin/profile', [DashboardController::class, 'profile'])->name('admin.profile');
     Route::post('/admin/profile/update', [DashboardController::class, 'update_profile'])->name('admin.profile.update');
 
-        Route::get('/admin/rfq-inbox', [DashboardController::class, 'rfq_inbox'])->name('admin.rfq_inbox');
-        Route::post('/admin/store-rfq', [DashboardController::class, 'store_rfq'])->name('admin.store_rfq');
-        Route::put('/admin/update-rfq/{id}', [DashboardController::class, 'update_rfq'])->name('admin.update_rfq');
-        Route::post('/admin/close-rfq/{id}', [DashboardController::class, 'close_rfq'])->name('admin.close_rfq');
-        Route::get('/admin/rfq-details/{id}', [DashboardController::class, 'rfq_details'])->name('admin.rfq_details');
+    Route::get('/admin/rfq-inbox', [DashboardController::class, 'rfq_inbox'])->name('admin.rfq_inbox');
+    Route::post('/admin/store-rfq', [DashboardController::class, 'store_rfq'])->name('admin.store_rfq');
+    Route::put('/admin/update-rfq/{id}', [DashboardController::class, 'update_rfq'])->name('admin.update_rfq');
+    Route::post('/admin/close-rfq/{id}', [DashboardController::class, 'close_rfq'])->name('admin.close_rfq');
+    Route::get('/admin/rfq-details/{id}', [DashboardController::class, 'rfq_details'])->name('admin.rfq_details');
+
+     Route::get('/admin/manage-records', [DashboardController::class, 'manage_records'])->name('admin.manage_records');
+     Route::post('/admin/save-purchase-record', [DashboardController::class, 'save_purchase_record'])->name('admin.save-purchase-record');
+     Route::post('/admin/update-purchase-record', [DashboardController::class, 'update_purchase_record'])->name('admin.update-purchase-record');
+     Route::post('/admin/delete-purchase-record', [DashboardController::class, 'delete_purchase_record'])->name('admin.delete-purchase-record');
+     Route::get('/admin/download-invoice/{id}', [DashboardController::class, 'download_invoice'])->name('admin.download-invoice');
+
+
 });
 
 // distributor panel
