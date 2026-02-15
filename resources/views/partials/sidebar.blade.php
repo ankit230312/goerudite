@@ -36,7 +36,22 @@
 
     @if(auth()->user()->role === 'distributor')
         <a href="{{ route('distributor.dashboard') }}" class="menu-item">🏠 Distributor Hub</a>
-        <a href="#" class="menu-item">📦 Orders</a>
+        <a href="#" class="menu-item">📦 Catalogue</a>
+
+        <a href="{{ route('admin.profile') }}"
+        class="menu-item {{ request()->routeIs('admin.profile') ? 'active' : '' }}">
+            🏫 Distributor Profile
+        </a>
+
+        <a href="{{ route('admin.rfq_inbox') }}"
+        class="menu-item {{ request()->routeIs('admin.rfq_inbox*') ? 'active' : '' }}">
+            📨 RFQ Inbox
+        </a>
+
+        <a href="{{ route('admin.manage_records') }}"
+        class="menu-item {{ request()->routeIs('admin.manage_records*') ? 'active' : '' }}">
+            📋 Manage Records
+        </a>
     @endif
 
     @if(auth()->user()->role === 'retailer')
