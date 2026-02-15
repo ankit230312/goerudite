@@ -153,7 +153,7 @@ class DashboardController extends Controller
     public function update_profile(Request $request)
     {
         try {
-    
+
             $data = $request->validate([
                 'business_name' => 'required',
                 'school_type' => 'nullable',
@@ -216,7 +216,7 @@ class DashboardController extends Controller
                 'confirm_rfq' => 'required|accepted'
             ]);
 
-            
+
 
             Rfq::create([
                 'user_id' => auth()->id(),
@@ -449,6 +449,11 @@ class DashboardController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+    }
+
+    public function manage_cateloge()
+    {
+        return view('distributor.manage-cateloge');
     }
 
 }
