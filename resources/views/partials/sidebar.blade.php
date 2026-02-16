@@ -38,20 +38,21 @@
         <a href="{{ route('distributor.dashboard') }}" class="menu-item">🏠 Distributor Hub</a>
         <a href="{{ route('distributor.manage_cateloge') }}" class="menu-item">📦 Catalogue</a>
 
-        {{-- <a href="{{ route('distributor.profile') }}"
-        class="menu-item {{ request()->routeIs('distributor.profile') ? 'active' : '' }}">
+
+        <a href="{{ route('admin.profile') }}"
+        class="menu-item {{ request()->routeIs('admin.profile') ? 'active' : '' }}">
             🏫 Distributor Profile
         </a>
 
-        <a href="{{ route('distributor.rfq_inbox') }}"
-        class="menu-item {{ request()->routeIs('distributor.rfq_inbox*') ? 'active' : '' }}">
+        <a href="{{ route('admin.rfq_inbox') }}"
+        class="menu-item {{ request()->routeIs('admin.rfq_inbox*') ? 'active' : '' }}">
             📨 RFQ Inbox
         </a>
 
-        <a href="{{ route('distributor.manage_records') }}"
-        class="menu-item {{ request()->routeIs('distributor.manage_records*') ? 'active' : '' }}">
+        <a href="{{ route('admin.manage_records') }}"
+        class="menu-item {{ request()->routeIs('admin.manage_records*') ? 'active' : '' }}">
             📋 Manage Records
-        </a> --}}
+        </a>
     @endif
 
     @if(auth()->user()->role === 'retailer')

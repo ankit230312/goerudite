@@ -31,19 +31,22 @@
 
 .card-horizontal-wrapper {
     display: flex;
+    align-items: flex-start;
     gap: 24px;
     padding: 20px;
-    height: 540px;
+    min-height: 420px;
+    height: auto;
 }
 
 .card-image-section {
-    width: 32%;
+    width: 28%;
+    max-width: 260px;
     flex-shrink: 0;
 }
 
 .card-image-section img {
     width: 100%;
-    height: 77%;
+    height: 320px;
     object-fit: cover;
     border-radius: 8px;
 }
@@ -68,10 +71,15 @@
 
 .card-content-section {
     flex: 1;
+    min-width: 0;
 }
 
 .card-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     margin-bottom: 12px;
+    gap: 10px;
 }
 
 .card-header-row .badge {
@@ -81,6 +89,12 @@
 
 .card-header-row .badge.bg-dark {
     background-color: #212529 !important;
+}
+
+.card-header-row .btn {
+    border-radius: 6px;
+    padding: 4px 8px;
+    line-height: 1;
 }
 
 .card-content-section h5 {
@@ -109,8 +123,8 @@
 
 .detail-row {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 12px;
     padding: 8px 0;
     font-size: 13px;
 }
@@ -126,6 +140,7 @@
     color: #212529;
     display: block;
     font-size: 12px;
+    overflow-wrap: anywhere;
 }
 
 /* Card Price Section */
@@ -135,6 +150,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: flex-start;
 }
 
 .price-box {
@@ -176,6 +192,7 @@
 
 .catalogue-slider-section {
     position: relative;
+    overflow-x: hidden;
 }
 
 .carousel {
@@ -183,6 +200,7 @@
     border-radius: 12px;
     padding: 20px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
 }
 
 .carousel-inner {
@@ -192,9 +210,9 @@
 
 .carousel-item {
     display: flex !important;
-    align-items: center;
+    align-items: stretch;
     justify-content: center;
-    min-height: 300px;
+    min-height: 0;
 }
 
 .carousel-indicators {
@@ -222,8 +240,8 @@
     height: 12px;
 }
 
-.carousel-control-prev,
-.carousel-control-next {
+.catalogue-slider-section .carousel-control-prev,
+.catalogue-slider-section .carousel-control-next {
     width: 40px;
     height: 40px;
     background: #ff8c42;
@@ -233,18 +251,30 @@
     opacity: 0.8;
     transition: all 0.3s ease;
     border: none;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    left: 12px;
+    right: auto;
 }
 
-.carousel-control-prev:hover,
-.carousel-control-next:hover {
+.catalogue-slider-section .carousel-control-next {
+    left: auto;
+    right: 12px;
+}
+
+.catalogue-slider-section .carousel-control-prev:hover,
+.catalogue-slider-section .carousel-control-next:hover {
     opacity: 1;
     background: #ff6b35;
 }
 
-.carousel-control-prev-icon,
-.carousel-control-next-icon {
-    width: 20px;
-    height: 20px;
+.catalogue-slider-section .catalogue-nav-btn i {
+    font-size: 14px;
+    line-height: 1;
+    pointer-events: none;
 }
 
 /* ========================================
@@ -257,11 +287,11 @@
     }
 
     .carousel-item {
-        min-height: 250px;
+        min-height: 0;
     }
 
-    .carousel-control-prev,
-    .carousel-control-next {
+    .catalogue-slider-section .carousel-control-prev,
+    .catalogue-slider-section .carousel-control-next {
         width: 36px;
         height: 36px;
     }
@@ -270,6 +300,7 @@
         flex-direction: column;
         gap: 16px;
         padding: 16px;
+        min-height: 0;
     }
 
     .card-image-section {
@@ -286,7 +317,7 @@
     }
 
     .detail-row {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(4, minmax(0, 1fr));
         gap: 16px;
     }
 }
@@ -307,7 +338,7 @@
     }
 
     .detail-row {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 8px;
     }
 
@@ -324,7 +355,13 @@
     }
 
     .carousel-item {
-        min-height: 200px;
+        min-height: 0;
+    }
+
+    .catalogue-slider-section .carousel-control-prev,
+    .catalogue-slider-section .carousel-control-next {
+        width: 34px;
+        height: 34px;
+        opacity: 0.95;
     }
 }
-

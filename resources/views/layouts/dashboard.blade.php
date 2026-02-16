@@ -69,27 +69,27 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 <script src="{{ asset('assets/admin.js') }}"></script>
 <script>
-function toggleSidebar() {
-    var sidebar = document.getElementById('sidebar');
-    var mainContainer = document.querySelector('.main-container');
+    function toggleSidebar() {
+        var sidebar = document.getElementById('sidebar');
+        var mainContainer = document.querySelector('.main-container');
 
-    sidebar.classList.toggle('active');
-    mainContainer.classList.toggle('sidebar-open');
-}
+        sidebar.classList.toggle('active');
+        mainContainer.classList.toggle('sidebar-open');
+    }
 
-// handle sidebar toggle on all screen sizes
-document.addEventListener('DOMContentLoaded', function() {
-    var links = document.querySelectorAll('#sidebar nav a.menu-item');
-    links.forEach(function(link) {
-        link.addEventListener('click', function() {
-            // close sidebar after clicking a link on mobile, keep open on desktop
-            if (window.innerWidth < 768) {
-                document.getElementById('sidebar').classList.remove('active');
-                document.querySelector('.main-container').classList.remove('sidebar-open');
-            }
+    // handle sidebar toggle on all screen sizes
+    document.addEventListener('DOMContentLoaded', function() {
+        var links = document.querySelectorAll('#sidebar nav a.menu-item');
+        links.forEach(function(link) {
+            link.addEventListener('click', function() {
+                // close sidebar after clicking a link on mobile, keep open on desktop
+                if (window.innerWidth < 768) {
+                    document.getElementById('sidebar').classList.remove('active');
+                    document.querySelector('.main-container').classList.remove('sidebar-open');
+                }
+            });
         });
     });
-});
 </script>
 
 @stack('scripts')

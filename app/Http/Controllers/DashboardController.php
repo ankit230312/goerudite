@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Models\SchoolClass;
 use App\Models\Rfq;
 use App\Models\PurchaseRecord;
+use App\Models\Catalogue;
 
 
 class DashboardController extends Controller
@@ -453,7 +454,136 @@ class DashboardController extends Controller
 
     public function manage_cateloge()
     {
-        return view('distributor.manage-cateloge');
+        $catalogues = Catalogue::where('user_id', auth()->id())->latest()->get();
+        return view('distributor.manage-cateloge', compact('catalogues'));
+    }
+
+    public function save_catalogue(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'catalogue_title' => 'required|string|max:255',
+                'publisher_brand_name' => 'nullable|string|max:255',
+                'academic_session' => 'required|string|max:50',
+                'applicable_board' => 'required|string|max:100',
+                'medium' => 'required|string|max:100',
+                'print_length' => 'nullable|integer|min:1',
+                'published_on' => 'nullable|date',
+                'isbn_13' => 'nullable|string|max:100',
+                'isbn_10' => 'nullable|string|max:100',
+                'reading_age' => 'nullable|string|max:100',
+                'dimensions' => 'nullable|string|max:255',
+                'volume_part_numbers' => 'nullable|string|max:255',
+                'mrp' => 'required|numeric|min:0',
+                'category' => 'nullable|string|max:100',
+                'cover_upload' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+                'sample_upload' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+                'description' => 'nullable|string',
+                'confirm_catalogue' => 'required|accepted',
+            ]);
+
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
+
+            $data = $validator->validated();
+            $data['user_id'] = auth()->id();
+            $data['confirmed'] = true;
+
+            if ($request->hasFile('cover_upload')) {
+                $data['cover_file'] = $request->file('cover_upload')->store('catalogues', 'public');
+            }
+
+            if ($request->hasFile('sample_upload')) {
+                $data['sample_file'] = $request->file('sample_upload')->store('catalogues', 'public');
+            }
+
+            unset($data['cover_upload'], $data['sample_upload'], $data['confirm_catalogue']);
+
+            Catalogue::create($data);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Catalogue saved successfully'
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => false,
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function update_catalogue(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'catalogue_id' => 'required|exists:catalogues,id',
+                'catalogue_title' => 'required|string|max:255',
+                'publisher_brand_name' => 'nullable|string|max:255',
+                'academic_session' => 'required|string|max:50',
+                'applicable_board' => 'required|string|max:100',
+                'medium' => 'required|string|max:100',
+                'print_length' => 'nullable|integer|min:1',
+                'published_on' => 'nullable|date',
+                'isbn_13' => 'nullable|string|max:100',
+                'isbn_10' => 'nullable|string|max:100',
+                'reading_age' => 'nullable|string|max:100',
+                'dimensions' => 'nullable|string|max:255',
+                'volume_part_numbers' => 'nullable|string|max:255',
+                'mrp' => 'required|numeric|min:0',
+                'category' => 'nullable|string|max:100',
+                'cover_upload' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+                'sample_upload' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+                'description' => 'nullable|string',
+                'confirm_catalogue' => 'required|accepted',
+            ]);
+
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
+
+            $catalogue = Catalogue::where('id', $request->catalogue_id)
+                ->where('user_id', auth()->id())
+                ->firstOrFail();
+
+            $data = $validator->validated();
+            $data['confirmed'] = true;
+
+            if ($request->hasFile('cover_upload')) {
+                $data['cover_file'] = $request->file('cover_upload')->store('catalogues', 'public');
+            }
+
+            if ($request->hasFile('sample_upload')) {
+                $data['sample_file'] = $request->file('sample_upload')->store('catalogues', 'public');
+            }
+
+            unset($data['catalogue_id'], $data['cover_upload'], $data['sample_upload'], $data['confirm_catalogue']);
+
+            $catalogue->update($data);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Catalogue updated successfully'
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => false,
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
 }
