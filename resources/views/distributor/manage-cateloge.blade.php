@@ -18,12 +18,14 @@
                 <button class="btn btn-dark me-2" data-bs-toggle="modal" data-bs-target="#baseDetailsModal">
                     <i class="fas fa-plus"></i> ADD CATALOGUE
                 </button>
-                <a href="#" class="common-btn">RAISE CLASS-WISE RFQ</a>
+                <a href="#" class="common-btn" data-bs-toggle="modal" data-bs-target="#classRfqModal">RAISE CLASS-WISE
+                    RFQ</a>
             </div>
         </div>
 
         <div class="catalogue-slider-section mb-5">
-            <div id="catalogueCarousel" class="carousel slide" data-bs-interval="false" data-bs-wrap="false" data-bs-touch="true">
+            <div id="catalogueCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="false" data-bs-wrap="false"
+                data-bs-touch="true">
                 <div class="carousel-indicators">
                     @forelse($catalogues as $index => $catalogue)
                         <button type="button" data-bs-target="#catalogueCarousel" data-bs-slide-to="{{ $index }}"
@@ -43,7 +45,7 @@
                                     <div class="card-image-section">
                                         <img src="{{ $catalogue->cover_file ? asset('storage/' . $catalogue->cover_file) : 'https://dummyimage.com/400x900/000/fff' }}"
                                             alt="{{ $catalogue->catalogue_title }}" class="img-fluid">
-                                        @if($catalogue->sample_file)
+                                        @if ($catalogue->sample_file)
                                             <a href="{{ asset('storage/' . $catalogue->sample_file) }}" target="_blank"
                                                 class="btn btn-sm btn-read-sample mt-2">
                                                 <i class="fas fa-book"></i> Read Sample
@@ -54,7 +56,8 @@
                                         <div class="card-header-row">
                                             <div>
                                                 <span class="badge bg-dark me-2">{{ $catalogue->applicable_board }}</span>
-                                                <span class="badge bg-light text-dark">{{ $catalogue->category ?: 'General' }}</span>
+                                                <span
+                                                    class="badge bg-light text-dark">{{ $catalogue->category ?: 'General' }}</span>
                                             </div>
                                             @php
                                                 $catalogueData = [
@@ -65,7 +68,9 @@
                                                     'applicable_board' => $catalogue->applicable_board,
                                                     'medium' => $catalogue->medium,
                                                     'print_length' => $catalogue->print_length,
-                                                    'published_on' => $catalogue->published_on ? $catalogue->published_on->format('Y-m-d') : null,
+                                                    'published_on' => $catalogue->published_on
+                                                        ? $catalogue->published_on->format('Y-m-d')
+                                                        : null,
                                                     'isbn_13' => $catalogue->isbn_13,
                                                     'isbn_10' => $catalogue->isbn_10,
                                                     'reading_age' => $catalogue->reading_age,
@@ -77,10 +82,11 @@
                                                     'confirmed' => (bool) $catalogue->confirmed,
                                                 ];
                                             @endphp
-                                            <button type="button" class="btn btn-sm btn-outline-secondary edit-catalogue-btn"
-                                            data-catalogue='@json($catalogueData)'>
-                                            <i class="fas fa-pen-to-square"></i>
-                                        </button>
+                                            <button type="button"
+                                                class="btn btn-sm btn-outline-secondary edit-catalogue-btn"
+                                                data-catalogue='@json($catalogueData)'>
+                                                <i class="fas fa-pen-to-square"></i>
+                                            </button>
                                         </div>
                                         <h5 class="fw-bold mb-1">{{ $catalogue->catalogue_title }}</h5>
                                         <p class="text-muted mb-2" style="font-size: 13px;">
@@ -111,7 +117,8 @@
                                                 <span class="detail-label">Dimensions</span>
                                                 <span class="detail-value">{{ $catalogue->dimensions ?: '-' }}</span>
                                                 <span class="detail-label">Volume/Part</span>
-                                                <span class="detail-value">{{ $catalogue->volume_part_numbers ?: '-' }}</span>
+                                                <span
+                                                    class="detail-value">{{ $catalogue->volume_part_numbers ?: '-' }}</span>
                                             </div>
                                         </div>
 
@@ -126,6 +133,10 @@
                                             <span class="price-label">MRP</span>
                                             <span class="price-value">₹{{ number_format($catalogue->mrp, 2) }}</span>
                                         </div>
+                                        <div class="mt-2">
+                                            <a href="#" class="btn btn-sm btn-primary" data-bs-toggle="modal"
+                                                data-bs-target="#classRfqModal">Raise RFQ</a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -134,24 +145,143 @@
                         <div class="carousel-item active">
                             <div class="catalogue-card-horizontal">
                                 <div class="card-horizontal-wrapper p-4">
-                                    <h5 class="mb-0">No catalogue added yet. Click <strong>ADD CATALOGUE</strong> to create one.</h5>
+                                    <h5 class="mb-0">No catalogue added yet. Click <strong>ADD CATALOGUE</strong> to
+                                        create one.</h5>
                                 </div>
                             </div>
                         </div>
                     @endforelse
                 </div>
 
-                <button id="prevCatalogueBtn" class="carousel-control-prev catalogue-nav-btn" type="button" data-bs-target="#catalogueCarousel" data-bs-slide="prev">
+                <button id="prevCatalogueBtn" class="carousel-control-prev catalogue-nav-btn" type="button"
+                    data-bs-target="#catalogueCarousel" data-bs-slide="prev">
                     <i class="fas fa-chevron-left" aria-hidden="true"></i>
                     <span class="visually-hidden">Previous</span>
                 </button>
-                <button id="nextCatalogueBtn" class="carousel-control-next catalogue-nav-btn" type="button" data-bs-target="#catalogueCarousel" data-bs-slide="next">
+                <button id="nextCatalogueBtn" class="carousel-control-next catalogue-nav-btn" type="button"
+                    data-bs-target="#catalogueCarousel" data-bs-slide="next">
                     <i class="fas fa-chevron-right" aria-hidden="true"></i>
                     <span class="visually-hidden">Next</span>
                 </button>
             </div>
         </div>
 
+        <!-- RFQ modal copied from dashboard -->
+        <div class="modal fade" id="classRfqModal" tabindex="-1" aria-labelledby="classRfqModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="classRfqModalLabel">Send RFQ (Nearby Publications)</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="card h-100 bg-white rounded shadow-sm">
+                            <div class="card-header fw-bold">
+                                🚀 Send RFQ (Nearby Publications)
+                            </div>
+                            <div class="card-body">
+                                <p class="text-muted">Send your requirement to verified nearby publishers for best pricing
+                                    and
+                                    faster delivery.</p>
+
+                                <form>
+                                    <div class="d-flex justify-content-between align-items-start mb-4">
+                                        <div>
+                                            <div class="d-flex align-items-center">
+                                                <i class="fas fa-user-circle fa-2x text-orange me-2"></i>
+                                                <div>
+                                                    <div class="fw-bold">PRINCIPAL</div>
+                                                    <small class="text-success">School : VERIFIED</small>
+                                                </div>
+                                            </div>
+                                            <a href="#" class="btn btn-sm btn-outline-primary mt-2">View Profile</a>
+                                        </div>
+                                        <div class="text-end">
+                                            <div class="small text-muted">Nearby RFQ</div>
+                                            <div class="d-flex gap-2">
+                                                <select class="form-select form-select-sm">
+                                                    <option>State</option>
+                                                </select>
+                                                <select class="form-select form-select-sm">
+                                                    <option>City</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-light p-3 rounded mb-3">
+                                        <div class="row mb-2">
+                                            <div class="col">
+                                                <input type="text" class="form-control form-control-sm"
+                                                    placeholder="Class">
+                                            </div>
+                                            <div class="col">
+                                                <input type="text" class="form-control form-control-sm"
+                                                    placeholder="Class Strength (Total Quantity)">
+                                            </div>
+                                            <div class="col">
+                                                <input type="text" class="form-control form-control-sm"
+                                                    placeholder="Session">
+                                            </div>
+                                        </div>
+                                        <div class="fw-bold mb-2">Class Books &amp; Materials</div>
+                                        <div class="row gx-2 gy-2" id="bookRows">
+
+                                            <!-- Row -->
+                                            <div class="row mb-1 align-items-center book-row">
+                                                <div class="col">
+                                                    <input type="text" class="form-control form-control-sm"
+                                                        placeholder="Books Name / Subject">
+                                                </div>
+                                                <div class="col">
+                                                    <input type="text" class="form-control form-control-sm"
+                                                        placeholder="Preference">
+                                                </div>
+                                                <div class="col">
+                                                    <input type="text" class="form-control form-control-sm"
+                                                        placeholder="Medium">
+                                                </div>
+
+                                                <!-- Action buttons -->
+                                                <div class="col-auto">
+                                                    <button type="button" class="common-btn  add-row">
+                                                        +
+                                                    </button>
+                                                    <button type="button"
+                                                        class="btn btn-sm btn-danger remove-row d-none">
+                                                        −
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <div class="fw-bold text-success mb-2">Quotation Sent Received</div>
+                                        <div class="border rounded p-4 text-center text-muted">
+                                            PDF/ JPEG Format
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <input type="checkbox" id="confirmRfq" />
+                                        <label for="confirmRfq" class="form-label ms-1">I confirm that this RFQ will be
+                                            sent only
+                                            to verified nearby publishers based on my selected location.</label>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-paper-plane"></i> Send Message
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="row">
             <div class="col-12">
                 <div class="proto-tip-section p-4 mb-4">
@@ -188,8 +318,8 @@
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label fw-bold small">Publisher / Brand Name</label>
-                                    <input type="text" class="form-control form-control-sm" name="publisher_brand_name"
-                                        placeholder="Publisher name">
+                                    <input type="text" class="form-control form-control-sm"
+                                        name="publisher_brand_name" placeholder="Publisher name">
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label fw-bold small">Academic Session</label>
@@ -260,8 +390,8 @@
                             <div class="row g-3 mb-4">
                                 <div class="col-md-3">
                                     <label class="form-label fw-bold small">MRP</label>
-                                    <input type="number" class="form-control form-control-sm" name="mrp" placeholder="450"
-                                        required>
+                                    <input type="number" class="form-control form-control-sm" name="mrp"
+                                        placeholder="450" required>
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label fw-bold small">Category</label>
@@ -297,10 +427,11 @@
                             </div>
 
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="confirmCatalogue" name="confirm_catalogue"
-                                    value="1">
+                                <input class="form-check-input" type="checkbox" id="confirmCatalogue"
+                                    name="confirm_catalogue" value="1">
                                 <label class="form-check-label" for="confirmCatalogue">
-                                    I confirm that the uploaded catalogue is accurate, updated, and authorized for sharing on
+                                    I confirm that the uploaded catalogue is accurate, updated, and authorized for sharing
+                                    on
                                     the platform.
                                 </label>
                             </div>
@@ -315,8 +446,13 @@
         </div>
     </div>
 
-    <script>
-        const catalogueForm = document.getElementById('catalogueForm');
+
+    @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+            console.log('[manage-cateloge] DOMContentLoaded fired');
         const catalogueModalEl = document.getElementById('baseDetailsModal');
         const catalogueModalTitle = document.getElementById('catalogueModalTitle');
         const catalogueSubmitBtn = document.getElementById('catalogueSubmitBtn');
@@ -457,7 +593,10 @@
         });
 
         const carouselElement = document.getElementById('catalogueCarousel');
+        console.log('[manage-cateloge] carouselElement=', carouselElement);
+        console.log('[manage-cateloge] bootstrap available=', typeof bootstrap !== 'undefined');
         if (carouselElement && typeof bootstrap !== 'undefined') {
+            console.log('[manage-cateloge] initializing bootstrap carousel');
             const catalogueCarousel = bootstrap.Carousel.getOrCreateInstance(carouselElement, {
                 interval: false,
                 wrap: false,
@@ -510,7 +649,10 @@
                 setTimeout(() => {
                     wheelLock = false;
                 }, WHEEL_COOLDOWN);
-            }, { passive: false });
+            }, {
+                passive: false
+            });
         }
-    </script>
-@endsection
+    });
+</script>
+@endpush

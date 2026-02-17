@@ -208,8 +208,9 @@
     overflow: hidden;
 }
 
-.carousel-item {
-    display: flex !important;
+/* Limit layout adjustments to catalogue slider only so Bootstrap can control visibility */
+.catalogue-slider-section .carousel-item {
+    /* not overriding display; bootstrap needs to toggle visibility */
     align-items: stretch;
     justify-content: center;
     min-height: 0;

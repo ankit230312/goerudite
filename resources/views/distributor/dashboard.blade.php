@@ -10,7 +10,7 @@
                 <p class="text-muted mb-0">Active Session</p>
             </div>
             <div class="col-4 text-end">
-                <a href="#" class=" common-btn ">RAISE CLASS-WISE RFQ</a>
+                <a href="#" class=" common-btn " data-bs-toggle="modal" data-bs-target="#classRfqModal">RAISE CLASS-WISE RFQ</a>
             </div>
         </div>
 
@@ -41,7 +41,7 @@
 
         <!-- Operational Log -->
         <div class="row">
-            <div class="col-5 lg:col-7 mb-4 lg:mb-0">
+            <div class="col-12 lg:col-7 mb-4 lg:mb-0">
                 <div class="card bg-white rounded shadow-sm">
                     <div class="card-header fw-bold d-flex align-items-center">
                         <span class="me-2">📋</span> Operational Log
@@ -81,7 +81,18 @@
                     </ul>
                 </div>
             </div>
-            <div class="col-6 lg:col-5">
+        </div>
+
+        <!-- RFQ Modal -->
+        <div class="modal fade" id="classRfqModal" tabindex="-1" aria-labelledby="classRfqModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="classRfqModalLabel">Send RFQ (Nearby Publications)</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <!-- begin form card -->
                 <div class="card h-100 bg-white rounded shadow-sm">
                     <div class="card-header fw-bold">
                         🚀 Send RFQ (Nearby Publications)
@@ -178,7 +189,10 @@
                         </form>
                     </div>
                 </div>
+                <!-- end form card -->
+              </div>
             </div>
+          </div>
         </div>
 
 
