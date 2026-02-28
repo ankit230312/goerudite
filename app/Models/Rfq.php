@@ -13,6 +13,9 @@ class Rfq extends Model
         'user_id',
         'school_name',
         'city',
+        'target_roles',
+        'target_state',
+        'target_city',
         'academic_session',
         'books',
         'delivery_from',
@@ -27,6 +30,7 @@ class Rfq extends Model
 
     protected $casts = [
         'books' => 'array',
+        'target_roles' => 'array',
         'evaluation_criteria' => 'array',
         'delivery_from' => 'date',
         'delivery_to' => 'date',

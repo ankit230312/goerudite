@@ -334,16 +334,15 @@
 
                 <div class="form-group">
                     <label>City</label>
-                    <input type="text" name="city" placeholder="Enter City Name">
+                    <select name="city" data-city-select data-location-group="administrator-register">
+                        <option value="">Select City</option>
+                    </select>
                 </div>
 
                 <div class="form-group">
                     <label>State</label>
-                    <select name="state">
+                    <select name="state" data-state-select data-location-group="administrator-register">
                         <option value="">Select State</option>
-                        <option value="Delhi">Delhi</option>
-                        <option value="Maharashtra">Maharashtra</option>
-                        <option value="Karnataka">Karnataka</option>
                     </select>
                 </div>
 
@@ -443,16 +442,15 @@
 
                 <div class="form-group">
                     <label>City</label>
-                    <input type="text" name="city" placeholder="Enter City Name">
+                    <select name="city" data-city-select data-location-group="distributor-register">
+                        <option value="">Select City</option>
+                    </select>
                 </div>
 
                 <div class="form-group">
                     <label>State</label>
-                    <select name="state">
+                    <select name="state" data-state-select data-location-group="distributor-register">
                         <option value="">Select State</option>
-                        <option value="Delhi">Delhi</option>
-                        <option value="Maharashtra">Maharashtra</option>
-                        <option value="Karnataka">Karnataka</option>
                     </select>
                 </div>
 
@@ -553,16 +551,15 @@
 
                 <div class="form-group">
                     <label>City</label>
-                    <input type="text" name="city" placeholder="Enter City Name">
+                    <select name="city" data-city-select data-location-group="retailer-register">
+                        <option value="">Select City</option>
+                    </select>
                 </div>
 
                 <div class="form-group">
                     <label>State</label>
-                    <select name="state">
+                    <select name="state" data-state-select data-location-group="retailer-register">
                         <option value="">Select State</option>
-                        <option value="Delhi">Delhi</option>
-                        <option value="Maharashtra">Maharashtra</option>
-                        <option value="Karnataka">Karnataka</option>
                     </select>
                 </div>
 
@@ -663,16 +660,15 @@
 
                 <div class="form-group">
                     <label>City</label>
-                    <input type="text" name="city" placeholder="Enter City Name">
+                    <select name="city" data-city-select data-location-group="publisher-register">
+                        <option value="">Select City</option>
+                    </select>
                 </div>
 
                 <div class="form-group">
                     <label>State</label>
-                    <select name="state">
+                    <select name="state" data-state-select data-location-group="publisher-register">
                         <option value="">Select State</option>
-                        <option value="Delhi">Delhi</option>
-                        <option value="Maharashtra">Maharashtra</option>
-                        <option value="Karnataka">Karnataka</option>
                     </select>
                 </div>
 
@@ -735,4 +731,5 @@
     //     });
     // });
 </script>
+@include('partials.india-state-city-script')
 @endpush

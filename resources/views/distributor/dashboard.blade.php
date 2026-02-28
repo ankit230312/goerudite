@@ -10,7 +10,8 @@
                 <p class="text-muted mb-0">Active Session</p>
             </div>
             <div class="col-4 text-end">
-                <a href="#" class=" common-btn " data-bs-toggle="modal" data-bs-target="#classRfqModal">RAISE CLASS-WISE RFQ</a>
+                <a href="{{ route('distributor.rfq_inbox') }}?tab=received" class="common-btn me-2">RECEIVE RFQ</a>
+                <a href="{{ route('distributor.rfq_inbox') }}?create=1" class="common-btn">RAISE RFQ</a>
             </div>
         </div>
 
@@ -48,36 +49,29 @@
                     </div>
 
                     <ul class="list-group list-group-flush">
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <div class="fw-bold">RFQ History</div>
-                                <small class="text-muted">22-12-2025</small>
-                            </div>
-                            <div class="text-end">
-                                <span class="text-success">Received RFQ</span><br>
-                                <a href="#" class="small">View Details</a>
-                            </div>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <div class="fw-bold">RFQ History</div>
-                                <small class="text-muted">22-12-2025</small>
-                            </div>
-                            <div class="text-end">
-                                <span class="text-success">Received RFQ</span><br>
-                                <a href="#" class="small">View Details</a>
-                            </div>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <div class="fw-bold">RFQ History</div>
-                                <small class="text-muted">22-12-2025</small>
-                            </div>
-                            <div class="text-end">
-                                <span class="text-danger">Sent RFQ</span><br>
-                                <a href="#" class="small">View Details</a>
-                            </div>
-                        </li>
+                        @forelse($operationLogs as $rfq)
+                            @php($isReceived = in_array($rfq->id, $acknowledgedRfqIds ?? []))
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="fw-bold">RFQ-{{ $rfq->id }} | {{ $rfq->school_name }}</div>
+                                    <small class="text-muted">{{ $rfq->created_at->format('d-m-Y') }}</small>
+                                </div>
+                                <div class="text-end">
+                                    <span class="{{ $isReceived ? 'text-success' : 'text-warning' }}">
+                                        {{ $isReceived ? 'Status: Received' : 'Status: Pending' }}
+                                    </span><br>
+                                    <a href="#" class="small" onclick="viewDistributorRfq({{ $rfq->id }}); return false;">View RFQ</a>
+                                    <br>
+                                    @if(!$isReceived)
+                                        <a href="#" class="small text-primary" onclick="markRfqReceivedFromDashboard({{ $rfq->id }}); return false;">Received RFQ</a>
+                                    @else
+                                        <span class="small text-success">Received Done</span>
+                                    @endif
+                                </div>
+                            </li>
+                        @empty
+                            <li class="list-group-item">No received RFQ found.</li>
+                        @endforelse
                     </ul>
                 </div>
             </div>
@@ -195,6 +189,74 @@
           </div>
         </div>
 
+        <div class="modal fade" id="distributorRfqDetailsModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">View RFQ</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="distributorRfqDetailsBody"></div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            function markRfqReceivedFromDashboard(id) {
+                fetch(`/distributor/receive-rfq/${id}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status) {
+                        location.reload();
+                    } else {
+                        alert(data.message || 'Unable to mark RFQ as received');
+                    }
+                })
+                .catch(() => {
+                    alert('Server error. Please try again.');
+                });
+            }
+
+            function viewDistributorRfq(id) {
+                fetch(`/distributor/rfq-details/${id}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!data.success) {
+                            return;
+                        }
+
+                        const rfq = data.rfq;
+                        const books = Array.isArray(rfq.books) ? rfq.books : JSON.parse(rfq.books || '[]');
+
+                        let html = `
+                            <p><strong>School:</strong> ${rfq.school_name}</p>
+                            <p><strong>City:</strong> ${rfq.city}</p>
+                            <p><strong>Session:</strong> ${rfq.academic_session}</p>
+                            <p><strong>Urgency:</strong> ${rfq.urgency}</p>
+                            <p><strong>Closing Date:</strong> ${rfq.rfq_closing_date}</p>
+                            <p><strong>Notes:</strong> ${rfq.notes || 'N/A'}</p>
+                            <hr>
+                            <h6>Books</h6>
+                            <ul>
+                        `;
+
+                        books.forEach(book => {
+                            html += `<li>${book.class_name} - ${book.subject} - ${book.book_title} (${book.quantity})</li>`;
+                        });
+
+                        html += '</ul>';
+
+                        document.getElementById('distributorRfqDetailsBody').innerHTML = html;
+                        const modal = new bootstrap.Modal(document.getElementById('distributorRfqDetailsModal'));
+                        modal.show();
+                    });
+            }
+        </script>
 
 
     </main>

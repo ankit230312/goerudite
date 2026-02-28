@@ -254,43 +254,6 @@
             gap: 15px;
         }
 
-
-        /* new */
-        .rfq-checkbox-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 10px 20px;
-            margin-top: 8px;
-        }
-
-        .rfq-checkbox-grid label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            cursor: pointer;
-            color: #333;
-        }
-
-        .rfq-checkbox-grid input[type="checkbox"] {
-            width: 16px;
-            height: 16px;
-            cursor: pointer;
-        }
-
-        .rfq-checkbox-grid {
-            display: flex;
-            gap: 25px;
-            flex-wrap: wrap;
-        }
-
-        .rfq-checkbox-grid input[type="checkbox"] {
-            accent-color: #ff7a18;
-        }
-
-
-
-
         
         
     </style>
@@ -303,8 +266,9 @@
                 <h2>Request for Quotation (RFQ) History</h2>
 
                 <div class="tabs">
-                    <button class="tab active" onclick="switchTab('active')">Active Request</button>
-                    <button class="tab" onclick="switchTab('history')">History</button>
+                    <button class="tab active" onclick="switchTab('active', this)">Active Request</button>
+                    <button class="tab" onclick="switchTab('history', this)">History</button>
+                    <button class="tab" onclick="switchTab('received', this)">Received RFQ</button>
                 </div>
             </div>
 
@@ -331,12 +295,8 @@
                     <div class="quote-count">
                         <strong>0</strong>
                         <span>Quotes Received</span>
-                        <br>
-                        <a href="#" class="view-link" onclick="openRaiseRfqModal({{ $rfq->id }}); return false;">Raise RFQ</a>
                     </div>
-
                     <a href="#" class="view-link" onclick="viewDetails({{ $rfq->id }}); return false;">View Details ➜</a>
-                    
                 </div>
             </div>
             @empty
@@ -366,11 +326,45 @@
                         <span>Quotes Received</span>
                     </div>
                     <a href="#" class="view-link" onclick="viewDetails({{ $rfq->id }}); return false;">View Details ➜</a>
-                    <a href="#" class="view-link" onclick="openRaiseRfqModal({{ $rfq->id }}); return false;">Raise RFQ ➜</a>
                 </div>
             </div>
             @empty
             <p>No history RFQs found.</p>
+            @endforelse
+        </div>
+
+        <div id="receivedTab" class="rfq-list" style="display:none;">
+            @forelse($receivedRfqs as $rfq)
+            @php($isReceived = in_array($rfq->id, $acknowledgedRfqIds ?? []))
+            <div class="rfq-card">
+                <div class="rfq-left">
+                    <span class="rfq-id">RFQ-{{ $rfq->id }}</span>
+                    <span class="status {{ $isReceived ? 'closed' : 'open' }}">{{ $isReceived ? 'Received' : 'Pending' }}</span>
+
+                    <h4>{{ $rfq->school_name }} - {{ $rfq->academic_session }}</h4>
+
+                    <div class="rfq-meta">
+                        <span>📅 {{ $rfq->created_at->format('Y-m-d') }}</span>
+                        <span>📍 {{ $rfq->city }}</span>
+                    </div>
+                </div>
+
+                <div class="rfq-right">
+                    <div class="quote-count">
+                        <strong>0</strong>
+                        <span>Quotes Received</span>
+                    </div>
+                    @if(!$isReceived)
+                        <button type="button" class="btn-solid" onclick="markRfqReceived({{ $rfq->id }}, this)">Received RFQ</button>
+                    @else
+                        <button type="button" class="btn-dark" disabled>Received Done</button>
+                    @endif
+                    <br>
+                    <a href="#" class="view-link" onclick="viewDetails({{ $rfq->id }}); return false;">View Details ➜</a>
+                </div>
+            </div>
+            @empty
+            <p>No received RFQs found for your role and location.</p>
             @endforelse
         </div>
 
@@ -389,7 +383,7 @@
             </div>
 
             <div class="rfq-footer">
-                <button class="btn-dark" onclick="openCloseRfqModal()">Close RFQ</button>
+                <button class="btn-dark" id="closeRfqBtn" onclick="openCloseRfqModal()">Close RFQ</button>
                 <div class="footer-actions">
                     <button class="btn-outline" onclick="closeModal();">Close</button>
                 </div>
@@ -415,52 +409,6 @@
                     <button class="btn-dark" onclick="confirmCloseRfq()">Close RFQ</button>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- raise rfq modal -->
-    <div id="raiseRfqModal" class="modal">
-        <div class="modal-box" style="max-width: 560px;">
-            <div class="rfq-header-modal">
-                <h3>Raise RFQ</h3>
-            </div>
-
-            <form id="raiseRfqForm">
-                @csrf
-                <input type="hidden" id="raiseRfqId" name="rfq_id">
-
-                <div style="padding: 0 4px 10px;">
-                    <label>Send To Roles</label>
-                    <div class="rfq-checkbox-grid">
-                        <label><input type="checkbox" name="target_roles[]" value="distributor"> Distributor</label>
-                        <label><input type="checkbox" name="target_roles[]" value="retailer"> Retailer</label>
-                        <label><input type="checkbox" name="target_roles[]" value="publisher"> Publisher</label>
-                    </div>
-                </div>
-                
-
-                <div class="rfq-basic-grid" style="grid-template-columns: repeat(2, 1fr);">
-                    <div>
-                        <label>State</label>
-                        <select name="target_state" data-state-select data-location-group="admin-raise-rfq">
-                            <option value="">All States (Nearby)</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label>City</label>
-                        <select name="target_city" data-city-select data-location-group="admin-raise-rfq">
-                            <option value="">All Cities (Nearby)</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="rfq-footer">
-                    <div class="footer-actions" style="margin-left: auto;">
-                        <button type="button" class="btn-outline" onclick="closeModal();">Cancel</button>
-                        <button type="button" class="btn-solid" id="raiseRfqSendBtn" onclick="submitRaiseRfq()">Send</button>
-                    </div>
-                </div>
-            </form>
         </div>
     </div>
 
@@ -497,6 +445,32 @@
                             <option value="2025-26">2025-26</option>
                             <option value="2026-27">2026-27</option>
                             <option value="2027-28">2027-28</option>
+                        </select>
+                    </div>
+                </div>
+
+                <h5 class="form-title">Raise RFQ</h5>
+                <div class="rfq-basic-grid">
+                    <div>
+                        <label>Send To Role</label>
+                        <div class="rfq-checkbox-grid">
+                            <label><input type="checkbox" name="target_roles[]" value="distributor"> Distributor</label>
+                            <label><input type="checkbox" name="target_roles[]" value="retailer"> Retailer</label>
+                            <label><input type="checkbox" name="target_roles[]" value="publisher"> Publisher</label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label>State</label>
+                        <select name="target_state" data-state-select data-location-group="distributor-raise-rfq">
+                            <option value="">All States (Nearby)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label>City</label>
+                        <select name="target_city" data-city-select data-location-group="distributor-raise-rfq">
+                            <option value="">All Cities (Nearby)</option>
                         </select>
                     </div>
                 </div>
@@ -584,20 +558,24 @@
 
 
     <script>
-        function switchTab(type) {
+        const distributorCurrentUserId = {{ auth()->id() }};
 
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
+        function switchTab(type, tabButton = null) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.getElementById('activeTab').style.display = 'none';
+            document.getElementById('historyTab').style.display = 'none';
+            document.getElementById('receivedTab').style.display = 'none';
 
             if (type === 'active') {
                 document.getElementById('activeTab').style.display = 'flex';
-                document.getElementById('historyTab').style.display = 'none';
-                event.target.classList.add('active');
-            } else {
-                document.getElementById('activeTab').style.display = 'none';
+            } else if (type === 'history') {
                 document.getElementById('historyTab').style.display = 'flex';
-                event.target.classList.add('active');
+            } else if (type === 'received') {
+                document.getElementById('receivedTab').style.display = 'flex';
+            }
+
+            if (tabButton) {
+                tabButton.classList.add('active');
             }
         }
 
@@ -622,14 +600,8 @@
 
         function openCreateRfq() {
             document.getElementById('createRfqModal').style.display = 'flex';
-        }
-
-        function openRaiseRfqModal(id) {
-            document.getElementById('raiseRfqForm').reset();
-            document.getElementById('raiseRfqId').value = id;
-            document.getElementById('raiseRfqModal').style.display = 'flex';
             if (typeof initializeIndiaStateCityDropdowns === 'function') {
-                initializeIndiaStateCityDropdowns(document.getElementById('raiseRfqModal'));
+                initializeIndiaStateCityDropdowns(document.getElementById('createRfqModal'));
             }
         }
 
@@ -646,7 +618,7 @@
         }
 
         function viewDetails(id) {
-            fetch(`/admin/rfq-details/${id}`)
+            fetch(`/distributor/rfq-details/${id}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
@@ -696,6 +668,8 @@
                         document.getElementById('detailsContent').innerHTML = content;
                         const modal = document.getElementById('viewDetailsModal');
                         modal.dataset.rfqId = id;
+                        const canClose = Number(rfq.user_id) === distributorCurrentUserId;
+                        document.getElementById('closeRfqBtn').style.display = canClose ? 'inline-block' : 'none';
                         modal.style.display = 'flex';
                     }
                 });
@@ -711,7 +685,7 @@
 
         function confirmCloseRfq() {
             const id = document.querySelector('#viewDetailsModal').dataset.rfqId;
-            fetch(`/admin/close-rfq/${id}`, {
+            fetch(`/distributor/close-rfq/${id}`, {
                 method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('input[name=_token]').value,
@@ -723,42 +697,6 @@
                 if (data.status) {
                     location.reload();
                 }
-            });
-        }
-
-        function submitRaiseRfq() {
-            const form = document.getElementById('raiseRfqForm');
-            const formData = new FormData(form);
-            const id = document.getElementById('raiseRfqId').value;
-            if (!id) return;
-            const sendBtn = document.getElementById('raiseRfqSendBtn');
-            const originalText = sendBtn.textContent;
-
-            sendBtn.textContent = 'Sending...';
-            sendBtn.disabled = true;
-
-            fetch(`/admin/send-rfq/${id}`, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('#raiseRfqForm input[name=_token]').value
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status) {
-                    closeModal();
-                    location.reload();
-                } else {
-                    alert(data.message || 'Unable to send RFQ');
-                }
-            })
-            .catch(() => {
-                alert('Server error. Please try again.');
-            })
-            .finally(() => {
-                sendBtn.textContent = originalText;
-                sendBtn.disabled = false;
             });
         }
 
@@ -794,7 +732,7 @@
             submitBtn.textContent = 'Submitting...';
             submitBtn.disabled = true;
 
-            fetch('/admin/store-rfq', {
+            fetch('/distributor/store-rfq', {
                 method: 'POST',
                 body: formData,
                 headers: {
@@ -817,13 +755,42 @@
                 submitBtn.disabled = false;
             });
         }
+
+        function markRfqReceived(id, button) {
+            const originalText = button.textContent;
+            button.textContent = 'Marking...';
+            button.disabled = true;
+
+            fetch(`/distributor/receive-rfq/${id}`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('input[name=_token]').value
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status) {
+                    location.reload();
+                } else {
+                    alert(data.message || 'Unable to mark RFQ as received');
+                    button.textContent = originalText;
+                    button.disabled = false;
+                }
+            })
+            .catch(() => {
+                alert('Server error. Please try again.');
+                button.textContent = originalText;
+                button.disabled = false;
+            });
+        }
+
         document.addEventListener('DOMContentLoaded', function () {
             const params = new URLSearchParams(window.location.search);
             const tab = params.get('tab');
-            // if (tab === 'received') {
-            //     const tabButton = document.querySelector('.tab[onclick*="received"]');
-            //     switchTab('received', tabButton);
-            // }
+            if (tab === 'received') {
+                const tabButton = document.querySelector('.tab[onclick*="received"]');
+                switchTab('received', tabButton);
+            }
             if (params.get('create') === '1') {
                 openCreateRfq();
             }

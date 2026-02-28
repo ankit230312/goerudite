@@ -118,7 +118,7 @@ document.getElementById('profileForm').addEventListener('submit', function(e){
 
     let formData = new FormData(this);
 
-    fetch("{{ route('admin.profile.update') }}", {
+    fetch("{{ route('distributor.profile.update') }}", {
         method: "POST",
         headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
         body: formData

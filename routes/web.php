@@ -38,6 +38,7 @@ Route::middleware(['auth', 'role:administrator'])->group(function () {
 
     Route::get('/admin/rfq-inbox', [DashboardController::class, 'rfq_inbox'])->name('admin.rfq_inbox');
     Route::post('/admin/store-rfq', [DashboardController::class, 'store_rfq'])->name('admin.store_rfq');
+    Route::post('/admin/send-rfq/{id}', [DashboardController::class, 'send_rfq'])->name('admin.send_rfq');
     Route::put('/admin/update-rfq/{id}', [DashboardController::class, 'update_rfq'])->name('admin.update_rfq');
     Route::post('/admin/close-rfq/{id}', [DashboardController::class, 'close_rfq'])->name('admin.close_rfq');
     Route::get('/admin/rfq-details/{id}', [DashboardController::class, 'rfq_details'])->name('admin.rfq_details');
@@ -58,25 +59,29 @@ Route::middleware(['auth', 'role:distributor'])->group(function () {
     Route::post('/distributor/save-catalogue', [DashboardController::class, 'save_catalogue'])->name('distributor.save_catalogue');
     Route::post('/distributor/update-catalogue', [DashboardController::class, 'update_catalogue'])->name('distributor.update_catalogue');
 
-    Route::get('/admin/profile', [DashboardController::class, 'profile'])->name('admin.profile');
-    Route::post('/admin/profile/update', [DashboardController::class, 'update_profile'])->name('admin.profile.update');
+    Route::get('/distributor/profile', [DashboardController::class, 'distributor_profile'])->name('distributor.profile');
+    Route::post('/distributor/profile/update', [DashboardController::class, 'distributor_update_profile'])->name('distributor.profile.update');
 
-    Route::get('/admin/rfq-inbox', [DashboardController::class, 'rfq_inbox'])->name('admin.rfq_inbox');
-    Route::post('/admin/store-rfq', [DashboardController::class, 'store_rfq'])->name('admin.store_rfq');
-    Route::put('/admin/update-rfq/{id}', [DashboardController::class, 'update_rfq'])->name('admin.update_rfq');
-    Route::post('/admin/close-rfq/{id}', [DashboardController::class, 'close_rfq'])->name('admin.close_rfq');
-    Route::get('/admin/rfq-details/{id}', [DashboardController::class, 'rfq_details'])->name('admin.rfq_details');
+    Route::get('/distributor/rfq-inbox', [DashboardController::class, 'distributor_rfq_inbox'])->name('distributor.rfq_inbox');
+    Route::post('/distributor/store-rfq', [DashboardController::class, 'distributor_store_rfq'])->name('distributor.store_rfq');
+    Route::post('/distributor/receive-rfq/{id}', [DashboardController::class, 'distributor_receive_rfq'])->name('distributor.receive_rfq');
+    Route::put('/distributor/update-rfq/{id}', [DashboardController::class, 'distributor_update_rfq'])->name('distributor.update_rfq');
+    Route::post('/distributor/close-rfq/{id}', [DashboardController::class, 'distributor_close_rfq'])->name('distributor.close_rfq');
+    Route::get('/distributor/rfq-details/{id}', [DashboardController::class, 'distributor_rfq_details'])->name('distributor.rfq_details');
 
-     Route::get('/admin/manage-records', [DashboardController::class, 'manage_records'])->name('admin.manage_records');
-     Route::post('/admin/save-purchase-record', [DashboardController::class, 'save_purchase_record'])->name('admin.save-purchase-record');
-     Route::post('/admin/update-purchase-record', [DashboardController::class, 'update_purchase_record'])->name('admin.update-purchase-record');
-     Route::post('/admin/delete-purchase-record', [DashboardController::class, 'delete_purchase_record'])->name('admin.delete-purchase-record');
-     Route::get('/admin/download-invoice/{id}', [DashboardController::class, 'download_invoice'])->name('admin.download-invoice');
+     Route::get('/distributor/manage-records', [DashboardController::class, 'distributor_manage_records'])->name('distributor.manage_records');
+     Route::post('/distributor/save-purchase-record', [DashboardController::class, 'distributor_save_purchase_record'])->name('distributor.save-purchase-record');
+     Route::post('/distributor/update-purchase-record', [DashboardController::class, 'distributor_update_purchase_record'])->name('distributor.update-purchase-record');
+     Route::post('/distributor/delete-purchase-record', [DashboardController::class, 'distributor_delete_purchase_record'])->name('distributor.delete-purchase-record');
+     Route::get('/distributor/download-invoice/{id}', [DashboardController::class, 'distributor_download_invoice'])->name('distributor.download-invoice');
 });
 
 // retailer panel
 Route::middleware(['auth', 'role:retailer'])->group(function () {
     Route::get('/retailer/dashboard', [DashboardController::class, 'retailer'])->name('retailer.dashboard');
+    Route::post('/retailer/store-rfq', [DashboardController::class, 'retailer_store_rfq'])->name('retailer.store_rfq');
+    Route::post('/retailer/close-rfq/{id}', [DashboardController::class, 'retailer_close_rfq'])->name('retailer.close_rfq');
+    Route::get('/retailer/rfq-details/{id}', [DashboardController::class, 'retailer_rfq_details'])->name('retailer.rfq_details');
 });
 
 // publisher panel
