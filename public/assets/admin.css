@@ -694,9 +694,9 @@
 }
 
 .btn-sm {
-    font-size: 11px;
+    font-size: 11px !important;
     padding: 6px 10px;
-    border-radius: 6px;
+    border-radius: 6px !important;
     cursor: pointer;
     border: none;
 }
@@ -1217,7 +1217,7 @@ input, select {
 .dashboard-btn,
 .raise-class-btn,
 .mobile-menu-toggle {
-    border-radius: 999px !important;
+    /* border-radius: 999px !important; */
     padding: 10px 18px !important;
     box-shadow: 0 8px 18px rgba(13,30,38,0.06);
     transition: transform 0.18s cubic-bezier(.2,.9,.2,1), box-shadow 0.18s;

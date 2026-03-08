@@ -53,7 +53,7 @@
             font-size: 15px;
             font-weight: 600;
             margin: 20px 0 10px;
-            color: #ff6b1a; 
+            color: #ff6b1a;
             /* #ff6b1a */
         }
 
@@ -166,7 +166,7 @@
             justify-content: space-between;
             align-items: center;
             margin-top: 25px;
-            flex-wrap: wrap;        
+            flex-wrap: wrap;
             gap: 10px;
         }
 
@@ -291,8 +291,8 @@
 
 
 
-        
-        
+
+
     </style>
 
     <main class="content">
@@ -323,7 +323,7 @@
 
                     <div class="rfq-meta">
                         <span>📅 {{ $rfq->created_at->format('Y-m-d') }}</span>
-                        <span>📦 Books: {{ count(json_decode($rfq->books, true) ?? []) }}</span>
+                        <span>📦 Books: {{ count(($rfq->books) ?? []) }}</span>
                     </div>
                 </div>
 
@@ -336,7 +336,7 @@
                     </div>
 
                     <a href="#" class="view-link" onclick="viewDetails({{ $rfq->id }}); return false;">View Details ➜</a>
-                    
+
                 </div>
             </div>
             @empty
@@ -437,7 +437,7 @@
                         <label><input type="checkbox" name="target_roles[]" value="publisher"> Publisher</label>
                     </div>
                 </div>
-                
+
 
                 <div class="rfq-basic-grid" style="grid-template-columns: repeat(2, 1fr);">
                     <div>
@@ -800,7 +800,7 @@
                 headers: {
                      'X-CSRF-TOKEN': document.querySelector('input[name=_token]').value
                 }
-                
+
             })
             .then(response => response.json())
             .then(data => {
