@@ -18,7 +18,7 @@
                     <span class="change-logo" onclick="document.getElementById('logoInput').click()">
                         Change Logo
                     </span>
-                
+
             </div>
         </div>
 

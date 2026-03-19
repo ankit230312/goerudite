@@ -1,66 +1,77 @@
 <div class="profile-section">
-    <div class="profile-icon">{{ strtoupper(substr(auth()->user()->role,0,1)) }}</div>
+    <div class="profile-icon">{{ strtoupper(substr(auth()->user()->role, 0, 1)) }}</div>
     <div class="profile-name">{{ ucfirst(auth()->user()->role) }}</div>
     <div class="profile-status">VERIFIED</div>
 </div>
 
 <nav>
-    @if(auth()->user()->role === 'administrator')
-
+    @if (auth()->user()->role === 'administrator')
         <a href="{{ route('admin.dashboard') }}"
-        class="menu-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+            class="menu-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
             🏠 Admin Hub
         </a>
 
         <a href="{{ route('admin.student_record') }}"
-        class="menu-item {{ request()->routeIs('admin.student_record') ? 'active' : '' }}">
+            class="menu-item {{ request()->routeIs('admin.student_record') ? 'active' : '' }}">
             👥 Student Records
         </a>
 
         <a href="{{ route('admin.profile') }}"
-        class="menu-item {{ request()->routeIs('admin.profile') ? 'active' : '' }}">
+            class="menu-item {{ request()->routeIs('admin.profile') ? 'active' : '' }}">
             🏫 School Profile
         </a>
 
         <a href="{{ route('admin.rfq_inbox') }}"
-        class="menu-item {{ request()->routeIs('admin.rfq_inbox*') ? 'active' : '' }}">
+            class="menu-item {{ request()->routeIs('admin.rfq_inbox*') ? 'active' : '' }}">
             📨 RFQ Inbox
         </a>
 
         <a href="{{ route('admin.manage_records') }}"
-        class="menu-item {{ request()->routeIs('admin.manage_records*') ? 'active' : '' }}">
+            class="menu-item {{ request()->routeIs('admin.manage_records*') ? 'active' : '' }}">
             📋 Manage Records
         </a>
 
+        <div class="dropdown">
+
+          <a href="#"
+            class="menu-item dropdown-toggle " type="button" id="masterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            📋 Manage Records
+        </a>
+            <ul class="dropdown-menu" aria-labelledby="masterDropdown">
+                <li><a class="dropdown-item" href="#">📚 Classes</a></li>
+                <li><a class="dropdown-item" href="#">👤 Users</a></li>
+                <li><a class="dropdown-item" href="#">📄 Other Masters</a></li>
+            </ul>
+        </div>
     @endif
 
-    @if(auth()->user()->role === 'distributor')
+    @if (auth()->user()->role === 'distributor')
         <a href="{{ route('distributor.dashboard') }}" class="menu-item">🏠 Distributor Hub</a>
         <a href="{{ route('distributor.manage_cateloge') }}" class="menu-item">📦 Catalogue</a>
 
 
         <a href="{{ route('distributor.profile') }}"
-        class="menu-item {{ request()->routeIs('distributor.profile') ? 'active' : '' }}">
+            class="menu-item {{ request()->routeIs('distributor.profile') ? 'active' : '' }}">
             🏫 Distributor Profile
         </a>
 
         <a href="{{ route('distributor.rfq_inbox') }}"
-        class="menu-item {{ request()->routeIs('distributor.rfq_inbox*') ? 'active' : '' }}">
+            class="menu-item {{ request()->routeIs('distributor.rfq_inbox*') ? 'active' : '' }}">
             📨 RFQ Inbox
         </a>
 
         <a href="{{ route('distributor.manage_records') }}"
-        class="menu-item {{ request()->routeIs('distributor.manage_records*') ? 'active' : '' }}">
+            class="menu-item {{ request()->routeIs('distributor.manage_records*') ? 'active' : '' }}">
             📋 Manage Records
         </a>
     @endif
 
-    @if(auth()->user()->role === 'retailer')
+    @if (auth()->user()->role === 'retailer')
         <a href="{{ route('retailer.dashboard') }}" class="menu-item">🏠 Retailer Hub</a>
         <a href="#" class="menu-item">🛒 My Orders</a>
     @endif
 
-    @if(auth()->user()->role === 'publisher')
+    @if (auth()->user()->role === 'publisher')
         <a href="{{ route('publisher.dashboard') }}" class="menu-item">🏠 Publisher Hub</a>
         <a href="#" class="menu-item">📚 My Books</a>
     @endif

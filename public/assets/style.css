@@ -351,7 +351,7 @@
             animation: fadeInUp 1s ease 0.2s both;
         }
 
-    
+
         /* DESCRIPTION */
         .hero-description {
             font-size: clamp(0.95rem, 2vw, 1.15rem);
@@ -440,7 +440,7 @@
         }
 
 
-        
+
       /* STATS WRAPPER */
         .stats-section {
             background: transparent;
@@ -512,7 +512,7 @@
                 gap: 1rem;
             }
         }
-        
+
         /* Ecosystem Section */
         .trending-section {
         padding: 2rem 0;
@@ -803,7 +803,7 @@
         box-shadow: 0 4px 15px rgba(0,0,0,0.06);
         transition: transform 0.3s ease;
         }
-        
+
 
         .info-card:hover {
         transform: translateY(-4px);
@@ -1264,7 +1264,7 @@
                 padding: 6rem 0 2rem;
             }
 
-        
+
             .section-subtitle {
                 font-size: 0.95rem;
             }
@@ -1279,13 +1279,13 @@
         .contact-hero {
         background: linear-gradient(270deg, #b24dfe, #0f1624, #6a5af9, #0f1624);
         background-size: 800% 800%;
-        animation: gradientMove 15s ease infinite; 
+        animation: gradientMove 15s ease infinite;
         min-height: 60vh;
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #fff; 
-        border-radius: 12px; 
+        color: #fff;
+        border-radius: 12px;
     }
 
     /* Animation Keyframes */
@@ -2005,7 +2005,7 @@
             font-size: 3rem;
             margin-bottom: 20px;
         }
-        
+
         /* Team Section */
         .team-grid {
             display: grid;
@@ -2369,7 +2369,7 @@
 
         .form-section {
             display: none;
-            max-width: 600px;
+            max-width: 704px;
             margin: 30px auto;
             padding: 30px;
             background: white;
@@ -2927,17 +2927,17 @@
     .shop-container {
         flex-direction: column;
     }
-    
+
     .sidebar-filters {
         width: 100%;
         position: static;
         margin-bottom: 20px;
     }
-    
+
     .products-grid {
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     }
-    
+
     .filter-options-grid {
         grid-template-columns: 1fr 1fr;
     }
@@ -2947,37 +2947,37 @@
     .shop-container {
         padding: 10px;
     }
-    
+
     .sidebar-filters {
         max-height: 400px;
         overflow-y: auto;
     }
-    
+
     .filter-section {
         padding: 12px 15px;
     }
-    
+
     .products-grid {
         grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
         gap: 15px;
     }
-    
+
     .product-card {
         padding: 10px;
     }
-    
+
     .product-image img {
         height: 200px;
     }
-    
+
     .search-sort-bar {
         flex-direction: column;
     }
-    
+
     .search-box {
         width: 100%;
     }
-    
+
     .filter-options-grid {
         grid-template-columns: 1fr;
     }
@@ -2988,72 +2988,72 @@
         grid-template-columns: repeat(2, 1fr);
         gap: 10px;
     }
-    
+
     .sidebar-filters {
         width: 100%;
         border-radius: 6px;
     }
-    
+
     .filter-header {
         padding: 12px 15px;
     }
-    
+
     .filter-header h3 {
         font-size: 14px;
     }
-    
+
     .filter-section {
         padding: 10px 15px;
     }
-    
+
     .filter-section h4 {
         font-size: 11px;
     }
-    
+
     .filter-option label {
         font-size: 12px;
     }
-    
+
     .product-image img {
         height: 180px;
     }
-    
+
     .product-info h3 {
         font-size: 14px;
     }
-    
+
     .selling-price {
         font-size: 16px;
     }
-    
+
     .add-to-cart {
         padding: 6px 12px;
         font-size: 12px;
     }
-    
+
     .important-tip {
         padding: 12px 15px;
         font-size: 11px;
     }
-    
+
     .verified-publisher-toggle {
         padding: 12px 15px;
     }
-    
+
     .verified-publisher-toggle label {
         font-size: 12px;
     }
-    
+
     .toggle-switch {
         width: 38px;
         height: 20px;
     }
-    
+
     .toggle-switch::after {
         width: 14px;
         height: 14px;
     }
-    
+
     .toggle-switch.active::after {
         transform: translateX(18px);
     }

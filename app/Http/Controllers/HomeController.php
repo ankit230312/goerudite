@@ -83,6 +83,8 @@ class HomeController extends Controller
             'document'        => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
         ];
 
+
+
         if ($request->usertype === 'publisher') {
             $rules['publisher_type'] = 'required|string|max:100';
         }
@@ -97,11 +99,15 @@ class HomeController extends Controller
 
         $data = $request->validate($rules);
 
+
+
         if ($request->hasFile('document')) {
             $data['document'] = $request->file('document')->store('documents', 'public');
         }
 
         $data['password'] = Hash::make('123456'); // temp password
+
+
 
         User::create($data);
 
