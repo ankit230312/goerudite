@@ -2,17 +2,6 @@
 
 @section('content')
     <style>
-
-        .modal {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.55);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 999;
-        }
-
         .modal-box.rfq-box {
             width: 95%;
             max-width: 1100px;
@@ -355,7 +344,7 @@
                         <span>Quotes Received</span>
                     </div>
                     @if(!$isReceived)
-                        <button type="button" class="btn-solid" onclick="markRfqReceived({{ $rfq->id }}, this)">Received RFQ</button>
+                        <button type="button" class="btn-solid" onclick="receiveAndRespond({{ $rfq->id }})">Received RFQ</button>
                     @else
                         <button type="button" class="btn-dark" disabled>Received Done</button>
                     @endif
@@ -556,6 +545,191 @@
         </div>
     </div>
 
+    <div class="modal fade" id="distributorRfqDetailsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">RFQ Response</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="rfqResponseForm">
+                        @csrf
+                        <input type="hidden" id="rfqResponseId" name="rfq_id">
+                        <input type="hidden" id="totalIndicativeValueHidden" name="total_indicative_value">
+
+                        <div class="alert alert-warning small mb-4">
+                            <div class="fw-semibold">This response is for quotation reference only.</div>
+                            <div>It does not represent a confirmed offer, order, supply commitment, or transaction.</div>
+                            <div>Final price, terms, payment, and delivery are decided directly between the parties outside the platform.</div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h6 class="fw-bold mb-3">Section 1: RFQ Summary (Read-Only)</h6>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="form-label">RFQ ID</label>
+                                    <input type="text" class="form-control form-control-sm" id="rfqSummaryId" readonly>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">School Name / Masked School Identity</label>
+                                    <input type="text" class="form-control form-control-sm" id="rfqSummarySchool" readonly>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Quantity Requested</label>
+                                    <input type="text" class="form-control form-control-sm" id="rfqSummaryTotalQty" readonly>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Sender Role</label>
+                                    <input type="text" class="form-control form-control-sm" id="rfqSenderRole" readonly>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Sender Company</label>
+                                    <input type="text" class="form-control form-control-sm" id="rfqSenderCompany" readonly>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Sender City / State</label>
+                                    <input type="text" class="form-control form-control-sm" id="rfqSenderLocation" readonly>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Required Delivery Window</label>
+                                    <input type="text" class="form-control form-control-sm" id="rfqSummaryDelivery" readonly>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">RFQ Closing Date</label>
+                                    <input type="text" class="form-control form-control-sm" id="rfqSummaryClosing" readonly>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <div class="small text-muted mb-2">Class / Grade, Book Title, Publisher, Quantity Requested</div>
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-bordered mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Class / Grade</th>
+                                                <th>Book Title</th>
+                                                <th>Publisher</th>
+                                                <th>Qty</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="rfqSummaryBooksBody">
+                                            <tr>
+                                                <td colspan="4" class="text-muted text-center">No books listed.</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h6 class="fw-bold mb-3">Section 2: Responder Identity (Auto-Filled)</h6>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="form-label">Responder Role</label>
+                                    <input type="text" class="form-control form-control-sm" value="{{ ucfirst(auth()->user()->role ?? 'Distributor') }}" readonly>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Company Name</label>
+                                    <input type="text" class="form-control form-control-sm" value="{{ auth()->user()->business_name ?? 'N/A' }}" readonly>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">City / State / Coverage Area</label>
+                                    <input type="text" class="form-control form-control-sm" value="{{ trim((auth()->user()->city ?? '') . (auth()->user()->state ? ', ' . auth()->user()->state : '') . (auth()->user()->coverage_area ? ' | ' . auth()->user()->coverage_area : '')) ?: 'N/A' }}" readonly>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h6 class="fw-bold mb-3">Section 3: Response Details</h6>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="form-label">Indicative Unit Price (Optional)</label>
+                                    <input type="number" class="form-control form-control-sm" id="indicativeUnitPrice" name="indicative_unit_price" min="0" step="0.01">
+                                    <div class="form-text">Optional. Indicative price if available. Not binding.</div>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Total Indicative Value</label>
+                                    <input type="text" class="form-control form-control-sm" id="totalIndicativeValue" readonly>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Available Quantity (Mandatory)</label>
+                                    <input type="number" class="form-control form-control-sm" id="availableQuantity" name="available_quantity" min="1" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Approx Delivery Window (Mandatory)</label>
+                                    <div class="d-flex gap-2">
+                                        <input type="date" class="form-control form-control-sm" id="deliveryFrom" name="delivery_from" required>
+                                        <input type="date" class="form-control form-control-sm" id="deliveryTo" name="delivery_to" required>
+                                    </div>
+                                    <div class="form-text">Mention approximate delivery window, not a fixed date.</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Stock / Supply Status (Optional)</label>
+                                    <div class="d-flex flex-wrap gap-3 mt-1">
+                                        <label class="form-check-label">
+                                            <input type="radio" class="form-check-input me-1" name="stock_status" value="in_stock">
+                                            In stock
+                                        </label>
+                                        <label class="form-check-label">
+                                            <input type="radio" class="form-check-input me-1" name="stock_status" value="partially_available">
+                                            Partially available
+                                        </label>
+                                        <label class="form-check-label">
+                                            <input type="radio" class="form-check-input me-1" name="stock_status" value="to_be_arranged">
+                                            To be arranged
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Additional Notes (Optional)</label>
+                                    <textarea class="form-control form-control-sm" name="additional_notes" rows="3" placeholder="Any assumptions or clarifications (non-binding)."></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h6 class="fw-bold mb-3">Section 4: Response Confirmation (Mandatory)</h6>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="rfqResponseConfirm" name="confirm_indicative" required>
+                                <label class="form-check-label" for="rfqResponseConfirm">
+                                    I confirm this is an indicative response only. It is not a confirmed offer, order acceptance, or supply commitment.
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h6 class="fw-bold mb-3">Section 5: Contact Visibility (Controlled)</h6>
+                            <div class="border rounded p-3 mb-3">
+                                <div class="small text-muted">Default visible</div>
+                                <div class="d-flex flex-wrap gap-3 mt-2">
+                                    <span><strong>Company Name:</strong> {{ auth()->user()->business_name ?? 'N/A' }}</span>
+                                    <span><strong>City / State:</strong> {{ trim((auth()->user()->city ?? '') . (auth()->user()->state ? ', ' . auth()->user()->state : '')) ?: 'N/A' }}</span>
+                                    <span><strong>Role:</strong> {{ ucfirst(auth()->user()->role ?? 'Distributor') }}</span>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline-secondary mt-3" id="viewContactDetailsBtn">View contact details</button>
+                            </div>
+                            <div class="alert alert-info small d-none" id="contactDetailsDisclaimer">
+                                Contact details are shared only to facilitate independent communication. The platform does not participate in or manage any transaction.
+                            </div>
+                            <div class="border rounded p-3 d-none" id="contactDetailsSection">
+                                <div class="d-flex flex-column gap-2">
+                                    <span><strong>Business phone number:</strong> {{ auth()->user()->mobile ?? 'N/A' }}</span>
+                                    <span><strong>Business email ID:</strong> {{ auth()->user()->email ?? 'N/A' }}</span>
+                                    <span><strong>Business address (optional):</strong> {{ auth()->user()->address ?? 'N/A' }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end">
+                            <button type="button" class="btn btn-primary" id="rfqResponseSubmitBtn" disabled>Submit RFQ Response</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <script>
         const distributorCurrentUserId = {{ auth()->id() }};
@@ -610,11 +784,28 @@
         }
 
         function formatDate(dateStr) {
+            if (!dateStr) {
+                return 'N/A';
+            }
             const date = new Date(dateStr);
+            if (Number.isNaN(date.getTime())) {
+                return dateStr;
+            }
             const day = String(date.getDate()).padStart(2, '0');
             const month = String(date.getMonth() + 1).padStart(2, '0');
             const year = date.getFullYear();
             return `${day}-${month}-${year}`;
+        }
+
+        function maskSchoolName(name) {
+            if (!name) {
+                return 'N/A';
+            }
+            const trimmed = String(name).trim();
+            if (trimmed.length <= 4) {
+                return trimmed[0] + '*'.repeat(Math.max(0, trimmed.length - 1));
+            }
+            return `${trimmed.slice(0, 3)}${'*'.repeat(Math.max(0, trimmed.length - 5))}${trimmed.slice(-2)}`;
         }
 
         function viewDetails(id) {
@@ -756,35 +947,169 @@
             });
         }
 
-        function markRfqReceived(id, button) {
-            const originalText = button.textContent;
-            button.textContent = 'Marking...';
-            button.disabled = true;
+        function resetRfqResponseForm() {
+            const form = document.getElementById('rfqResponseForm');
+            if (form) {
+                form.reset();
+            }
+            const totalField = document.getElementById('totalIndicativeValue');
+            if (totalField) {
+                totalField.value = '';
+            }
+            const totalHiddenField = document.getElementById('totalIndicativeValueHidden');
+            if (totalHiddenField) {
+                totalHiddenField.value = '';
+            }
+            document.getElementById('rfqSenderRole').value = '';
+            document.getElementById('rfqSenderCompany').value = '';
+            document.getElementById('rfqSenderLocation').value = '';
+            document.getElementById('contactDetailsDisclaimer').classList.add('d-none');
+            document.getElementById('contactDetailsSection').classList.add('d-none');
+            document.getElementById('rfqResponseSubmitBtn').disabled = true;
+        }
 
-            fetch(`/distributor/receive-rfq/${id}`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('input[name=_token]').value
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status) {
-                    location.reload();
-                } else {
-                    alert(data.message || 'Unable to mark RFQ as received');
-                    button.textContent = originalText;
-                    button.disabled = false;
-                }
-            })
-            .catch(() => {
-                alert('Server error. Please try again.');
-                button.textContent = originalText;
-                button.disabled = false;
-            });
+        function renderRfqResponseSummary({ rfq, sender, books }) {
+            document.getElementById('rfqSummaryId').value = `RFQ-${rfq.id}`;
+            document.getElementById('rfqSummarySchool').value = maskSchoolName(rfq.school_name);
+            document.getElementById('rfqSummaryDelivery').value = `${formatDate(rfq.delivery_from)} to ${formatDate(rfq.delivery_to)}`;
+            document.getElementById('rfqSummaryClosing').value = formatDate(rfq.rfq_closing_date);
+            document.getElementById('rfqSenderRole').value = sender.role ? sender.role.charAt(0).toUpperCase() + sender.role.slice(1) : 'N/A';
+            document.getElementById('rfqSenderCompany').value = sender.business_name || 'N/A';
+            const senderLocation = [sender.city, sender.state].filter(Boolean).join(', ');
+            document.getElementById('rfqSenderLocation').value = senderLocation || 'N/A';
+
+            const booksBody = document.getElementById('rfqSummaryBooksBody');
+            booksBody.innerHTML = '';
+
+            let totalQty = 0;
+            if (books.length) {
+                books.forEach(book => {
+                    const qty = Number(book.quantity || 0);
+                    totalQty += Number.isFinite(qty) ? qty : 0;
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${book.class_name || 'N/A'}</td>
+                        <td>${book.book_title || book.subject || 'N/A'}</td>
+                        <td>${book.publisher || rfq.publisher || 'N/A'}</td>
+                        <td>${book.quantity || 'N/A'}</td>
+                    `;
+                    booksBody.appendChild(row);
+                });
+            } else {
+                const row = document.createElement('tr');
+                row.innerHTML = '<td colspan="4" class="text-muted text-center">No books listed.</td>';
+                booksBody.appendChild(row);
+            }
+
+            document.getElementById('rfqSummaryTotalQty').value = totalQty || 'N/A';
+        }
+
+        function viewDistributorRfqResponse(id) {
+            fetch(`/distributor/rfq-details/${id}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success) {
+                        return;
+                    }
+
+                    const rfq = data.rfq;
+                    const sender = data.sender || {};
+                    const books = Array.isArray(rfq.books) ? rfq.books : JSON.parse(rfq.books || '[]');
+
+                    resetRfqResponseForm();
+                    document.getElementById('rfqResponseId').value = rfq.id;
+                    renderRfqResponseSummary({ rfq, sender, books });
+
+                    const modal = new bootstrap.Modal(document.getElementById('distributorRfqDetailsModal'));
+                    modal.show();
+                    
+                });
+        }
+
+        function receiveAndRespond(id) {
+            viewDistributorRfqResponse(id);
         }
 
         document.addEventListener('DOMContentLoaded', function () {
+            const unitPriceInput = document.getElementById('indicativeUnitPrice');
+            const qtyInput = document.getElementById('availableQuantity');
+            const totalValueInput = document.getElementById('totalIndicativeValue');
+            const totalHiddenInput = document.getElementById('totalIndicativeValueHidden');
+            const confirmCheckbox = document.getElementById('rfqResponseConfirm');
+            const submitBtn = document.getElementById('rfqResponseSubmitBtn');
+            const viewContactBtn = document.getElementById('viewContactDetailsBtn');
+
+            if (unitPriceInput && qtyInput && totalValueInput && totalHiddenInput && confirmCheckbox && submitBtn) {
+                const updateTotal = () => {
+                    const price = parseFloat(unitPriceInput.value);
+                    const qty = parseFloat(qtyInput.value);
+                    if (!Number.isNaN(price) && !Number.isNaN(qty)) {
+                        const total = (price * qty).toFixed(2);
+                        totalValueInput.value = total;
+                        totalHiddenInput.value = total;
+                    } else {
+                        totalValueInput.value = '';
+                        totalHiddenInput.value = '';
+                    }
+                };
+
+                const updateSubmitState = () => {
+                    submitBtn.disabled = !confirmCheckbox.checked;
+                };
+
+                unitPriceInput.addEventListener('input', updateTotal);
+                qtyInput.addEventListener('input', updateTotal);
+                confirmCheckbox.addEventListener('change', updateSubmitState);
+                updateSubmitState();
+
+                if (viewContactBtn) {
+                    viewContactBtn.addEventListener('click', () => {
+                        document.getElementById('contactDetailsDisclaimer').classList.remove('d-none');
+                        document.getElementById('contactDetailsSection').classList.remove('d-none');
+                    });
+                }
+
+                submitBtn.addEventListener('click', () => {
+                    const form = document.getElementById('rfqResponseForm');
+                    if (!form.checkValidity()) {
+                        form.reportValidity();
+                        return;
+                    }
+
+                    const formData = new FormData(form);
+                    const originalText = submitBtn.textContent;
+                    submitBtn.textContent = 'Submitting...';
+                    submitBtn.disabled = true;
+
+                    fetch('/distributor/rfq-response', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('input[name=_token]').value
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status) {
+                            const modalEl = document.getElementById('distributorRfqDetailsModal');
+                            const modal = bootstrap.Modal.getInstance(modalEl);
+                            if (modal) {
+                                modal.hide();
+                            }
+                        } else {
+                            alert(data.message || 'Unable to submit RFQ response');
+                        }
+                    })
+                    .catch(() => {
+                        alert('Server error. Please try again.');
+                    })
+                    .finally(() => {
+                        submitBtn.textContent = originalText;
+                        updateSubmitState();
+                    });
+                });
+            }
+
             const params = new URLSearchParams(window.location.search);
             const tab = params.get('tab');
             if (tab === 'received') {

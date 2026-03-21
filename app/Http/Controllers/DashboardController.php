@@ -9,10 +9,13 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use App\Models\User;
 use App\Models\SchoolClass;
+use App\Models\Board;
+use App\Models\AcademicSession;
 use App\Models\Rfq;
 use App\Models\RfqReceipt;
 use App\Models\PurchaseRecord;
 use App\Models\Catalogue;
+use App\Models\RfqResponse;
 
 
 class DashboardController extends Controller
@@ -20,6 +23,18 @@ class DashboardController extends Controller
     public function admin()
     {
         return view('admin.dashboard');
+    }
+
+    public function boards()
+    {
+        $boards = Board::latest()->get();
+        return view('admin.boards', compact('boards'));
+    }
+
+    public function academic_sessions()
+    {
+        $sessions = AcademicSession::latest()->get();
+        return view('admin.academic-sessions', compact('sessions'));
     }
 
     public function student_record()
@@ -127,6 +142,152 @@ class DashboardController extends Controller
 
         return response()->json([
             'status' => true
+        ]);
+    }
+
+    public function save_board(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|string|max:255|unique:boards,name',
+                'status' => 'required|in:active,inactive',
+            ]);
+
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
+
+            $board = Board::create($validator->validated());
+
+            return response()->json([
+                'status' => true,
+                'board' => $board,
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => false,
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function update_board(Request $request)
+    {
+        try {
+            $data = $request->validate([
+                'id' => 'required|exists:boards,id',
+                'name' => 'required|string|max:255|unique:boards,name,' . $request->id,
+                'status' => 'required|in:active,inactive',
+            ]);
+
+            $board = Board::findOrFail($data['id']);
+            $board->update([
+                'name' => $data['name'],
+                'status' => $data['status'],
+            ]);
+
+            return response()->json([
+                'status' => true,
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => false,
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function delete_board(Request $request)
+    {
+        Board::where('id', $request->id)->delete();
+
+        return response()->json([
+            'status' => true,
+        ]);
+    }
+
+    public function save_academic_session(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|string|max:255|unique:academic_sessions,name',
+                'status' => 'required|in:active,inactive',
+            ]);
+
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
+
+            $session = AcademicSession::create($validator->validated());
+
+            return response()->json([
+                'status' => true,
+                'session' => $session,
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => false,
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function update_academic_session(Request $request)
+    {
+        try {
+            $data = $request->validate([
+                'id' => 'required|exists:academic_sessions,id',
+                'name' => 'required|string|max:255|unique:academic_sessions,name,' . $request->id,
+                'status' => 'required|in:active,inactive',
+            ]);
+
+            $session = AcademicSession::findOrFail($data['id']);
+            $session->update([
+                'name' => $data['name'],
+                'status' => $data['status'],
+            ]);
+
+            return response()->json([
+                'status' => true,
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => false,
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function delete_academic_session(Request $request)
+    {
+        AcademicSession::where('id', $request->id)->delete();
+
+        return response()->json([
+            'status' => true,
         ]);
     }
 
@@ -348,6 +509,41 @@ class DashboardController extends Controller
         return response()->json(['success' => true, 'rfq' => $rfq]);
     }
 
+    public function rfq_responses($id)
+    {
+        $rfq = Rfq::where('id', $id)->where('user_id', auth()->id())->firstOrFail();
+
+        $responses = RfqResponse::query()
+            ->leftJoin('users', 'users.id', '=', 'rfq_responses.responder_user_id')
+            ->where('rfq_responses.rfq_id', $rfq->id)
+            ->orderByDesc('rfq_responses.submitted_at')
+            ->get([
+                'rfq_responses.id',
+                'rfq_responses.rfq_id',
+                'rfq_responses.responder_user_id',
+                'rfq_responses.responder_role',
+                'rfq_responses.indicative_unit_price',
+                'rfq_responses.total_indicative_value',
+                'rfq_responses.available_quantity',
+                'rfq_responses.delivery_from',
+                'rfq_responses.delivery_to',
+                'rfq_responses.stock_status',
+                'rfq_responses.additional_notes',
+                'rfq_responses.status',
+                'rfq_responses.submitted_at',
+                'rfq_responses.created_at',
+                'rfq_responses.updated_at',
+                'users.business_name',
+                'users.city',
+                'users.state',
+            ]);
+
+        return response()->json([
+            'success' => true,
+            'responses' => $responses,
+        ]);
+    }
+
     public function send_rfq(Request $request, $id)
     {
         $rfq = Rfq::where('id', $id)->where('user_id', auth()->id())->firstOrFail();
@@ -447,7 +643,15 @@ class DashboardController extends Controller
             })
             ->firstOrFail();
 
-        return response()->json(['success' => true, 'rfq' => $rfq]);
+        $sender = User::select('id', 'role', 'business_name', 'city', 'state')
+            ->where('id', $rfq->user_id)
+            ->first();
+
+        return response()->json([
+            'success' => true,
+            'rfq' => $rfq,
+            'sender' => $sender,
+        ]);
     }
 
     public function distributor_close_rfq($id)
@@ -456,6 +660,69 @@ class DashboardController extends Controller
         $rfq->update(['status' => 'closed']);
 
         return response()->json(['status' => true, 'message' => 'RFQ closed successfully']);
+    }
+
+    public function distributor_store_rfq_response(Request $request)
+    {
+        $user = auth()->user();
+
+        $rfq = Rfq::where('id', $request->rfq_id)
+            ->where('user_id', '!=', $user->id)
+            ->where(function ($query) use ($user) {
+                $this->rfqRecipientQuery($user, $query);
+            })
+            ->firstOrFail();
+
+        $data = $request->validate([
+            'rfq_id' => 'required|integer',
+            'indicative_unit_price' => 'nullable|numeric|min:0',
+            'total_indicative_value' => 'nullable|numeric|min:0',
+            'available_quantity' => 'required|integer|min:1',
+            'delivery_from' => 'required|date',
+            'delivery_to' => 'required|date|after_or_equal:delivery_from',
+            'stock_status' => 'nullable|in:in_stock,partially_available,to_be_arranged',
+            'additional_notes' => 'nullable|string',
+            'confirm_indicative' => 'required|accepted',
+        ]);
+
+        $responseData = [
+            'rfq_id' => $rfq->id,
+            'responder_user_id' => $user->id,
+            'responder_company_id' => $user->id,
+            'responder_role' => $user->role,
+            'indicative_unit_price' => $data['indicative_unit_price'] ?? null,
+            'total_indicative_value' => $data['total_indicative_value'] ?? null,
+            'available_quantity' => $data['available_quantity'],
+            'delivery_from' => $data['delivery_from'],
+            'delivery_to' => $data['delivery_to'],
+            'stock_status' => $data['stock_status'] ?? null,
+            'additional_notes' => $data['additional_notes'] ?? null,
+            'status' => 'RESPONSE_SUBMITTED',
+            'submitted_at' => now(),
+        ];
+
+        RfqResponse::updateOrCreate(
+            [
+                'rfq_id' => $rfq->id,
+                'responder_user_id' => $user->id,
+            ],
+            $responseData
+        );
+
+        RfqReceipt::updateOrCreate(
+            [
+                'rfq_id' => $rfq->id,
+                'user_id' => $user->id,
+            ],
+            [
+                'received_at' => now(),
+            ]
+        );
+
+        return response()->json([
+            'status' => true,
+            'message' => 'RFQ response submitted successfully',
+        ]);
     }
 
     public function retailer_store_rfq(Request $request)

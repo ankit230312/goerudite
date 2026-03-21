@@ -323,7 +323,7 @@
 
                     <div class="rfq-meta">
                         <span>📅 {{ $rfq->created_at->format('Y-m-d') }}</span>
-                        <span>📦 Books: {{ count(($rfq->books) ?? []) }}</span>
+                        <span>📦 Books: {{ count($rfq->books) }}</span>
                     </div>
                 </div>
 
@@ -356,7 +356,7 @@
 
                     <div class="rfq-meta">
                         <span>📅 {{ $rfq->created_at->format('Y-m-d') }}</span>
-                        <span>📦 Books: {{ count(json_decode($rfq->books, true) ?? []) }}</span>
+                        <span>📦 Books: {{ count(json_decode($rfq->books ?? '[]', true) ?: []) }}</span>
                     </div>
                 </div>
 

@@ -38,8 +38,15 @@
             📋 Manage Records
         </a>
             <ul class="dropdown-menu" aria-labelledby="masterDropdown">
-                <li><a class="dropdown-item" href="#">📚 Classes</a></li>
-                <li><a class="dropdown-item" href="#">👤 Users</a></li>
+               
+                <li>
+                    <a class="dropdown-item {{ request()->routeIs('admin.boards') ? 'active' : '' }}"
+                        href="{{ route('admin.boards') }}">📘 Boards</a>
+                </li>
+                <li>
+                    <a class="dropdown-item {{ request()->routeIs('admin.academic_sessions') ? 'active' : '' }}"
+                        href="{{ route('admin.academic_sessions') }}">📅 Academic Sessions</a>
+                </li>
                 <li><a class="dropdown-item" href="#">📄 Other Masters</a></li>
             </ul>
         </div>
