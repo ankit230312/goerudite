@@ -8,12 +8,19 @@
 
     <div class="profile-card">
 
+        @php
+            $profileUrl = $profile->profile ? asset('storage/' . $profile->profile) : null;
+        @endphp
+
         <!-- Header -->
         <div class="profile-header">
             <div></div>
             <div class="logo-upload">
-                <div class="logo-circle"
-                    style="background-image:url('{{ asset('storage/'.$profile->profile) }}')"></div>
+                <div class="logo-circle" @if ($profileUrl) style="background-image:url('{{ $profileUrl }}')" @endif>
+                    @if (!$profileUrl)
+                        {{ strtoupper(substr($profile->business_name ?? $profile->role ?? 'U', 0, 1)) }}
+                    @endif
+                </div>
 
                     <span class="change-logo" onclick="document.getElementById('logoInput').click()">
                         Change Logo
@@ -82,7 +89,14 @@
 
                 <div>
                     <label>Board</label>
-                    <input type="text" name="board" value="{{ $profile->board }}">
+                    <select name="board">
+                        <option value="">Select Board</option>
+                        @foreach($boards as $board)
+                            <option value="{{ $board->name }}" {{ $profile->board === $board->name ? 'selected' : '' }}>
+                                {{ $board->name }}
+                            </option>
+                        @endforeach
+                    </select>
                 </div>
                 <!-- <div>
                     <label>Password</label>
@@ -95,7 +109,7 @@
                 <label>About</label>
                 <textarea rows="4" name="about">{{ $profile->about }}</textarea>
             </div>
-            <input type="file" name="profile" hidden id="logoInput">
+            <input type="file" name="profile" hidden id="logoInput" accept="image/*">
 
             <!-- Footer -->
             <div class="profile-footer">

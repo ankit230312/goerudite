@@ -323,17 +323,20 @@
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label fw-bold small">Academic Session</label>
-                                    <input type="text" class="form-control form-control-sm" name="academic_session"
-                                        placeholder="2025-26" required>
+                                    <select class="form-select form-select-sm" name="academic_session" required>
+                                        <option value="">Select session</option>
+                                        @foreach($academicSessions as $session)
+                                            <option value="{{ $session->name }}">{{ $session->name }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label fw-bold small">Applicable Board</label>
                                     <select class="form-select form-select-sm" name="applicable_board" required>
                                         <option value="">Select board</option>
-                                        <option value="CBSE">CBSE</option>
-                                        <option value="ICSE">ICSE</option>
-                                        <option value="State Board">State Board</option>
-                                        <option value="IB">IB</option>
+                                        @foreach($boards as $board)
+                                            <option value="{{ $board->name }}">{{ $board->name }}</option>
+                                        @endforeach
                                     </select>
                                 </div>
                             </div>

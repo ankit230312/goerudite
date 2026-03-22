@@ -142,6 +142,13 @@
             margin: 0 auto 10px;
         }
 
+        .profile-icon.has-photo {
+            background-color: transparent;
+            background-size: cover;
+            background-position: center;
+            color: transparent;
+        }
+
         .profile-name {
             font-weight: 700;
             font-size: 1.1rem;
@@ -956,6 +963,13 @@ input, select {
     background: #fff;
     border: 2px solid #ddd;
     margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: #888;
+    background-size: cover;
+    background-position: center;
 }
 
 .change-logo {
@@ -1332,5 +1346,4 @@ textarea {
     display: flex;
     gap: 10px;
 }
-
 

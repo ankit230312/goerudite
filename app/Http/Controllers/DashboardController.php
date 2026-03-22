@@ -40,7 +40,7 @@ class DashboardController extends Controller
     public function student_record()
     {
         $class_arr = SchoolClass::latest()->get();
-        return view('admin.student-record',compact('class_arr'));
+        return view('admin.student-record', array_merge(compact('class_arr'), $this->getMasterLists()));
     }
 
     public function save_class(Request $request)
@@ -343,7 +343,7 @@ class DashboardController extends Controller
 
         return view('retailer.dashboard', array_merge([
             'operationLogs' => $operationLogs,
-        ], $locationFilters));
+        ], $locationFilters, $this->getMasterLists()));
     }
 
     public function publisher()
@@ -355,7 +355,7 @@ class DashboardController extends Controller
     {
         #dd("rgjkerl");
         $profile = User::find(auth()->id());
-        return view('admin.profile',compact('profile'));
+        return view('admin.profile', array_merge(compact('profile'), $this->getMasterLists()));
     }
 
     public function update_profile(Request $request)
@@ -402,10 +402,102 @@ class DashboardController extends Controller
     {
         #dd("rgjkerl");
         $profile = User::find(auth()->id());
-        return view('distributor.profile',compact('profile'));
+        return view('distributor.profile', array_merge(compact('profile'), $this->getMasterLists()));
     }
 
     public function distributor_update_profile(Request $request)
+    {
+        try {
+
+            $data = $request->validate([
+                'business_name' => 'required',
+                'school_type' => 'nullable',
+                'email' => 'required|email',
+                'mobile' => 'required',
+                'address' => 'nullable',
+                'total_students' => 'nullable|numeric',
+                'state' => 'nullable',
+                'city' => 'nullable',
+                'website_link' => 'nullable',
+                'established' => 'nullable',
+                'board' => 'nullable',
+                'about' => 'nullable',
+                'profile' => 'nullable|image|max:2048',
+            ]);
+
+            if ($request->hasFile('profile')) {
+                $data['profile'] = $request->file('profile')->store('profiles','public');
+            }
+
+            User::updateOrCreate(
+                ['id' => auth()->id()],
+                $data
+            );
+
+            return response()->json(['status' => true]);
+        } catch (\Exception $e) {
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function retailer_profile()
+    {
+        $profile = User::find(auth()->id());
+        return view('retailer.profile', array_merge(compact('profile'), $this->getMasterLists()));
+    }
+
+    public function retailer_update_profile(Request $request)
+    {
+        try {
+
+            $data = $request->validate([
+                'business_name' => 'required',
+                'school_type' => 'nullable',
+                'email' => 'required|email',
+                'mobile' => 'required',
+                'address' => 'nullable',
+                'total_students' => 'nullable|numeric',
+                'state' => 'nullable',
+                'city' => 'nullable',
+                'website_link' => 'nullable',
+                'established' => 'nullable',
+                'board' => 'nullable',
+                'about' => 'nullable',
+                'profile' => 'nullable|image|max:2048',
+            ]);
+
+            if ($request->hasFile('profile')) {
+                $data['profile'] = $request->file('profile')->store('profiles','public');
+            }
+
+            User::updateOrCreate(
+                ['id' => auth()->id()],
+                $data
+            );
+
+            return response()->json(['status' => true]);
+        } catch (\Exception $e) {
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function publisher_profile()
+    {
+        $profile = User::find(auth()->id());
+        return view('publisher.profile', array_merge(compact('profile'), $this->getMasterLists()));
+    }
+
+    public function publisher_update_profile(Request $request)
     {
         try {
 
@@ -454,7 +546,7 @@ class DashboardController extends Controller
         return view('admin.rfq-inbox', array_merge([
             'activeRfqs' => $activeRfqs,
             'historyRfqs' => $historyRfqs,
-        ], $locationFilters));
+        ], $locationFilters, $this->getMasterLists()));
     }
 
     public function store_rfq(Request $request)
@@ -586,7 +678,7 @@ class DashboardController extends Controller
             'historyRfqs' => $historyRfqs,
             'receivedRfqs' => $receivedRfqs,
             'acknowledgedRfqIds' => $acknowledgedRfqIds,
-        ], $locationFilters));
+        ], $locationFilters, $this->getMasterLists()));
     }
 
     public function distributor_receive_rfq($id)
@@ -1195,7 +1287,7 @@ class DashboardController extends Controller
     public function manage_cateloge()
     {
         $catalogues = Catalogue::where('user_id', auth()->id())->latest()->get();
-        return view('distributor.manage-cateloge', compact('catalogues'));
+        return view('distributor.manage-cateloge', array_merge(compact('catalogues'), $this->getMasterLists()));
     }
 
     public function save_catalogue(Request $request)
@@ -1324,6 +1416,14 @@ class DashboardController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+    }
+
+    private function getMasterLists(): array
+    {
+        $boards = Board::where('status', 'active')->orderBy('name')->get();
+        $academicSessions = AcademicSession::where('status', 'active')->orderBy('name')->get();
+
+        return compact('boards', 'academicSessions');
     }
 
 }

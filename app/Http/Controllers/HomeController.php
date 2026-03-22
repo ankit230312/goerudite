@@ -81,6 +81,7 @@ class HomeController extends Controller
             'state'           => 'nullable|string|max:100',
             'pincode'         => 'nullable|string|max:20',
             'document'        => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'profile'         => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ];
 
 
@@ -103,6 +104,10 @@ class HomeController extends Controller
 
         if ($request->hasFile('document')) {
             $data['document'] = $request->file('document')->store('documents', 'public');
+        }
+
+        if ($request->hasFile('profile')) {
+            $data['profile'] = $request->file('profile')->store('profiles', 'public');
         }
 
         $data['password'] = Hash::make('123456'); // temp password

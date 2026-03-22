@@ -178,11 +178,26 @@
             cursor: pointer;
             transition: all 0.3s ease;
             text-align: center;
+            position: relative;
+            overflow: hidden;
         }
 
         .upload-logo span {
             font-size: 11px;
             color: #999;
+        }
+
+        .upload-preview {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
+        .upload-logo.has-preview span {
+            opacity: 0;
         }
 
         .upload-logo:hover {
@@ -270,7 +285,8 @@
 
                 <div class="profile-right">
                     <label class="upload-logo">
-                        <input type="file" name="document" hidden>
+                        <input type="file" name="profile" accept="image/*" hidden>
+                        <img class="upload-preview" alt="Profile preview" />
                         <span>Upload Logo</span>
                     </label>
                 </div>
@@ -381,13 +397,26 @@
                 <div class="form-subtitle">For Warehouse Owner</div>
             </div>
         </div>
-
-        <h2 class="text-dark mb-3">Complete Your Profile</h2>
-
         <form method="POST" action="{{ route('user.register') }}" enctype="multipart/form-data">
             @csrf
 
             <input type="hidden" name="role" value="distributor">
+
+            <h2 class="text-dark mb-3">Complete Your Profile</h2>
+
+            <div class="profile-box mb-3">
+                <div class="profile-left">
+                    <h3 class="text-dark">Profile Image</h3>
+                </div>
+
+                <div class="profile-right">
+                    <label class="upload-logo">
+                        <input type="file" name="profile" accept="image/*" hidden>
+                        <img class="upload-preview" alt="Profile preview" />
+                        <span>Upload Logo</span>
+                    </label>
+                </div>
+            </div>
 
             <div class="form-grid">
 
@@ -490,13 +519,26 @@
                 <div class="form-subtitle">For Bookshop Owner</div>
             </div>
         </div>
-
-        <h2 class="text-dark mb-3">Complete Your Profile</h2>
-
         <form method="POST" action="{{ route('user.register') }}" enctype="multipart/form-data">
             @csrf
 
             <input type="hidden" name="role" value="retailer">
+
+            <h2 class="text-dark mb-3">Complete Your Profile</h2>
+
+            <div class="profile-box mb-3">
+                <div class="profile-left">
+                    <h3 class="text-dark">Profile Image</h3>
+                </div>
+
+                <div class="profile-right">
+                    <label class="upload-logo">
+                        <input type="file" name="profile" accept="image/*" hidden>
+                        <img class="upload-preview" alt="Profile preview" />
+                        <span>Upload Logo</span>
+                    </label>
+                </div>
+            </div>
 
             <div class="form-grid">
 
@@ -599,13 +641,26 @@
                 <div class="form-subtitle">For Content Creators</div>
             </div>
         </div>
-
-        <h2 class="text-dark mb-3">Complete Your Profile</h2>
-
         <form method="POST" action="{{ route('user.register') }}" enctype="multipart/form-data">
             @csrf
 
             <input type="hidden" name="role" value="publisher">
+
+            <h2 class="text-dark mb-3">Complete Your Profile</h2>
+
+            <div class="profile-box mb-3">
+                <div class="profile-left">
+                    <h3 class="text-dark">Profile Image</h3>
+                </div>
+
+                <div class="profile-right">
+                    <label class="upload-logo">
+                        <input type="file" name="profile" accept="image/*" hidden>
+                        <img class="upload-preview" alt="Profile preview" />
+                        <span>Upload Logo</span>
+                    </label>
+                </div>
+            </div>
 
             <div class="form-grid">
 
@@ -730,6 +785,33 @@
     //         alert('Form submitted successfully! (Demo)');
     //     });
     // });
+
+    // Profile image preview for registration forms
+    document.querySelectorAll('input[type="file"][name="profile"]').forEach(function(input) {
+        input.addEventListener('change', function() {
+            const file = this.files && this.files[0] ? this.files[0] : null;
+            const label = this.closest('label.upload-logo');
+            if (!label) return;
+
+            const preview = label.querySelector('.upload-preview');
+            if (!preview) return;
+
+            if (!file) {
+                preview.src = '';
+                preview.style.display = 'none';
+                label.classList.remove('has-preview');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+                label.classList.add('has-preview');
+            };
+            reader.readAsDataURL(file);
+        });
+    });
 </script>
 @include('partials.india-state-city-script')
 @endpush

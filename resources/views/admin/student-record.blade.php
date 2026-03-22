@@ -74,10 +74,9 @@
                             <label>Academic Session</label>
                             <select name="academic_session" id="">
                                 <option value="">Select Academic Session</option>
-                                <option value="2024-25">2024-25</option>
-                                <option value="2025-26">2025-26</option>
-                                <option value="2026-27">2026-27</option>
-                                <option value="2027-28">2027-28</option>
+                                @foreach($academicSessions as $session)
+                                    <option value="{{ $session->name }}">{{ $session->name }}</option>
+                                @endforeach
                             </select>
                         </div>
 
@@ -85,10 +84,9 @@
                             <label>Board</label>
                             <select name="board">
                                 <option value="">Select Board</option>
-                                <option value="CBSE">CBSE</option>
-                                <option value="ICSE">ICSE</option>
-                                <option value="State Board">State Board</option>
-                                <option value="Other">Other</option>
+                                @foreach($boards as $board)
+                                    <option value="{{ $board->name }}">{{ $board->name }}</option>
+                                @endforeach
                             </select>
                         </div>
 
@@ -191,10 +189,9 @@
                             <label>Academic Session</label>
                             <select name="academic_session" id="edit_academic_session">
                                 <option value="">Select Academic Session</option>
-                                <option value="2024-25">2024-25</option>
-                                <option value="2025-26">2025-26</option>
-                                <option value="2026-27">2026-27</option>
-                                <option value="2027-28">2027-28</option>
+                                @foreach($academicSessions as $session)
+                                    <option value="{{ $session->name }}">{{ $session->name }}</option>
+                                @endforeach
                             </select>
                         </div>
 
@@ -202,10 +199,9 @@
                             <label>Board</label>
                             <select name="board" id="edit_board">
                                 <option value="">Select Board</option>
-                                <option value="CBSE">CBSE</option>
-                                <option value="ICSE">ICSE</option>
-                                <option value="State Board">State Board</option>
-                                <option value="Other">Other</option>
+                                @foreach($boards as $board)
+                                    <option value="{{ $board->name }}">{{ $board->name }}</option>
+                                @endforeach
                             </select>
                         </div>
 
