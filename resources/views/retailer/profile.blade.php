@@ -25,7 +25,7 @@
                     <span class="change-logo" onclick="document.getElementById('logoInput').click()">
                         Change Logo
                     </span>
-                
+
             </div>
         </div>
 
@@ -34,12 +34,12 @@
 
             <div class="profile-grid">
                 <div>
-                    <label>School Name / Institute Name</label>
+                    <label>Business Name</label>
                     <input type="text" name="business_name" value="{{ $profile->business_name }}">
                 </div>
 
                 <div>
-                    <label>School Type / Institute Type</label>
+                    <label>Business Type</label>
                     <input type="text" name="school_type" value="{{ $profile->school_type }}">
                 </div>
 
@@ -98,10 +98,6 @@
                         @endforeach
                     </select>
                 </div>
-                <!-- <div>
-                    <label>Password</label>
-                    <input type="password">
-                </div> -->
             </div>
 
             <!-- About -->
@@ -132,7 +128,7 @@ document.getElementById('profileForm').addEventListener('submit', function(e){
 
     let formData = new FormData(this);
 
-    fetch("{{ route('distributor.profile.update') }}", {
+    fetch("{{ route('retailer.profile.update') }}", {
         method: "POST",
         headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
         body: formData

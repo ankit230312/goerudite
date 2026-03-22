@@ -89,6 +89,8 @@ Route::middleware(['auth', 'role:distributor'])->group(function () {
 // retailer panel
 Route::middleware(['auth', 'role:retailer'])->group(function () {
     Route::get('/retailer/dashboard', [DashboardController::class, 'retailer'])->name('retailer.dashboard');
+    Route::get('/retailer/profile', [DashboardController::class, 'retailer_profile'])->name('retailer.profile');
+    Route::post('/retailer/profile/update', [DashboardController::class, 'retailer_update_profile'])->name('retailer.profile.update');
     Route::post('/retailer/store-rfq', [DashboardController::class, 'retailer_store_rfq'])->name('retailer.store_rfq');
     Route::post('/retailer/close-rfq/{id}', [DashboardController::class, 'retailer_close_rfq'])->name('retailer.close_rfq');
     Route::get('/retailer/rfq-details/{id}', [DashboardController::class, 'retailer_rfq_details'])->name('retailer.rfq_details');
@@ -97,4 +99,6 @@ Route::middleware(['auth', 'role:retailer'])->group(function () {
 // publisher panel
 Route::middleware(['auth', 'role:publisher'])->group(function () {
     Route::get('/publisher/dashboard', [DashboardController::class, 'publisher'])->name('publisher.dashboard');
+    Route::get('/publisher/profile', [DashboardController::class, 'publisher_profile'])->name('publisher.profile');
+    Route::post('/publisher/profile/update', [DashboardController::class, 'publisher_update_profile'])->name('publisher.profile.update');
 });

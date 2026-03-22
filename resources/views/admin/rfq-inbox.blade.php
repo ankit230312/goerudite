@@ -493,10 +493,9 @@
                         <label>Academic Session</label>
                         <select name="academic_session" required>
                             <option value="">Select Academic Session</option>
-                            <option value="2024-25">2024-25</option>
-                            <option value="2025-26">2025-26</option>
-                            <option value="2026-27">2026-27</option>
-                            <option value="2027-28">2027-28</option>
+                            @foreach($academicSessions as $session)
+                                <option value="{{ $session->name }}">{{ $session->name }}</option>
+                            @endforeach
                         </select>
                     </div>
                 </div>

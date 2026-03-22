@@ -1,5 +1,12 @@
+@php
+    $sidebarProfileUrl = auth()->user()->profile ? asset('storage/' . auth()->user()->profile) : null;
+@endphp
 <div class="profile-section">
-    <div class="profile-icon">{{ strtoupper(substr(auth()->user()->role, 0, 1)) }}</div>
+    <div class="profile-icon @if ($sidebarProfileUrl) has-photo @endif" @if ($sidebarProfileUrl) style="background-image:url('{{ $sidebarProfileUrl }}')" @endif>
+        @if (!$sidebarProfileUrl)
+            {{ strtoupper(substr(auth()->user()->role, 0, 1)) }}
+        @endif
+    </div>
     <div class="profile-name">{{ ucfirst(auth()->user()->role) }}</div>
     <div class="profile-status">VERIFIED</div>
 </div>
@@ -75,12 +82,20 @@
 
     @if (auth()->user()->role === 'retailer')
         <a href="{{ route('retailer.dashboard') }}" class="menu-item">🏠 Retailer Hub</a>
-        <a href="#" class="menu-item"> My Orders</a>
+        <a href="{{ route('retailer.profile') }}"
+            class="menu-item {{ request()->routeIs('retailer.profile') ? 'active' : '' }}">
+            🏫 Retailer Profile
+        </a>
+        <a href="#" class="menu-item">🛒 My Orders</a>
     @endif
 
     @if (auth()->user()->role === 'publisher')
         <a href="{{ route('publisher.dashboard') }}" class="menu-item">🏠 Publisher Hub</a>
-        <a href="#" class="menu-item"> My Books</a>
+        <a href="{{ route('publisher.profile') }}"
+            class="menu-item {{ request()->routeIs('publisher.profile') ? 'active' : '' }}">
+            🏫 Publisher Profile
+        </a>
+        <a href="#" class="menu-item">📚 My Books</a>
     @endif
 
     <a href="{{ route('logout') }}" class="menu-item sign-out">🚪 Sign Out</a>
