@@ -411,11 +411,11 @@ class DashboardController extends Controller
 
             $data = $request->validate([
                 'business_name' => 'required',
-                'school_type' => 'nullable',
+                'contact_person' => 'nullable',
                 'email' => 'required|email',
                 'mobile' => 'required',
                 'address' => 'nullable',
-                'total_students' => 'nullable|numeric',
+                'gst' => 'nullable',
                 'state' => 'nullable',
                 'city' => 'nullable',
                 'website_link' => 'nullable',
@@ -424,6 +424,8 @@ class DashboardController extends Controller
                 'about' => 'nullable',
                 'profile' => 'nullable|image|max:2048',
             ]);
+
+
 
             if ($request->hasFile('profile')) {
                 $data['profile'] = $request->file('profile')->store('profiles','public');
@@ -1343,6 +1345,25 @@ class DashboardController extends Controller
                 'status' => false,
                 'errors' => $e->errors()
             ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function delete_catalogue(Request $request)
+    {
+        try {
+            $catalogue = Catalogue::where('id', $request->id)->where('user_id', auth()->id())->firstOrFail();
+            $catalogue->delete();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Catalogue deleted successfully'
+            ]);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,

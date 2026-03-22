@@ -67,6 +67,7 @@ Route::middleware(['auth', 'role:distributor'])->group(function () {
     Route::get('/distributor/manage-cateloge', [DashboardController::class, 'manage_cateloge'])->name('distributor.manage_cateloge');
     Route::post('/distributor/save-catalogue', [DashboardController::class, 'save_catalogue'])->name('distributor.save_catalogue');
     Route::post('/distributor/update-catalogue', [DashboardController::class, 'update_catalogue'])->name('distributor.update_catalogue');
+        Route::post('/distributor/delete-catalogue', [DashboardController::class, 'delete_catalogue'])->name('distributor.delete_catalogue');
 
     Route::get('/distributor/profile', [DashboardController::class, 'distributor_profile'])->name('distributor.profile');
     Route::post('/distributor/profile/update', [DashboardController::class, 'distributor_update_profile'])->name('distributor.profile.update');

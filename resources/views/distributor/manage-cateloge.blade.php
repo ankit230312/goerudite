@@ -18,14 +18,14 @@
                 <button class="btn btn-dark me-2" data-bs-toggle="modal" data-bs-target="#baseDetailsModal">
                     <i class="fas fa-plus"></i> ADD CATALOGUE
                 </button>
-                <a href="#" class="common-btn" data-bs-toggle="modal" data-bs-target="#classRfqModal">RAISE CLASS-WISE
+                <a href="#" class="common-btn" data-bs-toggle="modal" data-bs-target="#classRfqModal">RAISE
                     RFQ</a>
             </div>
         </div>
 
         <div class="catalogue-slider-section mb-5">
-            <div id="catalogueCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="false" data-bs-wrap="false"
-                data-bs-touch="true">
+            <div id="catalogueCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="false"
+                data-bs-wrap="false" data-bs-touch="true">
                 <div class="carousel-indicators">
                     @forelse($catalogues as $index => $catalogue)
                         <button type="button" data-bs-target="#catalogueCarousel" data-bs-slide-to="{{ $index }}"
@@ -133,9 +133,15 @@
                                             <span class="price-label">MRP</span>
                                             <span class="price-value">₹{{ number_format($catalogue->mrp, 2) }}</span>
                                         </div>
-                                        <div class="mt-2">
+                                        {{-- <div class="mt-2">
                                             <a href="#" class="btn btn-sm btn-primary" data-bs-toggle="modal"
                                                 data-bs-target="#classRfqModal">Raise RFQ</a>
+                                        </div> --}}
+                                        <div class="mt-2">
+                                            <a href="javascript:void(0)" class="btn btn-sm btn-danger disdlt"
+                                                data-id="{{ $catalogue->id }}">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
                                         </div>
                                     </div>
                                 </div>
@@ -325,7 +331,7 @@
                                     <label class="form-label fw-bold small">Academic Session</label>
                                     <select class="form-select form-select-sm" name="academic_session" required>
                                         <option value="">Select session</option>
-                                        @foreach($academicSessions as $session)
+                                        @foreach ($academicSessions as $session)
                                             <option value="{{ $session->name }}">{{ $session->name }}</option>
                                         @endforeach
                                     </select>
@@ -334,7 +340,7 @@
                                     <label class="form-label fw-bold small">Applicable Board</label>
                                     <select class="form-select form-select-sm" name="applicable_board" required>
                                         <option value="">Select board</option>
-                                        @foreach($boards as $board)
+                                        @foreach ($boards as $board)
                                             <option value="{{ $board->name }}">{{ $board->name }}</option>
                                         @endforeach
                                     </select>
@@ -448,19 +454,10 @@
             </div>
         </div>
     </div>
-
-
-    @endsection
+@endsection
 
 @push('scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-            console.log('[manage-cateloge] DOMContentLoaded fired');
-        const catalogueModalEl = document.getElementById('baseDetailsModal');
-        const catalogueModalTitle = document.getElementById('catalogueModalTitle');
-        const catalogueSubmitBtn = document.getElementById('catalogueSubmitBtn');
-        const catalogueIdInput = document.getElementById('catalogueId');
-
+    <script>
         function showToast(message, type = 'success') {
             const isSuccess = type === 'success';
             Toastify({
@@ -468,194 +465,231 @@
                 duration: 3000,
                 gravity: "top",
                 position: "right",
-                backgroundColor: isSuccess
-                    ? "linear-gradient(135deg, #ff7a18, #ffb347)"
-                    : "#ff4d4f"
+                backgroundColor: isSuccess ?
+                    "linear-gradient(135deg, #ff7a18, #ffb347)" : "#ff4d4f"
             }).showToast();
         }
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('[manage-cateloge] DOMContentLoaded fired');
+            const catalogueModalEl = document.getElementById('baseDetailsModal');
+            const catalogueModalTitle = document.getElementById('catalogueModalTitle');
+            const catalogueSubmitBtn = document.getElementById('catalogueSubmitBtn');
+            const catalogueIdInput = document.getElementById('catalogueId');
 
-        function setCatalogueFormMode(isEdit) {
-            if (isEdit) {
-                catalogueModalTitle.textContent = 'EDIT CATALOGUE';
-                catalogueSubmitBtn.textContent = 'Update Catalogue';
-                catalogueSubmitBtn.classList.remove('btn-danger');
-                catalogueSubmitBtn.classList.add('btn-primary');
-            } else {
-                catalogueModalTitle.textContent = 'BASE DETAILS';
-                catalogueSubmitBtn.textContent = 'Save Catalogue';
-                catalogueSubmitBtn.classList.remove('btn-primary');
-                catalogueSubmitBtn.classList.add('btn-danger');
-            }
-        }
 
-        function setField(name, value) {
-            const field = catalogueForm.querySelector(`[name="${name}"]`);
-            if (!field) {
-                return;
-            }
 
-            if (field.type === 'checkbox') {
-                field.checked = !!value;
-                return;
-            }
-
-            field.value = value ?? '';
-        }
-
-        function resetCatalogueForm() {
-            catalogueForm.reset();
-            catalogueIdInput.value = '';
-            setCatalogueFormMode(false);
-        }
-
-        function openEditCatalogue(catalogue) {
-            setCatalogueFormMode(true);
-            catalogueIdInput.value = catalogue.id || '';
-
-            setField('catalogue_title', catalogue.catalogue_title);
-            setField('publisher_brand_name', catalogue.publisher_brand_name);
-            setField('academic_session', catalogue.academic_session);
-            setField('applicable_board', catalogue.applicable_board);
-            setField('medium', catalogue.medium);
-            setField('print_length', catalogue.print_length);
-            setField('published_on', catalogue.published_on);
-            setField('isbn_13', catalogue.isbn_13);
-            setField('isbn_10', catalogue.isbn_10);
-            setField('reading_age', catalogue.reading_age);
-            setField('dimensions', catalogue.dimensions);
-            setField('volume_part_numbers', catalogue.volume_part_numbers);
-            setField('mrp', catalogue.mrp);
-            setField('category', catalogue.category);
-            setField('description', catalogue.description);
-            setField('confirm_catalogue', catalogue.confirmed);
-
-            const modal = bootstrap.Modal.getOrCreateInstance(catalogueModalEl);
-            modal.show();
-        }
-
-        document.querySelectorAll('.edit-catalogue-btn').forEach((btn) => {
-            btn.addEventListener('click', function() {
-                try {
-                    const raw = this.getAttribute('data-catalogue');
-                    const catalogueData = JSON.parse(raw);
-                    openEditCatalogue(catalogueData);
-                } catch (e) {
-                    showToast('Unable to open edit form.', 'error');
+            function setCatalogueFormMode(isEdit) {
+                if (isEdit) {
+                    catalogueModalTitle.textContent = 'EDIT CATALOGUE';
+                    catalogueSubmitBtn.textContent = 'Update Catalogue';
+                    catalogueSubmitBtn.classList.remove('btn-danger');
+                    catalogueSubmitBtn.classList.add('btn-primary');
+                } else {
+                    catalogueModalTitle.textContent = 'BASE DETAILS';
+                    catalogueSubmitBtn.textContent = 'Save Catalogue';
+                    catalogueSubmitBtn.classList.remove('btn-primary');
+                    catalogueSubmitBtn.classList.add('btn-danger');
                 }
+            }
+
+            function setField(name, value) {
+                const field = catalogueForm.querySelector(`[name="${name}"]`);
+                if (!field) {
+                    return;
+                }
+
+                if (field.type === 'checkbox') {
+                    field.checked = !!value;
+                    return;
+                }
+
+                field.value = value ?? '';
+            }
+
+            function resetCatalogueForm() {
+                catalogueForm.reset();
+                catalogueIdInput.value = '';
+                setCatalogueFormMode(false);
+            }
+
+            function openEditCatalogue(catalogue) {
+                setCatalogueFormMode(true);
+                catalogueIdInput.value = catalogue.id || '';
+
+                setField('catalogue_title', catalogue.catalogue_title);
+                setField('publisher_brand_name', catalogue.publisher_brand_name);
+                setField('academic_session', catalogue.academic_session);
+                setField('applicable_board', catalogue.applicable_board);
+                setField('medium', catalogue.medium);
+                setField('print_length', catalogue.print_length);
+                setField('published_on', catalogue.published_on);
+                setField('isbn_13', catalogue.isbn_13);
+                setField('isbn_10', catalogue.isbn_10);
+                setField('reading_age', catalogue.reading_age);
+                setField('dimensions', catalogue.dimensions);
+                setField('volume_part_numbers', catalogue.volume_part_numbers);
+                setField('mrp', catalogue.mrp);
+                setField('category', catalogue.category);
+                setField('description', catalogue.description);
+                setField('confirm_catalogue', catalogue.confirmed);
+
+                const modal = bootstrap.Modal.getOrCreateInstance(catalogueModalEl);
+                modal.show();
+            }
+
+            document.querySelectorAll('.edit-catalogue-btn').forEach((btn) => {
+                btn.addEventListener('click', function() {
+                    try {
+                        const raw = this.getAttribute('data-catalogue');
+                        const catalogueData = JSON.parse(raw);
+                        openEditCatalogue(catalogueData);
+                    } catch (e) {
+                        showToast('Unable to open edit form.', 'error');
+                    }
+                });
             });
-        });
 
-        catalogueModalEl.addEventListener('hidden.bs.modal', function() {
-            resetCatalogueForm();
-        });
+            catalogueModalEl.addEventListener('hidden.bs.modal', function() {
+                resetCatalogueForm();
+            });
 
-        catalogueForm.addEventListener('submit', function(e) {
-            e.preventDefault();
+            catalogueForm.addEventListener('submit', function(e) {
+                e.preventDefault();
 
-            const form = this;
-            const formData = new FormData(form);
-            const isEdit = !!formData.get('catalogue_id');
-            const submitUrl = isEdit
-                ? "{{ route('distributor.update_catalogue') }}"
-                : "{{ route('distributor.save_catalogue') }}";
-            const successMessage = isEdit
-                ? 'Catalogue updated successfully.'
-                : 'Catalogue saved successfully.';
+                const form = this;
+                const formData = new FormData(form);
+                const isEdit = !!formData.get('catalogue_id');
+                const submitUrl = isEdit ?
+                    "{{ route('distributor.update_catalogue') }}" :
+                    "{{ route('distributor.save_catalogue') }}";
+                const successMessage = isEdit ?
+                    'Catalogue updated successfully.' :
+                    'Catalogue saved successfully.';
 
-            fetch(submitUrl, {
-                method: "POST",
-                headers: {
-                    'X-CSRF-TOKEN': form.querySelector('input[name=_token]').value
-                },
-                body: formData
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.status) {
-                    const modal = bootstrap.Modal.getInstance(catalogueModalEl);
-                    if (modal) {
-                        modal.hide();
+                fetch(submitUrl, {
+                        method: "POST",
+                        headers: {
+                            'X-CSRF-TOKEN': form.querySelector('input[name=_token]').value
+                        },
+                        body: formData
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.status) {
+                            const modal = bootstrap.Modal.getInstance(catalogueModalEl);
+                            if (modal) {
+                                modal.hide();
+                            }
+
+                            showToast(successMessage, 'success');
+                            window.location.reload();
+                            return;
+                        }
+
+                        if (data.errors) {
+                            const errors = Object.values(data.errors).flat().join('\n');
+                            showToast(errors, 'error');
+                            return;
+                        }
+
+                        showToast(data.message || 'Failed to save catalogue.', 'error');
+                    })
+                    .catch(() => {
+                        showToast('Server error. Please try again.', 'error');
+                    });
+            });
+
+            const carouselElement = document.getElementById('catalogueCarousel');
+            console.log('[manage-cateloge] carouselElement=', carouselElement);
+            console.log('[manage-cateloge] bootstrap available=', typeof bootstrap !== 'undefined');
+            if (carouselElement && typeof bootstrap !== 'undefined') {
+                console.log('[manage-cateloge] initializing bootstrap carousel');
+                const catalogueCarousel = bootstrap.Carousel.getOrCreateInstance(carouselElement, {
+                    interval: false,
+                    wrap: false,
+                    touch: true
+                });
+
+                const prevBtn = document.getElementById('prevCatalogueBtn');
+                const nextBtn = document.getElementById('nextCatalogueBtn');
+
+                if (prevBtn) {
+                    prevBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        catalogueCarousel.prev();
+                    });
+                }
+
+                if (nextBtn) {
+                    nextBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        catalogueCarousel.next();
+                    });
+                }
+
+                let wheelLock = false;
+                let lastWheelAt = 0;
+                const WHEEL_COOLDOWN = 650;
+
+                carouselElement.addEventListener('wheel', function(e) {
+                    const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+                    const now = Date.now();
+
+                    if (Math.abs(delta) < 2) {
+                        return;
                     }
 
-                    showToast(successMessage, 'success');
-                    window.location.reload();
-                    return;
-                }
+                    e.preventDefault();
+                    if (wheelLock || (now - lastWheelAt) < WHEEL_COOLDOWN) {
+                        return;
+                    }
 
-                if (data.errors) {
-                    const errors = Object.values(data.errors).flat().join('\n');
-                    showToast(errors, 'error');
-                    return;
-                }
+                    wheelLock = true;
+                    lastWheelAt = now;
 
-                showToast(data.message || 'Failed to save catalogue.', 'error');
-            })
-            .catch(() => {
-                showToast('Server error. Please try again.', 'error');
+                    if (delta > 0) {
+                        catalogueCarousel.next();
+                    } else {
+                        catalogueCarousel.prev();
+                    }
+
+                    setTimeout(() => {
+                        wheelLock = false;
+                    }, WHEEL_COOLDOWN);
+                }, {
+                    passive: false
+                });
+            }
+        });
+    </script>
+
+    <script>
+        document.querySelectorAll('.disdlt').forEach(button => {
+            button.addEventListener('click', function() {
+                let id = this.getAttribute('data-id');
+
+                if (confirm("Are you sure you want to delete?")) {
+                    fetch("{{ route('distributor.delete_catalogue') }}", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                            },
+                            body: JSON.stringify({
+                                id: id
+                            })
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.status) {
+                                showToast('Catalogue deleted successfully.', 'success');
+                                location.reload();
+                            } else {
+                                showToast('Error occurred while deleting catalogue.', 'error');
+                            }
+                        });
+                }
             });
         });
-
-        const carouselElement = document.getElementById('catalogueCarousel');
-        console.log('[manage-cateloge] carouselElement=', carouselElement);
-        console.log('[manage-cateloge] bootstrap available=', typeof bootstrap !== 'undefined');
-        if (carouselElement && typeof bootstrap !== 'undefined') {
-            console.log('[manage-cateloge] initializing bootstrap carousel');
-            const catalogueCarousel = bootstrap.Carousel.getOrCreateInstance(carouselElement, {
-                interval: false,
-                wrap: false,
-                touch: true
-            });
-
-            const prevBtn = document.getElementById('prevCatalogueBtn');
-            const nextBtn = document.getElementById('nextCatalogueBtn');
-
-            if (prevBtn) {
-                prevBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    catalogueCarousel.prev();
-                });
-            }
-
-            if (nextBtn) {
-                nextBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    catalogueCarousel.next();
-                });
-            }
-
-            let wheelLock = false;
-            let lastWheelAt = 0;
-            const WHEEL_COOLDOWN = 650;
-
-            carouselElement.addEventListener('wheel', function(e) {
-                const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
-                const now = Date.now();
-
-                if (Math.abs(delta) < 2) {
-                    return;
-                }
-
-                e.preventDefault();
-                if (wheelLock || (now - lastWheelAt) < WHEEL_COOLDOWN) {
-                    return;
-                }
-
-                wheelLock = true;
-                lastWheelAt = now;
-
-                if (delta > 0) {
-                    catalogueCarousel.next();
-                } else {
-                    catalogueCarousel.prev();
-                }
-
-                setTimeout(() => {
-                    wheelLock = false;
-                }, WHEEL_COOLDOWN);
-            }, {
-                passive: false
-            });
-        }
-    });
-</script>
+    </script>
 @endpush

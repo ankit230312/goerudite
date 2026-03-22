@@ -3,7 +3,7 @@
 @section('content')
 
     <main class="content">
-        
+
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
                 <div>
                     <div class="page-title">All Purchase Records</div>
@@ -52,7 +52,7 @@
             <!-- <div class="tip">
                 <strong>Pro Tip:</strong> Update student counts regularly. RFQs auto-calculate with 2% safety buffer.
             </div> -->
-        
+
 
 
     </main>
@@ -124,7 +124,7 @@
                         </div>
 
                         <div>
-                            <label>Unit Price & Total Amount</label>
+                            <label>Total Amount</label>
                             <input type="text" name="amount">
                         </div>
 
@@ -236,7 +236,7 @@
                         </div>
 
                         <div>
-                            <label>Unit Price & Total Amount</label>
+                            <label>Total Amount</label>
                             <input type="text" name="amount" id="edit_amount">
                         </div>
 

@@ -20,7 +20,7 @@
     $stats = [
     ['label' => 'Followers', 'icon' => 'fa-user'],
     ['label' => 'Add to Cart', 'icon' => 'fa-cart-plus'],
-    ['label' => 'Total Students', 'icon' => 'fa-graduation-cap'],
+    ['label' => 'Active Request', 'icon' => 'fa-graduation-cap'],
     ['label' => 'Manage Records', 'icon' => 'fa-clipboard-list'],
     ['label' => 'Notification RFQ', 'icon' => 'fa-bell'],
     ];
@@ -33,7 +33,7 @@
                     <i class="fas {{ $s['icon'] }} fa-2x text-orange mb-2"></i>
                     <div class="text-muted small">{{ strtoupper($s['label']) }}</div>
                     <h3 class="fw-bold mb-1 text-orange">0</h3>
-                    <small class="text-muted text-orange">0 Last Year</small>
+
                 </div>
             </div>
         </div>
@@ -482,7 +482,7 @@
                                     <td>${book.class_name || 'N/A'}</td>
                                     <td>${book.book_title || book.subject || 'N/A'}</td>
                                     <td>${book.publisher || rfq.publisher || 'N/A'}</td>
-                                    <td>${book.quantity || 'N/A'}</td>                          
+                                    <td>${book.quantity || 'N/A'}</td>
                                 `;
                             booksBody.appendChild(row);
                         });

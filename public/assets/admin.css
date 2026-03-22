@@ -24,6 +24,7 @@
             border: none;
             cursor: pointer;
             font-weight: 600;
+            text-decoration: none;
         }
 
         /* Header */
@@ -1318,6 +1319,8 @@ textarea {
 }
 .menu-item:hover {
     transform: translateX(6px);
+        color: #ff6b35;
+
     background: linear-gradient(90deg, rgba(255,107,53,0.06), rgba(255,107,53,0.02));
 }
 

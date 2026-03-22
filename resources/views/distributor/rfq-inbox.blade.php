@@ -42,7 +42,7 @@
             font-size: 15px;
             font-weight: 600;
             margin: 20px 0 10px;
-            color: #ff6b1a; 
+            color: #ff6b1a;
             /* #ff6b1a */
         }
 
@@ -155,7 +155,7 @@
             justify-content: space-between;
             align-items: center;
             margin-top: 25px;
-            flex-wrap: wrap;        
+            flex-wrap: wrap;
             gap: 10px;
         }
 
@@ -243,8 +243,8 @@
             gap: 15px;
         }
 
-        
-        
+
+
     </style>
 
     <main class="content">
@@ -414,7 +414,7 @@
             <form id="rfqForm">
                 @csrf
                 <!-- BASIC INFO -->
-                <h5 class="form-title">School Identification</h5>
+                {{-- <h5 class="form-title">School Identification</h5>
                 <div class="rfq-basic-grid">
                     <div>
                         <label>School Name</label>
@@ -435,7 +435,7 @@
                             @endforeach
                         </select>
                     </div>
-                </div>
+                </div> --}}
 
                 <h5 class="form-title">Raise RFQ</h5>
                 <div class="rfq-basic-grid">
@@ -928,7 +928,7 @@
                 headers: {
                      'X-CSRF-TOKEN': document.querySelector('input[name=_token]').value
                 }
-                
+
             })
             .then(response => response.json())
             .then(data => {
@@ -1021,7 +1021,7 @@
 
                     const modal = new bootstrap.Modal(document.getElementById('distributorRfqDetailsModal'));
                     modal.show();
-                    
+
                 });
         }
 

@@ -25,7 +25,7 @@
                     <span class="change-logo" onclick="document.getElementById('logoInput').click()">
                         Change Logo
                     </span>
-                
+
             </div>
         </div>
 
@@ -34,13 +34,13 @@
 
             <div class="profile-grid">
                 <div>
-                    <label>School Name / Institute Name</label>
-                    <input type="text" name="business_name" value="{{ $profile->business_name }}">
+                    <label>Contact Person Name</label>
+                    <input type="text" name="contact_person" value="{{ $profile->contact_person }}">
                 </div>
 
                 <div>
-                    <label>School Type / Institute Type</label>
-                    <input type="text" name="school_type" value="{{ $profile->school_type }}">
+                    <label>Business / Firm Name</label>
+                    <input type="text" name="business_name" value="{{ $profile->business_name }}">
                 </div>
 
                 <div>
@@ -59,8 +59,8 @@
                 </div>
 
                 <div>
-                    <label>Total Students</label>
-                    <input type="number" name="total_students" value="{{ $profile->total_students }}">
+                    <label>GST Number</label>
+                    <input type="number" name="gst" value="{{ $profile->gst }}">
                 </div>
 
                 <div>

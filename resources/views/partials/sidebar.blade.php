@@ -54,13 +54,13 @@
                     <a class="dropdown-item {{ request()->routeIs('admin.academic_sessions') ? 'active' : '' }}"
                         href="{{ route('admin.academic_sessions') }}"> Academic Sessions</a>
                 </li>
-                <li><a class="dropdown-item" href="#"> Other Masters</a></li>
+
             </ul>
         </div>
     @endif
 
     @if (auth()->user()->role === 'distributor')
-        <a href="{{ route('distributor.dashboard') }}" class="menu-item">🏠 Distributor Hub</a>
+        <a href="{{ route('distributor.dashboard') }}" class="menu-item"> Distributor Hub</a>
         <a href="{{ route('distributor.manage_cateloge') }}" class="menu-item"> Catalogue</a>
 
 
@@ -81,21 +81,21 @@
     @endif
 
     @if (auth()->user()->role === 'retailer')
-        <a href="{{ route('retailer.dashboard') }}" class="menu-item">🏠 Retailer Hub</a>
+        <a href="{{ route('retailer.dashboard') }}" class="menu-item"> Retailer Hub</a>
         <a href="{{ route('retailer.profile') }}"
             class="menu-item {{ request()->routeIs('retailer.profile') ? 'active' : '' }}">
-            🏫 Retailer Profile
+             Retailer Profile
         </a>
-        <a href="#" class="menu-item">🛒 My Orders</a>
+        <a href="#" class="menu-item"> My Orders</a>
     @endif
 
     @if (auth()->user()->role === 'publisher')
-        <a href="{{ route('publisher.dashboard') }}" class="menu-item">🏠 Publisher Hub</a>
+        <a href="{{ route('publisher.dashboard') }}" class="menu-item"> Publisher Hub</a>
         <a href="{{ route('publisher.profile') }}"
             class="menu-item {{ request()->routeIs('publisher.profile') ? 'active' : '' }}">
-            🏫 Publisher Profile
+             Publisher Profile
         </a>
-        <a href="#" class="menu-item">📚 My Books</a>
+        <a href="#" class="menu-item"> My Books</a>
     @endif
 
     <a href="{{ route('logout') }}" class="menu-item sign-out">🚪 Sign Out</a>
