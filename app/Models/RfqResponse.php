@@ -21,4 +21,19 @@ class RfqResponse extends Model
         'status',
         'submitted_at',
     ];
+
+    public function rfq()
+    {
+        return $this->belongsTo(Rfq::class);
+    }
+
+    public function responder()
+    {
+        return $this->belongsTo(User::class, 'responder_user_id');
+    }
+
+    public function company()
+    {
+        return $this->belongsTo(User::class, 'responder_company_id');
+    }
 }

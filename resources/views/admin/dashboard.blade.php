@@ -48,36 +48,53 @@
                     </div>
 
                     <ul class="list-group list-group-flush">
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <div class="fw-bold">RFQ History</div>
-                                <small class="text-muted">22-12-2025</small>
-                            </div>
-                            <div class="text-end">
-                                <span class="text-success">Received RFQ</span><br>
-                                <a href="#" class="small">View Details</a>
-                            </div>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <div class="fw-bold">RFQ History</div>
-                                <small class="text-muted">22-12-2025</small>
-                            </div>
-                            <div class="text-end">
-                                <span class="text-success">Received RFQ</span><br>
-                                <a href="#" class="small">View Details</a>
-                            </div>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <div class="fw-bold">RFQ History</div>
-                                <small class="text-muted">22-12-2025</small>
-                            </div>
-                            <div class="text-end">
-                                <span class="text-danger">Sent RFQ</span><br>
-                                <a href="#" class="small">View Details</a>
-                            </div>
-                        </li>
+                        @forelse($operationLogs as $rfq)
+
+
+
+
+                            @php($isReceived = in_array($rfq->id, $acknowledgedRfqIds ?? []))
+
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="fw-bold">RFQ-{{ $rfq->id }} | {{ $rfq->school_name }}</div>
+                                    <small class="text-muted">{{ $rfq->created_at->format('d-m-Y') }}</small>
+                                </div>
+
+                                <div class="text-end">
+
+                                    @if ($rfq->action === 'responded')
+                                        <span class="text-primary">
+                                            Responded by: {{ $rfq->name }} ({{ ucfirst($rfq->role) }})
+                                        </span>
+                                    @else
+                                        <span class="{{ $isReceived ? 'text-success' : 'text-warning' }}">
+                                            {{ $isReceived ? 'Status: Received' : 'Status: Pending' }}
+                                        </span>
+                                    @endif
+
+                                    <br>
+                                    <a href="#" class="small"
+                                        onclick="viewDistributorRfq({{ $rfq->id }}); return false;">
+                                        View RFQ
+                                    </a><br>
+
+                                    @if ($rfq->action !== 'responded')
+                                        @if (!$isReceived)
+                                            <a href="javascript:void(0);" class="small text-primary"
+                                                onclick="markRfqReceivedFromDashboard({{ $rfq->id }})">
+                                                Received RFQ
+                                            </a>
+                                        @else
+                                            <span class="small text-success">Received Done</span>
+                                        @endif
+                                    @endif
+                                </div>
+                            </li>
+
+                        @empty
+                            <li class="list-group-item">No records found.</li>
+                        @endforelse
                     </ul>
                 </div>
             </div>

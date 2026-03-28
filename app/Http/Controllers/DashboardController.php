@@ -16,14 +16,73 @@ use App\Models\RfqReceipt;
 use App\Models\PurchaseRecord;
 use App\Models\Catalogue;
 use App\Models\RfqResponse;
-
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
     public function admin()
     {
-        return view('admin.dashboard');
+        $user = auth()->user();
+
+        // 1️⃣ RFQs created by user
+        $rfqCreated = Rfq::where('user_id', $user->id)
+            ->with('user')
+            ->get()
+            ->map(function ($rfq) {
+                return [
+                    'id' => $rfq->id,
+                    'school_name' => $rfq->school_name,
+                    'created_at' => $rfq->created_at,
+                    'action' => 'created',
+                    'name' => null,
+                    'role' => null,
+                ];
+            });
+
+        // 2️⃣ RFQs received by user
+        $rfqReceived = RfqReceipt::where('user_id', $user->id)
+            ->with('rfq')
+            ->get()
+            ->map(function ($receipt) {
+                return [
+                    'id' => $receipt->rfq->id,
+                    'school_name' => $receipt->rfq->school_name,
+                    'created_at' => $receipt->created_at,
+                    'action' => 'received'
+                ];
+            });
+
+        // 3️⃣ RFQs responded by user
+        $rfqResponded = RfqResponse::where('responder_user_id', $user->id)
+            ->with(['rfq', 'company'])
+            ->get()
+            ->map(function ($response) {
+                return [
+                    'id' => $response->rfq->id,
+                    'school_name' => $response->rfq->school_name,
+                    'company_name' => $response->company->name ?? null,
+                    'created_at' => $response->created_at,
+                    'action' => 'responded',
+                    'name' => $response->company->business_name ?? null,
+                    'role' => $response->company->role ?? null,
+                ];
+            });
+
+        // 4️⃣ Merge, sort and take 10 logs
+        $operationLogs = $rfqCreated
+            ->merge($rfqReceived)
+            ->merge($rfqResponded)
+            ->sortByDesc('created_at')
+            ->take(10)
+            ->map(function ($item) {
+                return (object) $item;  //  <- Convert to object
+            })
+            ->values();
+
+        return view('admin.dashboard', compact('operationLogs'));
     }
+
+
 
     public function boards()
     {
@@ -48,18 +107,18 @@ class DashboardController extends Controller
         try {
 
             $validator = Validator::make($request->all(), [
-                'class_name'           => 'required',
-                'academic_session'     => 'required',
-                'board'                => 'required',
-                'medium'               => 'required',
-                'sections'             => 'required|numeric',
-                'total_students'       => 'required|numeric',
-                'boys'                 => 'nullable|numeric',
-                'girls'                => 'nullable|numeric',
-                'expected_admissions'  => 'nullable|numeric',
-                'subjects'             => 'nullable|string',
-                'publisher'            => 'nullable|string',
-                'syllabus'             => 'nullable|string',
+                'class_name' => 'required',
+                'academic_session' => 'required',
+                'board' => 'required',
+                'medium' => 'required',
+                'sections' => 'required|numeric',
+                'total_students' => 'required|numeric',
+                'boys' => 'nullable|numeric',
+                'girls' => 'nullable|numeric',
+                'expected_admissions' => 'nullable|numeric',
+                'subjects' => 'nullable|string',
+                'publisher' => 'nullable|string',
+                'syllabus' => 'nullable|string',
             ]);
 
             if ($validator->fails()) {
@@ -83,7 +142,7 @@ class DashboardController extends Controller
 
             return response()->json([
                 'status' => true,
-                'class'  => $class
+                'class' => $class
             ]);
 
         } catch (ValidationException $e) {
@@ -107,26 +166,26 @@ class DashboardController extends Controller
         try {
 
             $data = $request->validate([
-                'class_name'           => 'required',
-                'academic_session'     => 'required',
-                'board'                => 'required',
-                'medium'               => 'required',
-                'sections'             => 'required|numeric',
-                'total_students'       => 'required|numeric',
-                'boys'                 => 'nullable|numeric',
-                'girls'                => 'nullable|numeric',
-                'expected_admissions'  => 'nullable|numeric',
-                'subjects'             => 'nullable|string',
-                'publisher'            => 'nullable|string',
-                'syllabus'             => 'nullable|string',
+                'class_name' => 'required',
+                'academic_session' => 'required',
+                'board' => 'required',
+                'medium' => 'required',
+                'sections' => 'required|numeric',
+                'total_students' => 'required|numeric',
+                'boys' => 'nullable|numeric',
+                'girls' => 'nullable|numeric',
+                'expected_admissions' => 'nullable|numeric',
+                'subjects' => 'nullable|string',
+                'publisher' => 'nullable|string',
+                'syllabus' => 'nullable|string',
             ]);
 
-            SchoolClass::where('id',$request->id)->update($data);
+            SchoolClass::where('id', $request->id)->update($data);
 
             return response()->json([
                 'status' => true
             ]);
-         } catch (\Exception $e) {
+        } catch (\Exception $e) {
 
             return response()->json([
                 'status' => false,
@@ -379,7 +438,7 @@ class DashboardController extends Controller
             ]);
 
             if ($request->hasFile('profile')) {
-                $data['profile'] = $request->file('profile')->store('profiles','public');
+                $data['profile'] = $request->file('profile')->store('profiles', 'public');
             }
 
             User::updateOrCreate(
@@ -428,7 +487,7 @@ class DashboardController extends Controller
 
 
             if ($request->hasFile('profile')) {
-                $data['profile'] = $request->file('profile')->store('profiles','public');
+                $data['profile'] = $request->file('profile')->store('profiles', 'public');
             }
 
             User::updateOrCreate(
@@ -474,7 +533,7 @@ class DashboardController extends Controller
             ]);
 
             if ($request->hasFile('profile')) {
-                $data['profile'] = $request->file('profile')->store('profiles','public');
+                $data['profile'] = $request->file('profile')->store('profiles', 'public');
             }
 
             User::updateOrCreate(
@@ -520,7 +579,7 @@ class DashboardController extends Controller
             ]);
 
             if ($request->hasFile('profile')) {
-                $data['profile'] = $request->file('profile')->store('profiles','public');
+                $data['profile'] = $request->file('profile')->store('profiles', 'public');
             }
 
             User::updateOrCreate(
@@ -557,7 +616,7 @@ class DashboardController extends Controller
             $this->saveRfq($request);
 
             return response()->json(['status' => true, 'message' => 'RFQ created successfully']);
-         } catch (\Exception $e) {
+        } catch (\Exception $e) {
 
             return response()->json([
                 'status' => false,
@@ -714,7 +773,7 @@ class DashboardController extends Controller
             $this->saveRfq($request);
 
             return response()->json(['status' => true, 'message' => 'RFQ created successfully']);
-         } catch (\Exception $e) {
+        } catch (\Exception $e) {
 
             return response()->json([
                 'status' => false,
@@ -736,6 +795,8 @@ class DashboardController extends Controller
                     });
             })
             ->firstOrFail();
+
+
 
         $sender = User::select('id', 'role', 'business_name', 'city', 'state')
             ->where('id', $rfq->user_id)
@@ -760,6 +821,8 @@ class DashboardController extends Controller
     {
         $user = auth()->user();
 
+
+
         $rfq = Rfq::where('id', $request->rfq_id)
             ->where('user_id', '!=', $user->id)
             ->where(function ($query) use ($user) {
@@ -781,7 +844,7 @@ class DashboardController extends Controller
 
         $responseData = [
             'rfq_id' => $rfq->id,
-            'responder_user_id' => $user->id,
+            'responder_user_id' => $rfq->user_id,
             'responder_company_id' => $user->id,
             'responder_role' => $user->role,
             'indicative_unit_price' => $data['indicative_unit_price'] ?? null,
@@ -798,7 +861,7 @@ class DashboardController extends Controller
         RfqResponse::updateOrCreate(
             [
                 'rfq_id' => $rfq->id,
-                'responder_user_id' => $user->id,
+                'responder_company_id' => $user->id,
             ],
             $responseData
         );

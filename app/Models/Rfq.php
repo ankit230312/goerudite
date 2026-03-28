@@ -42,4 +42,14 @@ class Rfq extends Model
     {
         return $this->belongsTo(User::class);
     }
+    public function receipts()
+    {
+        return $this->hasMany(RfqReceipt::class, 'rfq_id');
+    }
+
+    public function responses()
+    {
+        return $this->hasMany(RfqResponse::class, 'rfq_id');
+    }
 }
+
