@@ -17,12 +17,12 @@
 
     <!-- Stats Grid -->
     @php
-    $stats = [
-    ['label' => 'Followers', 'icon' => 'fa-user'],
-    ['label' => 'Add to Cart', 'icon' => 'fa-cart-plus'],
-    ['label' => 'Active Request', 'icon' => 'fa-graduation-cap'],
-    ['label' => 'Manage Records', 'icon' => 'fa-clipboard-list'],
-    ['label' => 'Notification RFQ', 'icon' => 'fa-bell'],
+    $stats = $stats ?? [
+    ['label' => 'Followers', 'icon' => 'fa-user', 'value' => 0],
+    ['label' => 'Add to Cart', 'icon' => 'fa-cart-plus', 'value' => 0],
+    ['label' => 'Active Request', 'icon' => 'fa-graduation-cap', 'value' => 0],
+    ['label' => 'Manage Records', 'icon' => 'fa-clipboard-list', 'value' => 0],
+    ['label' => 'Notification RFQ', 'icon' => 'fa-bell', 'value' => 0],
     ];
     @endphp
     <div class="row g-3 mb-4">
@@ -32,7 +32,7 @@
                 <div class="card-body">
                     <i class="fas {{ $s['icon'] }} fa-2x text-orange mb-2"></i>
                     <div class="text-muted small">{{ strtoupper($s['label']) }}</div>
-                    <h3 class="fw-bold mb-1 text-orange">0</h3>
+                    <h3 class="fw-bold mb-1 text-orange">{{ $s['value'] ?? 0 }}</h3>
 
                 </div>
             </div>

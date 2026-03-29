@@ -24,6 +24,35 @@ class DashboardController extends Controller
     {
         $user = auth()->user();
 
+        $followersCount = RfqResponse::whereHas('rfq', function ($query) use ($user) {
+            $query->where('user_id', $user->id);
+        })
+            ->distinct('responder_user_id')
+            ->count('responder_user_id');
+
+        $rfqCreatedCount = Rfq::where('user_id', $user->id)->count();
+
+        $totalStudentsCount = $user->total_students ?? null;
+        if ($totalStudentsCount === null) {
+            $totalStudentsCount = (int) SchoolClass::sum('total_students');
+        }
+
+        $manageRecordsCount = PurchaseRecord::where('user_id', $user->id)->count();
+
+        $pendingRfqCount = $this->rfqRecipientQuery($user)
+            ->whereDoesntHave('receipts', function ($query) use ($user) {
+                $query->where('user_id', $user->id)->whereNotNull('received_at');
+            })
+            ->count();
+
+        $stats = [
+            ['label' => 'Followers', 'icon' => 'fa-user', 'value' => $followersCount],
+            ['label' => 'Add to Cart', 'icon' => 'fa-cart-plus', 'value' => $rfqCreatedCount],
+            ['label' => 'Total Students', 'icon' => 'fa-graduation-cap', 'value' => $totalStudentsCount],
+            ['label' => 'Manage Records', 'icon' => 'fa-clipboard-list', 'value' => $manageRecordsCount],
+            ['label' => 'Notification RFQ', 'icon' => 'fa-bell', 'value' => $pendingRfqCount],
+        ];
+
         // 1️⃣ RFQs created by user
         $rfqCreated = Rfq::where('user_id', $user->id)
             ->with('user')
@@ -79,7 +108,7 @@ class DashboardController extends Controller
             })
             ->values();
 
-        return view('admin.dashboard', compact('operationLogs'));
+        return view('admin.dashboard', compact('operationLogs', 'stats'));
     }
 
 
@@ -355,12 +384,39 @@ class DashboardController extends Controller
     {
         $user = auth()->user();
         $acknowledgedRfqIds = $this->acknowledgedRfqIds($user);
+
+        $followersCount = $this->rfqRecipientQuery($user)
+            ->distinct('user_id')
+            ->count('user_id');
+
+        $catalogueCount = Catalogue::where('user_id', $user->id)->count();
+
+        $activeRequestCount = Rfq::where('user_id', $user->id)
+            ->where('status', 'active')
+            ->count();
+
+        $manageRecordsCount = PurchaseRecord::where('user_id', $user->id)->count();
+
+        $pendingRfqCount = $this->rfqRecipientQuery($user)
+            ->whereDoesntHave('receipts', function ($query) use ($user) {
+                $query->where('user_id', $user->id)->whereNotNull('received_at');
+            })
+            ->count();
+
+        $stats = [
+            ['label' => 'Followers', 'icon' => 'fa-user', 'value' => $followersCount],
+            ['label' => 'Add to Cart', 'icon' => 'fa-cart-plus', 'value' => $catalogueCount],
+            ['label' => 'Active Request', 'icon' => 'fa-graduation-cap', 'value' => $activeRequestCount],
+            ['label' => 'Manage Records', 'icon' => 'fa-clipboard-list', 'value' => $manageRecordsCount],
+            ['label' => 'Notification RFQ', 'icon' => 'fa-bell', 'value' => $pendingRfqCount],
+        ];
+
         $operationLogsQuery = $this->rfqRecipientQuery($user)
             ->where('user_id', '!=', $user->id)
             ->latest();
         $operationLogs = $operationLogsQuery->take(10)->get();
 
-        return view('distributor.dashboard', compact('operationLogs', 'acknowledgedRfqIds'));
+        return view('distributor.dashboard', compact('operationLogs', 'acknowledgedRfqIds', 'stats'));
     }
 
     public function retailer()
@@ -469,25 +525,31 @@ class DashboardController extends Controller
         try {
 
             $data = $request->validate([
-                'business_name' => 'required',
-                'contact_person' => 'nullable',
+                'contact_person' => 'required|string|max:255',
+                'business_name' => 'required|string|max:255',
+                'business_category' => 'required|string|max:100',
                 'email' => 'required|email',
-                'mobile' => 'required',
-                'address' => 'nullable',
-                'gst' => 'nullable',
-                'state' => 'nullable',
-                'city' => 'nullable',
-                'website_link' => 'nullable',
-                'established' => 'nullable',
-                'board' => 'nullable',
-                'about' => 'nullable',
+                'mobile' => 'required|string|max:20',
+                'address' => 'nullable|string',
+                'gst' => 'nullable|string|max:50',
+                'pan' => 'nullable|string|max:50',
+                'pincode' => 'nullable|string|max:20',
+                'state' => 'nullable|string|max:100',
+                'city' => 'nullable|string|max:100',
+                'website_link' => 'nullable|string|max:255',
+                'board' => 'nullable|string|max:100',
+                'about' => 'nullable|string',
                 'profile' => 'nullable|image|max:2048',
+                'document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
             ]);
 
 
 
             if ($request->hasFile('profile')) {
                 $data['profile'] = $request->file('profile')->store('profiles', 'public');
+            }
+            if ($request->hasFile('document')) {
+                $data['document'] = $request->file('document')->store('documents','public');
             }
 
             User::updateOrCreate(

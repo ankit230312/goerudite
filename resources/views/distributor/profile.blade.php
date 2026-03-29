@@ -33,6 +33,7 @@
         <form id="profileForm" enctype="multipart/form-data">
 
             <div class="profile-grid">
+
                 <div>
                     <label>Contact Person Name</label>
                     <input type="text" name="contact_person" value="{{ $profile->contact_person }}">
@@ -41,6 +42,19 @@
                 <div>
                     <label>Business / Firm Name</label>
                     <input type="text" name="business_name" value="{{ $profile->business_name }}">
+<<<<<<< Updated upstream
+=======
+                </div>
+
+                
+                <div>
+                    <label>Distributor Category</label>
+                    <select name="business_category" required>
+                        <option value="">Select Category</option>
+                        <option value="Books Distributor" {{ $profile->business_category === 'Books Distributor' ? 'selected' : '' }}>Books Distributor</option>
+                        <option value="Stationery Distributor" {{ $profile->business_category === 'Stationery Distributor' ? 'selected' : '' }}>Stationery Distributor</option>
+                    </select>
+>>>>>>> Stashed changes
                 </div>
 
                 <div>
@@ -60,7 +74,21 @@
 
                 <div>
                     <label>GST Number</label>
+<<<<<<< Updated upstream
                     <input type="number" name="gst" value="{{ $profile->gst }}">
+=======
+                    <input type="text" name="gst" value="{{ $profile->gst }}">
+                </div>
+
+                <div>
+                    <label>PAN Number</label>
+                    <input type="text" name="pan" value="{{ $profile->pan }}">
+                </div>
+
+                <div>
+                    <label>PIN Code</label>
+                    <input type="text" name="pincode" value="{{ $profile->pincode }}">
+>>>>>>> Stashed changes
                 </div>
 
                 <div>
@@ -83,11 +111,6 @@
                 </div>
 
                 <div>
-                    <label>Established In</label>
-                    <input type="text" name="established" value="{{ $profile->established }}">
-                </div>
-
-                <div>
                     <label>Board</label>
                     <select name="board">
                         <option value="">Select Board</option>
@@ -97,6 +120,10 @@
                             </option>
                         @endforeach
                     </select>
+                </div>
+                <div>
+                    <label>Trade License</label>
+                    <input type="file" name="document" accept=".pdf,.jpg,.jpeg,.png">
                 </div>
                 <!-- <div>
                     <label>Password</label>

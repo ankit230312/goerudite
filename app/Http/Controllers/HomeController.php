@@ -68,8 +68,10 @@ class HomeController extends Controller
 
     public function store(Request $request)
     {
+        $role = $request->input('role');
+
         $rules = [
-            'role'        => 'required|in:administrator,distributor,retailer,publisher',
+            'role'            => 'required|in:administrator,distributor,retailer,publisher',
             'business_name'   => 'nullable|string|max:255',
             'contact_person'  => 'nullable|string|max:255',
             'mobile'          => 'required|string|max:20',
@@ -82,25 +84,34 @@ class HomeController extends Controller
             'pincode'         => 'nullable|string|max:20',
             'document'        => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
             'profile'         => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'school_type'     => 'nullable|string|max:100',
+            'institute_type'  => 'nullable|string|max:100',
         ];
 
-
-
-        if ($request->usertype === 'publisher') {
+        if ($role === 'publisher') {
             $rules['publisher_type'] = 'required|string|max:100';
+            $rules['business_name'] = 'required|string|max:255';
+            $rules['contact_person'] = 'required|string|max:255';
         }
 
-        if ($request->usertype === 'retailer') {
+        if ($role === 'retailer') {
             $rules['business_category'] = 'required|string|max:100';
+            $rules['business_name'] = 'required|string|max:255';
+            $rules['contact_person'] = 'required|string|max:255';
         }
 
-        if ($request->usertype === 'distributor') {
+        if ($role === 'distributor') {
             $rules['business_category'] = 'required|string|max:100';
+            $rules['business_name'] = 'required|string|max:255';
+            $rules['contact_person'] = 'required|string|max:255';
+            $rules['document'] = 'required|file|mimes:pdf,jpg,jpeg,png|max:2048';
+        }
+
+        if ($role === 'administrator') {
+            $rules['business_name'] = 'required|string|max:255';
         }
 
         $data = $request->validate($rules);
-
-
 
         if ($request->hasFile('document')) {
             $data['document'] = $request->file('document')->store('documents', 'public');
@@ -110,9 +121,8 @@ class HomeController extends Controller
             $data['profile'] = $request->file('profile')->store('profiles', 'public');
         }
 
+        $data['name'] = $data['contact_person'] ?? $data['business_name'] ?? 'User';
         $data['password'] = Hash::make('123456'); // temp password
-
-
 
         User::create($data);
 

@@ -432,7 +432,7 @@
 
                 <div class="form-group">
                     <label>Distributor Category</label>
-                    <select name="distributor_category" required>
+                    <select name="business_category" required>
                         <option value="">Select Category</option>
                         <option value="Books Distributor">Books Distributor</option>
                         <option value="Stationery Distributor">Stationery Distributor</option>
