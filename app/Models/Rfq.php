@@ -12,6 +12,7 @@ class Rfq extends Model
     protected $fillable = [
         'user_id',
         'school_name',
+            'state',
         'city',
         'target_roles',
         'target_state',

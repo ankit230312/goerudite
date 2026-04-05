@@ -549,7 +549,7 @@ class DashboardController extends Controller
                 $data['profile'] = $request->file('profile')->store('profiles', 'public');
             }
             if ($request->hasFile('document')) {
-                $data['document'] = $request->file('document')->store('documents','public');
+                $data['document'] = $request->file('document')->store('documents', 'public');
             }
 
             User::updateOrCreate(
@@ -674,6 +674,8 @@ class DashboardController extends Controller
 
     public function store_rfq(Request $request)
     {
+
+
         try {
             $this->saveRfq($request);
 
@@ -1008,6 +1010,7 @@ class DashboardController extends Controller
 
         $data = $request->validate([
             'school_name' => 'required',
+            'state' => 'required',
             'city' => 'required',
             'target_roles' => 'nullable|array',
             'target_roles.*' => 'in:distributor,retailer,publisher',
@@ -1027,6 +1030,7 @@ class DashboardController extends Controller
         Rfq::create([
             'user_id' => auth()->id(),
             'school_name' => $data['school_name'],
+            'state' => $data['state'],
             'city' => $data['city'],
             'target_roles' => !empty($data['target_roles']) ? array_values($data['target_roles']) : null,
             'target_state' => $data['target_state'] ?? null,

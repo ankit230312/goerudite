@@ -42,7 +42,7 @@
 
           <a href="#"
             class="menu-item dropdown-toggle " type="button" id="masterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-             Manage Records
+             Manage Academy
         </a>
             <ul class="dropdown-menu" aria-labelledby="masterDropdown">
 

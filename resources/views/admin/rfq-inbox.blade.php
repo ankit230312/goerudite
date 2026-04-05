@@ -485,9 +485,18 @@
                     </div>
 
                     <div>
-                        <label>City</label>
-                        <input type="text" name="city" placeholder="Enter City Name" required>
-                    </div>
+                    <label>State</label>
+                    <select name="state" data-state-select data-location-group="profile" data-selected-state="">
+                        <option value="">Select State</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label>City</label>
+                    <select name="city" data-city-select data-location-group="profile" data-selected-city="">
+                        <option value="">Select City</option>
+                    </select>
+                </div>
 
                     <div>
                         <label>Academic Session</label>
