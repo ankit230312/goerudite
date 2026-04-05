@@ -56,6 +56,14 @@ class HomeController extends Controller
         ]);
     }
 
+    // public function catalog_detail(Request $request, $id)
+    public function catalog_detail()
+    {
+        // return view('catalog-detail', ['productId' => $id]);
+        return view('catalog-detail');
+
+    }
+
     public function login_register()
     {
         return view('login-register');
@@ -71,21 +79,21 @@ class HomeController extends Controller
         $role = $request->input('role');
 
         $rules = [
-            'role'            => 'required|in:administrator,distributor,retailer,publisher',
-            'business_name'   => 'nullable|string|max:255',
-            'contact_person'  => 'nullable|string|max:255',
-            'mobile'          => 'required|string|max:20',
-            'email'           => 'required|email|unique:users,email',
-            'address'         => 'nullable|string',
-            'gst'             => 'nullable|string|max:50',
-            'pan'             => 'nullable|string|max:50',
-            'city'            => 'nullable|string|max:100',
-            'state'           => 'nullable|string|max:100',
-            'pincode'         => 'nullable|string|max:20',
-            'document'        => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'profile'         => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'school_type'     => 'nullable|string|max:100',
-            'institute_type'  => 'nullable|string|max:100',
+            'role' => 'required|in:administrator,distributor,retailer,publisher',
+            'business_name' => 'nullable|string|max:255',
+            'contact_person' => 'nullable|string|max:255',
+            'mobile' => 'required|string|max:20',
+            'email' => 'required|email|unique:users,email',
+            'address' => 'nullable|string',
+            'gst' => 'nullable|string|max:50',
+            'pan' => 'nullable|string|max:50',
+            'city' => 'nullable|string|max:100',
+            'state' => 'nullable|string|max:100',
+            'pincode' => 'nullable|string|max:20',
+            'document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'profile' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'school_type' => 'nullable|string|max:100',
+            'institute_type' => 'nullable|string|max:100',
         ];
 
         if ($role === 'publisher') {
@@ -132,7 +140,7 @@ class HomeController extends Controller
     public function login_submit(Request $request)
     {
         $credentials = $request->validate([
-            'email'    => 'required|email',
+            'email' => 'required|email',
             'password' => 'required'
         ]);
 
