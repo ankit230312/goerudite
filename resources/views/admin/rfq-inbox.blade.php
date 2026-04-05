@@ -2,11 +2,10 @@
 
 @section('content')
     <style>
-
         .modal {
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.55);
+            background: rgba(0, 0, 0, 0.55);
             display: none;
             align-items: center;
             justify-content: center;
@@ -19,7 +18,7 @@
             background: #fff;
             border-radius: 14px;
             padding: 22px 26px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
             max-height: 90vh;
             overflow-y: auto;
         }
@@ -49,7 +48,7 @@
             cursor: pointer;
         }
 
-       .form-title {
+        .form-title {
             font-size: 15px;
             font-weight: 600;
             margin: 20px 0 10px;
@@ -232,6 +231,13 @@
             font-weight: 600;
         }
 
+        .select2-container--default .select2-selection--single {
+            background-color: #fff;
+            border: 1px solid #aaa;
+            border-radius: 4px;
+            height: 34px;
+        }
+
         .rfq-details-section ul {
             list-style: none;
             padding: 0;
@@ -287,12 +293,6 @@
         .rfq-checkbox-grid input[type="checkbox"] {
             accent-color: #ff7a18;
         }
-
-
-
-
-
-
     </style>
 
     <main class="content">
@@ -314,63 +314,67 @@
         <!-- ACTIVE RFQs -->
         <div id="activeTab" class="rfq-list">
             @forelse($activeRfqs as $rfq)
-            <div class="rfq-card">
-                <div class="rfq-left">
-                    <span class="rfq-id">RFQ-{{ $rfq->id }}</span>
-                    <span class="status open">{{ ucfirst($rfq->status) }}</span>
+                <div class="rfq-card">
+                    <div class="rfq-left">
+                        <span class="rfq-id">RFQ-{{ $rfq->id }}</span>
+                        <span class="status open">{{ ucfirst($rfq->status) }}</span>
 
-                    <h4>{{ $rfq->school_name }} - {{ $rfq->academic_session }}</h4>
+                        <h4>{{ $rfq->school_name }} - {{ $rfq->academic_session }}</h4>
 
-                    <div class="rfq-meta">
-                        <span>📅 {{ $rfq->created_at->format('Y-m-d') }}</span>
-                        <span>📦 Books: {{ count($rfq->books) }}</span>
-                    </div>
-                </div>
-
-                <div class="rfq-right">
-                    <div class="quote-count">
-                        <strong>0</strong>
-                        <span>Quotes Received</span>
-                        <br>
-                        <a href="#" class="view-link" onclick="openRaiseRfqModal({{ $rfq->id }}); return false;">Raise RFQ</a>
+                        <div class="rfq-meta">
+                            <span>📅 {{ $rfq->created_at->format('Y-m-d') }}</span>
+                            <span>📦 Books: {{ count($rfq->books) }}</span>
+                        </div>
                     </div>
 
-                    <a href="#" class="view-link" onclick="viewDetails({{ $rfq->id }}); return false;">View Details ➜</a>
+                    <div class="rfq-right">
+                        <div class="quote-count">
+                            <strong>0</strong>
+                            <span>Quotes Received</span>
+                            <br>
+                            <a href="#" class="view-link"
+                                onclick="openRaiseRfqModal({{ $rfq->id }}); return false;">Raise RFQ</a>
+                        </div>
 
+                        <a href="#" class="view-link" onclick="viewDetails({{ $rfq->id }}); return false;">View
+                            Details ➜</a>
+
+                    </div>
                 </div>
-            </div>
             @empty
-            <p>No active RFQs found.</p>
+                <p>No active RFQs found.</p>
             @endforelse
         </div>
 
         <!-- HISTORY RFQs -->
         <div id="historyTab" class="rfq-list" style="display:none;">
             @forelse($historyRfqs as $rfq)
-            <div class="rfq-card">
-                <div class="rfq-left">
-                    <span class="rfq-id">RFQ-{{ $rfq->id }}</span>
-                    <span class="status closed">{{ ucfirst($rfq->status) }}</span>
+                <div class="rfq-card">
+                    <div class="rfq-left">
+                        <span class="rfq-id">RFQ-{{ $rfq->id }}</span>
+                        <span class="status closed">{{ ucfirst($rfq->status) }}</span>
 
-                    <h4>{{ $rfq->school_name }} - {{ $rfq->academic_session }}</h4>
+                        <h4>{{ $rfq->school_name }} - {{ $rfq->academic_session }}</h4>
 
-                    <div class="rfq-meta">
-                        <span>📅 {{ $rfq->created_at->format('Y-m-d') }}</span>
-                        <span>📦 Books: {{ count(json_decode($rfq->books ?? '[]', true) ?: []) }}</span>
+                        <div class="rfq-meta">
+                            <span>📅 {{ $rfq->created_at->format('Y-m-d') }}</span>
+                            <span>📦 Books: {{ count(json_decode($rfq->books ?? '[]', true) ?: []) }}</span>
+                        </div>
+                    </div>
+
+                    <div class="rfq-right">
+                        <div class="quote-count">
+                            <strong>0</strong>
+                            <span>Quotes Received</span>
+                        </div>
+                        <a href="#" class="view-link" onclick="viewDetails({{ $rfq->id }}); return false;">View
+                            Details ➜</a>
+                        <a href="#" class="view-link"
+                            onclick="openRaiseRfqModal({{ $rfq->id }}); return false;">Raise RFQ ➜</a>
                     </div>
                 </div>
-
-                <div class="rfq-right">
-                    <div class="quote-count">
-                        <strong>0</strong>
-                        <span>Quotes Received</span>
-                    </div>
-                    <a href="#" class="view-link" onclick="viewDetails({{ $rfq->id }}); return false;">View Details ➜</a>
-                    <a href="#" class="view-link" onclick="openRaiseRfqModal({{ $rfq->id }}); return false;">Raise RFQ ➜</a>
-                </div>
-            </div>
             @empty
-            <p>No history RFQs found.</p>
+                <p>No history RFQs found.</p>
             @endforelse
         </div>
 
@@ -457,7 +461,8 @@
                 <div class="rfq-footer">
                     <div class="footer-actions" style="margin-left: auto;">
                         <button type="button" class="btn-outline" onclick="closeModal();">Cancel</button>
-                        <button type="button" class="btn-solid" id="raiseRfqSendBtn" onclick="submitRaiseRfq()">Send</button>
+                        <button type="button" class="btn-solid" id="raiseRfqSendBtn"
+                            onclick="submitRaiseRfq()">Send</button>
                     </div>
                 </div>
             </form>
@@ -481,28 +486,29 @@
                 <div class="rfq-basic-grid">
                     <div>
                         <label>School Name</label>
-                        <input type="text" name="school_name" value="{{ auth()->user()->business_name ?? '' }}" readonly>
+                        <input type="text" name="school_name" value="{{ auth()->user()->business_name ?? '' }}"
+                            readonly>
                     </div>
 
                     <div>
-                    <label>State</label>
-                    <select name="state" data-state-select data-location-group="profile" data-selected-state="">
-                        <option value="">Select State</option>
-                    </select>
-                </div>
+                        <label>State</label>
+                        <select name="state" data-state-select data-location-group="profile" data-selected-state="">
+                            <option value="">Select State</option>
+                        </select>
+                    </div>
 
-                <div>
-                    <label>City</label>
-                    <select name="city" data-city-select data-location-group="profile" data-selected-city="">
-                        <option value="">Select City</option>
-                    </select>
-                </div>
+                    <div>
+                        <label>City</label>
+                        <select name="city" data-city-select data-location-group="profile" data-selected-city="">
+                            <option value="">Select City</option>
+                        </select>
+                    </div>
 
                     <div>
                         <label>Academic Session</label>
                         <select name="academic_session" required>
                             <option value="">Select Academic Session</option>
-                            @foreach($academicSessions as $session)
+                            @foreach ($academicSessions as $session)
                                 <option value="{{ $session->name }}">{{ $session->name }}</option>
                             @endforeach
                         </select>
@@ -516,11 +522,10 @@
                         <input type="text" name="class_name[]" placeholder="Class Name" required>
                         <input type="text" name="subject[]" placeholder="Subject" required>
                         <input type="text" name="book_title[]" placeholder="Book Title" required>
-                        <select name="publisher[]">
-                            <option>Publisher</option>
-                            <option>NCERT</option>
-                            <option>Oxford</option>
-                            <option>Other</option>
+                        <select name="publisher[]" class="publisher-select" required>
+                            @foreach ($boards as $board)
+                                <option value="{{ $board->id }}">{{ $board->name }}</option>
+                            @endforeach
                         </select>
                         <input type="text" name="edition[]" placeholder="Edition / Year">
                         <input type="number" name="quantity[]" placeholder="Qty" required min="1">
@@ -582,7 +587,8 @@
 
                     <div class="footer-actions">
                         <button type="button" class="btn-outline" onclick="closeModal();">Cancel</button>
-                        <button type="button" id="publishRfqBtn" class="btn-solid" onclick="submitRfqForm()">Publish Class Wise RFQ</button>
+                        <button type="button" id="publishRfqBtn" class="btn-solid" onclick="submitRfqForm()">Publish
+                            Class Wise RFQ</button>
                     </div>
                 </div>
             </form>
@@ -615,17 +621,22 @@
                 <input type="text" name="class_name[]" placeholder="Class Name" required>
                 <input type="text" name="subject[]" placeholder="Subject" required>
                 <input type="text" name="book_title[]" placeholder="Book Title" required>
-                <select name="publisher[]">
-                    <option>Publisher</option>
-                    <option>NCERT</option>
-                    <option>Oxford</option>
-                    <option>Other</option>
+                <select name="publisher[]" class="publisher-select" required>
+                    ${boards.map(board => `<option value="${board.id}">${board.name}</option>`).join('')}
                 </select>
                 <input type="text" name="edition[]" placeholder="Edition / Year">
                 <input type="number" name="quantity[]" placeholder="Qty" min="1" required>
                 <button type="button" class="delete-book" onclick="this.parentElement.remove()">🗑</button>
             </div>`;
             document.getElementById('booksWrapper').insertAdjacentHTML('beforeend', row);
+            // Initialize Select2 for the new select
+            const newSelect = document.querySelector('#booksWrapper .book-row:last-child .publisher-select');
+            if (newSelect && window.$ && window.$.fn.select2) {
+                $(newSelect).select2({
+                    placeholder: 'Select Publisher',
+                    allowClear: true
+                });
+            }
         }
 
         function openCreateRfq() {
@@ -698,7 +709,8 @@
                         `;
 
                         books.forEach(book => {
-                            content += `<li><strong>${book.class_name} - ${book.subject}</strong><br>${book.book_title} (${book.quantity})</li>`;
+                            content +=
+                                `<li><strong>${book.class_name} - ${book.subject}</strong><br>${book.book_title} (${book.quantity})</li>`;
                         });
                         content += '</ul></div></div>';
                         document.getElementById('detailsContent').innerHTML = content;
@@ -720,18 +732,18 @@
         function confirmCloseRfq() {
             const id = document.querySelector('#viewDetailsModal').dataset.rfqId;
             fetch(`/admin/close-rfq/${id}`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('input[name=_token]').value,
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status) {
-                    location.reload();
-                }
-            });
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('input[name=_token]').value,
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status) {
+                        location.reload();
+                    }
+                });
         }
 
         function submitRaiseRfq() {
@@ -746,28 +758,28 @@
             sendBtn.disabled = true;
 
             fetch(`/admin/send-rfq/${id}`, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('#raiseRfqForm input[name=_token]').value
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status) {
-                    closeModal();
-                    location.reload();
-                } else {
-                    alert(data.message || 'Unable to send RFQ');
-                }
-            })
-            .catch(() => {
-                alert('Server error. Please try again.');
-            })
-            .finally(() => {
-                sendBtn.textContent = originalText;
-                sendBtn.disabled = false;
-            });
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('#raiseRfqForm input[name=_token]').value
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status) {
+                        closeModal();
+                        location.reload();
+                    } else {
+                        alert(data.message || 'Unable to send RFQ');
+                    }
+                })
+                .catch(() => {
+                    alert('Server error. Please try again.');
+                })
+                .finally(() => {
+                    sendBtn.textContent = originalText;
+                    sendBtn.disabled = false;
+                });
         }
 
         function submitRfqForm() {
@@ -803,29 +815,35 @@
             submitBtn.disabled = true;
 
             fetch('/admin/store-rfq', {
-                method: 'POST',
-                body: formData,
-                headers: {
-                     'X-CSRF-TOKEN': document.querySelector('input[name=_token]').value
-                }
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('input[name=_token]').value
+                    }
 
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status) {
-                    closeModal();
-                    location.reload();
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            })
-            .finally(() => {
-                submitBtn.textContent = originalText;
-                submitBtn.disabled = false;
-            });
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status) {
+                        closeModal();
+                        location.reload();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                })
+                .finally(() => {
+                    submitBtn.textContent = originalText;
+                    submitBtn.disabled = false;
+                });
         }
-        document.addEventListener('DOMContentLoaded', function () {
+        const boards = @json($boards);
+        document.addEventListener('DOMContentLoaded', function() {
+            $('.publisher-select').select2({
+                placeholder: "Select Publisher",
+                allowClear: true,
+                width: '100%' // optional
+            });
             const params = new URLSearchParams(window.location.search);
             const tab = params.get('tab');
             // if (tab === 'received') {
@@ -839,7 +857,4 @@
     </script>
 
     @include('partials.india-state-city-script')
-
-
-
 @endsection

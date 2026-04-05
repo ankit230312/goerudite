@@ -23,9 +23,9 @@
     <div class="products-grid">
         @php
         for ($i = $start; $i < min($start + $productsPerPage, $totalProducts); $i++):
-        
-            
-        endfor; 
+
+
+        endfor;
         @php
     </div>
 
@@ -265,7 +265,7 @@
                     </div>
 
                     <div class="product-info">
-                        <a href="detail-page.php" class="text-decoration-none"><h3>Mathematics World</h3></a>
+                        <a href="{{ route('catalog.detail') }}" class="text-decoration-none"><h3>Mathematics World</h3></a>
                         <div class="product-meta">
                             <span class="meta-badge cbse">CBSE</span>
                             <span class="meta-badge">English</span>
@@ -291,7 +291,7 @@
                 <?php endif; ?>
 
                 <?php for ($p = 1; $p <= $totalPages; $p++): ?>
-                    <a href="?page=<?= $p ?>" 
+                    <a href="?page=<?= $p ?>"
                     class="page-link <?= ($p == $page) ? 'active' : '' ?>">
                     <?= $p ?>
                     </a>
