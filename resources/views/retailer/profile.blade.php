@@ -39,8 +39,8 @@
                 </div>
 
                 <div>
-                    <label>Business Type</label>
-                    <input type="text" name="school_type" value="{{ $profile->school_type }}">
+                    <label>Contact Person Name</label>
+                    <input type="text" name="contact_person" value="{{ $profile->contact_person }}">
                 </div>
 
                 <div>
@@ -59,8 +59,8 @@
                 </div>
 
                 <div>
-                    <label>Total Students</label>
-                    <input type="number" name="total_students" value="{{ $profile->total_students }}">
+                    <label>Business Category</label>
+                    <input type="text" name="business_category" value="{{ $profile->business_category }}">
                 </div>
 
                 <div>
@@ -78,33 +78,29 @@
                 </div>
 
                 <div>
-                    <label>Website Link</label>
-                    <input type="text" name="website_link" value="{{ $profile->website_link }}">
+                    <label>GST Number</label>
+                    <input type="text" name="gst" value="{{ $profile->gst }}">
                 </div>
 
                 <div>
-                    <label>Established In</label>
-                    <input type="text" name="established" value="{{ $profile->established }}">
+                    <label>PAN Number</label>
+                    <input type="text" name="pan" value="{{ $profile->pan }}">
                 </div>
 
                 <div>
-                    <label>Board</label>
-                    <select name="board">
-                        <option value="">Select Board</option>
-                        @foreach($boards as $board)
-                            <option value="{{ $board->name }}" {{ $profile->board === $board->name ? 'selected' : '' }}>
-                                {{ $board->name }}
-                            </option>
-                        @endforeach
-                    </select>
+                    <label>PIN Code</label>
+                    <input type="text" name="pincode" value="{{ $profile->pincode }}">
+                </div>
+
+                <div>
+                    <label>Registration Certificate</label>
+                    <input type="file" name="document" accept=".pdf,.jpg,.jpeg,.png">
+                    @if ($profile->document)
+                        <small class="text-muted d-block mt-1">Uploaded: {{ basename($profile->document) }}</small>
+                    @endif
                 </div>
             </div>
 
-            <!-- About -->
-            <div class="about-box">
-                <label>About</label>
-                <textarea rows="4" name="about">{{ $profile->about }}</textarea>
-            </div>
             <input type="file" name="profile" hidden id="logoInput" accept="image/*">
 
             <!-- Footer -->

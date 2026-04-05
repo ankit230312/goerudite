@@ -459,13 +459,13 @@
                 <div class="rfq-basic-grid" style="grid-template-columns: repeat(2, 1fr);">
                     <div>
                         <label>State</label>
-                        <select name="target_state" data-state-select data-location-group="distributor-raise-rfq">
+                        <select name="target_state" data-state-select data-location-group="retailer-raise-rfq">
                             <option value="">All States (Nearby)</option>
                         </select>
                     </div>
                     <div>
                         <label>City</label>
-                        <select name="target_city" data-city-select data-location-group="distributor-raise-rfq">
+                        <select name="target_city" data-city-select data-location-group="retailer-raise-rfq">
                             <option value="">All Cities (Nearby)</option>
                         </select>
                     </div>
@@ -539,14 +539,14 @@
 
                     <div>
                         <label>State</label>
-                        <select name="target_state" data-state-select data-location-group="distributor-raise-rfq">
+                        <select name="target_state" data-state-select data-location-group="retailer-raise-rfq">
                             <option value="">All States (Nearby)</option>
                         </select>
                     </div>
 
                     <div>
                         <label>City</label>
-                        <select name="target_city" data-city-select data-location-group="distributor-raise-rfq">
+                        <select name="target_city" data-city-select data-location-group="retailer-raise-rfq">
                             <option value="">All Cities (Nearby)</option>
                         </select>
                     </div>
@@ -633,7 +633,7 @@
         </div>
     </div>
 
-    <div class="modal fade" id="distributorRfqDetailsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal fade" id="RetailerRfqDetailsModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
@@ -715,7 +715,7 @@
                             <div class="row g-3">
                                 <div class="col-md-4">
                                     <label class="form-label">Responder Role</label>
-                                    <input type="text" class="form-control form-control-sm" value="{{ ucfirst(auth()->user()->role ?? 'Distributor') }}" readonly>
+                                    <input type="text" class="form-control form-control-sm" value="{{ ucfirst(auth()->user()->role ?? 'Retailer') }}" readonly>
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label">Company Name</label>
@@ -793,7 +793,7 @@
                                 <div class="d-flex flex-wrap gap-3 mt-2">
                                     <span><strong>Company Name:</strong> {{ auth()->user()->business_name ?? 'N/A' }}</span>
                                     <span><strong>City / State:</strong> {{ trim((auth()->user()->city ?? '') . (auth()->user()->state ? ', ' . auth()->user()->state : '')) ?: 'N/A' }}</span>
-                                    <span><strong>Role:</strong> {{ ucfirst(auth()->user()->role ?? 'Distributor') }}</span>
+                                    <span><strong>Role:</strong> {{ ucfirst(auth()->user()->role ?? 'Retailer') }}</span>
                                 </div>
                                 <button type="button" class="btn btn-sm btn-outline-secondary mt-3" id="viewContactDetailsBtn">View contact details</button>
                             </div>
@@ -820,7 +820,7 @@
 
 
     <script>
-        const distributorCurrentUserId = {{ auth()->id() }};
+        const RetailerCurrentUserId = {{ auth()->id() }};
 
         function switchTab(type, tabButton = null) {
             document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
@@ -909,7 +909,7 @@
         }
 
         function viewDetails(id) {
-            fetch(`/distributor/rfq-details/${id}`)
+            fetch(`/retailer/rfq-details/${id}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
@@ -977,7 +977,7 @@
                         document.getElementById('detailsContent').innerHTML = content;
                         const modal = document.getElementById('viewDetailsModal');
                         modal.dataset.rfqId = id;
-                        const canClose = Number(rfq.user_id) === distributorCurrentUserId;
+                        const canClose = Number(rfq.user_id) === RetailerCurrentUserId;
                         document.getElementById('closeRfqBtn').style.display = canClose ? 'inline-block' : 'none';
                         modal.style.display = 'flex';
                     }
@@ -994,7 +994,7 @@
 
         function confirmCloseRfq() {
             const id = document.querySelector('#viewDetailsModal').dataset.rfqId;
-            fetch(`/distributor/close-rfq/${id}`, {
+            fetch(`/retailer/close-rfq/${id}`, {
                 method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('input[name=_token]').value,
@@ -1041,7 +1041,7 @@
             submitBtn.textContent = 'Submitting...';
             submitBtn.disabled = true;
 
-            fetch('/distributor/store-rfq', {
+            fetch('/retailer/store-rfq', {
                 method: 'POST',
                 body: formData,
                 headers: {
@@ -1076,7 +1076,7 @@
             sendBtn.textContent = 'Sending...';
             sendBtn.disabled = true;
 
-            fetch(`/distributor/send-rfq/${id}`, {
+            fetch(`/retailer/send-rfq/${id}`, {
                 method: 'POST',
                 body: formData,
                 headers: {
@@ -1178,8 +1178,8 @@
             }
         }
 
-        function viewDistributorRfqResponse(id) {
-            fetch(`/distributor/rfq-details/${id}`)
+        function viewRetailerRfqResponse(id) {
+            fetch(`/retailer/rfq-details/${id}`)
                 .then(response => response.json())
                 .then(data => {
                     if (!data.success) {
@@ -1194,14 +1194,14 @@
                     document.getElementById('rfqResponseId').value = rfq.id;
                     renderRfqResponseSummary({ rfq, sender, books });
 
-                    const modal = new bootstrap.Modal(document.getElementById('distributorRfqDetailsModal'));
+                    const modal = new bootstrap.Modal(document.getElementById('RetailerRfqDetailsModal'));
                     modal.show();
 
                 });
         }
 
         function receiveAndRespond(id) {
-            viewDistributorRfqResponse(id);
+            viewRetailerRfqResponse(id);
         }
 
         document.addEventListener('DOMContentLoaded', function () {
@@ -1256,7 +1256,7 @@
                     submitBtn.textContent = 'Submitting...';
                     submitBtn.disabled = true;
 
-                    fetch('/distributor/rfq-response', {
+                    fetch('/retailer/rfq-response', {
                         method: 'POST',
                         body: formData,
                         headers: {
@@ -1266,7 +1266,7 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.status) {
-                            const modalEl = document.getElementById('distributorRfqDetailsModal');
+                            const modalEl = document.getElementById('RetailerRfqDetailsModal');
                             const modal = bootstrap.Modal.getInstance(modalEl);
                             if (modal) {
                                 modal.hide();
@@ -1305,3 +1305,4 @@
 
 
 @endsection
+

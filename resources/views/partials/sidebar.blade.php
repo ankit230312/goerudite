@@ -95,7 +95,14 @@
             class="menu-item {{ request()->routeIs('publisher.profile') ? 'active' : '' }}">
              Publisher Profile
         </a>
-        <a href="#" class="menu-item"> My Books</a>
+        <a href="{{ route('publisher.rfq_inbox') }}"
+            class="menu-item {{ request()->routeIs('publisher.rfq_inbox*') ? 'active' : '' }}">
+             RFQ Inbox
+        </a>
+        <a href="{{ route('publisher.manage_records') }}"
+            class="menu-item {{ request()->routeIs('publisher.manage_records*') ? 'active' : '' }}">
+             Manage Records
+        </a>
     @endif
 
     <a href="{{ route('logout') }}" class="menu-item sign-out">🚪 Sign Out</a>

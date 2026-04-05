@@ -1,6 +1,13 @@
 @extends('layouts.dashboard')
 
 @section('content')
+    @php
+        $profileTotalStudents = auth()->user()->total_students;
+        $currentTotalStudents = $class_arr->sum('total_students');
+        $remainingStudents = $profileTotalStudents !== null
+            ? max(0, (int) $profileTotalStudents - (int) $currentTotalStudents)
+            : null;
+    @endphp
 
     <main class="content">
         
@@ -113,7 +120,8 @@
                     <div class="form-grid">
                         <div>
                             <label>Total Students</label>
-                            <input type="number"  name="total_students">
+                            <input type="number" name="total_students"
+                                @if($remainingStudents !== null) max="{{ $remainingStudents }}" @endif>
                         </div>
 
                         <div>
@@ -270,6 +278,10 @@
     </div>
 
     <script>
+        const profileTotalStudents = @json($profileTotalStudents);
+        const remainingStudentsBase = @json($remainingStudents);
+        let editMaxStudents = null;
+
         // add class
         document.getElementById('addClassForm').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -288,6 +300,18 @@
                     }).showToast();
                     return;
                 }
+            }
+
+            const totalStudents = Number(formData.get('total_students'));
+            if (remainingStudentsBase !== null && Number.isFinite(totalStudents) && totalStudents > remainingStudentsBase) {
+                Toastify({
+                    text: `Total students must be less than or equal to remaining students (${remainingStudentsBase})`,
+                    duration: 3000,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "#ff4d4f"
+                }).showToast();
+                return;
             }
 
             fetch("{{ route('admin.save-class') }}", {
@@ -346,6 +370,18 @@
 
             let formData = new FormData(this);
 
+            const totalStudents = Number(formData.get('total_students'));
+            if (editMaxStudents !== null && Number.isFinite(totalStudents) && totalStudents > editMaxStudents) {
+                Toastify({
+                    text: `Total students must be less than or equal to remaining students (${editMaxStudents})`,
+                    duration: 3000,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "#ff4d4f"
+                }).showToast();
+                return;
+            }
+
             fetch("{{ route('admin.class.update') }}", {
                 method: "POST",
                 headers: {
@@ -392,6 +428,14 @@
             document.getElementById('edit_subjects').value = data.subjects;
             document.getElementById('edit_publisher').value = data.publisher;
             document.getElementById('edit_syllabus').value = data.syllabus;
+
+            if (profileTotalStudents !== null && remainingStudentsBase !== null) {
+                editMaxStudents = remainingStudentsBase + Number(data.total_students || 0);
+                document.getElementById('edit_total_students').max = editMaxStudents;
+            } else {
+                editMaxStudents = null;
+                document.getElementById('edit_total_students').removeAttribute('max');
+            }
 
             document.getElementById('editClassModal').style.display = 'flex';
         }

@@ -715,7 +715,7 @@
                             <div class="row g-3">
                                 <div class="col-md-4">
                                     <label class="form-label">Responder Role</label>
-                                    <input type="text" class="form-control form-control-sm" value="{{ ucfirst(auth()->user()->role ?? 'Distributor') }}" readonly>
+                                    <input type="text" class="form-control form-control-sm" value="{{ ucfirst(auth()->user()->role ?? 'Publisher') }}" readonly>
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label">Company Name</label>
@@ -793,7 +793,7 @@
                                 <div class="d-flex flex-wrap gap-3 mt-2">
                                     <span><strong>Company Name:</strong> {{ auth()->user()->business_name ?? 'N/A' }}</span>
                                     <span><strong>City / State:</strong> {{ trim((auth()->user()->city ?? '') . (auth()->user()->state ? ', ' . auth()->user()->state : '')) ?: 'N/A' }}</span>
-                                    <span><strong>Role:</strong> {{ ucfirst(auth()->user()->role ?? 'Distributor') }}</span>
+                                    <span><strong>Role:</strong> {{ ucfirst(auth()->user()->role ?? 'Publisher') }}</span>
                                 </div>
                                 <button type="button" class="btn btn-sm btn-outline-secondary mt-3" id="viewContactDetailsBtn">View contact details</button>
                             </div>
@@ -909,7 +909,7 @@
         }
 
         function viewDetails(id) {
-            fetch(`/distributor/rfq-details/${id}`)
+            fetch(`/publisher/rfq-details/${id}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
@@ -994,7 +994,7 @@
 
         function confirmCloseRfq() {
             const id = document.querySelector('#viewDetailsModal').dataset.rfqId;
-            fetch(`/distributor/close-rfq/${id}`, {
+            fetch(`/publisher/close-rfq/${id}`, {
                 method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('input[name=_token]').value,
@@ -1041,7 +1041,7 @@
             submitBtn.textContent = 'Submitting...';
             submitBtn.disabled = true;
 
-            fetch('/distributor/store-rfq', {
+            fetch('/publisher/store-rfq', {
                 method: 'POST',
                 body: formData,
                 headers: {
@@ -1076,7 +1076,7 @@
             sendBtn.textContent = 'Sending...';
             sendBtn.disabled = true;
 
-            fetch(`/distributor/send-rfq/${id}`, {
+            fetch(`/publisher/send-rfq/${id}`, {
                 method: 'POST',
                 body: formData,
                 headers: {
@@ -1179,7 +1179,7 @@
         }
 
         function viewDistributorRfqResponse(id) {
-            fetch(`/distributor/rfq-details/${id}`)
+            fetch(`/publisher/rfq-details/${id}`)
                 .then(response => response.json())
                 .then(data => {
                     if (!data.success) {
@@ -1256,7 +1256,7 @@
                     submitBtn.textContent = 'Submitting...';
                     submitBtn.disabled = true;
 
-                    fetch('/distributor/rfq-response', {
+                    fetch('/publisher/rfq-response', {
                         method: 'POST',
                         body: formData,
                         headers: {
@@ -1305,3 +1305,4 @@
 
 
 @endsection
+

@@ -657,55 +657,124 @@
             fetch(`/admin/rfq-details/${id}`)
                 .then(response => response.json())
                 .then(data => {
-                    if (data.success) {
-                        const rfq = data.rfq;
-                        let books = rfq.books;
+                    if (!data.success) {
+                        return;
+                    }
 
-                        // convert string → array
-                        if (typeof books === 'string') {
-                            books = JSON.parse(books);
-                        }
+                    const rfq = data.rfq;
+                    let books = rfq.books;
 
-                        let content = `
-                            <div class="rfq-details-content">
-                                <div class="rfq-details-grid">
-                                    <div class="rfq-details-section">
-                                        <h5>School Information</h5>
-                                        <p><strong>School:</strong> ${rfq.school_name}</p>
-                                        <p><strong>City:</strong> ${rfq.city}</p>
-                                        <p><strong>Session:</strong> ${rfq.academic_session}</p>
-                                    </div>
-                                    <div class="rfq-details-section">
-                                        <h5>Timeline & Priority</h5>
-                                        <p><strong>Delivery:</strong> ${formatDate(rfq.delivery_from)} to ${formatDate(rfq.delivery_to)}</p>
-                                        <p><strong>Urgency:</strong> ${rfq.urgency}</p>
-                                        <p><strong>Closing Date:</strong> ${formatDate(rfq.rfq_closing_date)}</p>
-                                    </div>
+                    // convert string → array
+                    if (typeof books === 'string') {
+                        books = JSON.parse(books);
+                    }
+
+                    let content = `
+                        <div class="rfq-details-content">
+                            <div class="rfq-details-grid">
+                                <div class="rfq-details-section">
+                                    <h5>School Information</h5>
+                                    <p><strong>School:</strong> ${rfq.school_name}</p>
+                                    <p><strong>City:</strong> ${rfq.city}</p>
+                                    <p><strong>Session:</strong> ${rfq.academic_session}</p>
                                 </div>
                                 <div class="rfq-details-section">
-                                    <h5>Additional Notes</h5>
-                                    <p>${rfq.notes || 'N/A'}</p>
+                                    <h5>Timeline & Priority</h5>
+                                    <p><strong>Delivery:</strong> ${formatDate(rfq.delivery_from)} to ${formatDate(rfq.delivery_to)}</p>
+                                    <p><strong>Urgency:</strong> ${rfq.urgency}</p>
+                                    <p><strong>Closing Date:</strong> ${formatDate(rfq.rfq_closing_date)}</p>
                                 </div>
-                                <div class="rfq-details-section">
-                                    <h5>Target Audience</h5>
-                                    <p><strong>Roles:</strong> ${(rfq.target_roles || []).join(', ') || 'N/A'}</p>
-                                    <p><strong>State:</strong> ${rfq.target_state || 'All States'}</p>
-                                    <p><strong>City:</strong> ${rfq.target_city || 'All Cities'}</p>
-                                </div>
-                                <div class="rfq-details-section">
-                                    <h6>Book Requirements</h6>
-                                    <ul>
-                        `;
+                            </div>
+                            <div class="rfq-details-section">
+                                <h5>Additional Notes</h5>
+                                <p>${rfq.notes || 'N/A'}</p>
+                            </div>
+                            <div class="rfq-details-section">
+                                <h5>Target Audience</h5>
+                                <p><strong>Roles:</strong> ${(rfq.target_roles || []).join(', ') || 'N/A'}</p>
+                                <p><strong>State:</strong> ${rfq.target_state || 'All States'}</p>
+                                <p><strong>City:</strong> ${rfq.target_city || 'All Cities'}</p>
+                            </div>
+                            <div class="rfq-details-section">
+                                <h6>Book Requirements</h6>
+                                <ul>
+                    `;
 
+                    if (Array.isArray(books) && books.length) {
                         books.forEach(book => {
                             content += `<li><strong>${book.class_name} - ${book.subject}</strong><br>${book.book_title} (${book.quantity})</li>`;
                         });
-                        content += '</ul></div></div>';
-                        document.getElementById('detailsContent').innerHTML = content;
-                        const modal = document.getElementById('viewDetailsModal');
-                        modal.dataset.rfqId = id;
-                        modal.style.display = 'flex';
+                    } else {
+                        content += '<li>No books listed.</li>';
                     }
+
+                    content += '</ul></div></div>';
+                    document.getElementById('detailsContent').innerHTML = content;
+
+                    const modal = document.getElementById('viewDetailsModal');
+                    modal.dataset.rfqId = id;
+                    modal.style.display = 'flex';
+
+                    fetch(`/admin/rfq-responses/${id}`)
+                        .then(res => res.json())
+                        .then(resData => {
+                            if (!resData.success) {
+                                return;
+                            }
+
+                            const responses = resData.responses || [];
+                            let responseHtml = `
+                                <div class="rfq-details-section">
+                                    <h5>Responses</h5>
+                            `;
+
+                            if (!responses.length) {
+                                responseHtml += '<p class="text-muted">No responses received yet.</p>';
+                            } else {
+                                responseHtml += `
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-bordered mb-0">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Responder</th>
+                                                    <th>Role</th>
+                                                    <th>City / State</th>
+                                                    <th>Unit Price</th>
+                                                    <th>Total Value</th>
+                                                    <th>Qty</th>
+                                                    <th>Delivery</th>
+                                                    <th>Stock</th>
+                                                    <th>Notes</th>
+                                                    <th>Submitted</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                `;
+
+                                responses.forEach(item => {
+                                    const location = [item.city, item.state].filter(Boolean).join(', ') || 'N/A';
+                                    responseHtml += `
+                                        <tr>
+                                            <td>${item.business_name || 'N/A'}</td>
+                                            <td>${item.responder_role || 'N/A'}</td>
+                                            <td>${location}</td>
+                                            <td>${item.indicative_unit_price ?? 'N/A'}</td>
+                                            <td>${item.total_indicative_value ?? 'N/A'}</td>
+                                            <td>${item.available_quantity ?? 'N/A'}</td>
+                                            <td>${formatDate(item.delivery_from)} to ${formatDate(item.delivery_to)}</td>
+                                            <td>${item.stock_status ? item.stock_status.replace(/_/g, ' ') : 'N/A'}</td>
+                                            <td>${item.additional_notes || 'N/A'}</td>
+                                            <td>${formatDate(item.submitted_at)}</td>
+                                        </tr>
+                                    `;
+                                });
+
+                                responseHtml += '</tbody></table></div>';
+                            }
+
+                            responseHtml += '</div>';
+                            document.getElementById('detailsContent').insertAdjacentHTML('beforeend', responseHtml);
+                        });
                 });
         }
 

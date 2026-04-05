@@ -23,6 +23,12 @@ class DashboardController extends Controller
     public function admin()
     {
         $user = auth()->user();
+        $class_arr = SchoolClass::latest()->get();
+        $profileTotalStudents = $user->total_students;
+        $currentTotalStudents = $class_arr->sum('total_students');
+        $remainingStudents = $profileTotalStudents !== null
+            ? max(0, (int) $profileTotalStudents - (int) $currentTotalStudents)
+            : null;
 
         $followersCount = RfqResponse::whereHas('rfq', function ($query) use ($user) {
             $query->where('user_id', $user->id);
@@ -48,7 +54,7 @@ class DashboardController extends Controller
         $stats = [
             ['label' => 'Followers', 'icon' => 'fa-user', 'value' => $followersCount],
             ['label' => 'Add to Cart', 'icon' => 'fa-cart-plus', 'value' => $rfqCreatedCount],
-            ['label' => 'Total Students', 'icon' => 'fa-graduation-cap', 'value' => $totalStudentsCount],
+            ['label' => 'Total Students', 'icon' => 'fa-graduation-cap', 'value' => $remainingStudents],
             ['label' => 'Manage Records', 'icon' => 'fa-clipboard-list', 'value' => $manageRecordsCount],
             ['label' => 'Notification RFQ', 'icon' => 'fa-bell', 'value' => $pendingRfqCount],
         ];
@@ -167,6 +173,22 @@ class DashboardController extends Controller
                 ], 422);
             }
 
+            $profileTotalStudents = auth()->user()->total_students;
+            if ($profileTotalStudents !== null) {
+                $currentTotalStudents = (int) SchoolClass::sum('total_students');
+                $remainingStudents = (int) $profileTotalStudents - $currentTotalStudents;
+                $remainingStudents = max(0, $remainingStudents);
+
+                if ((int) $request->total_students > $remainingStudents) {
+                    return response()->json([
+                        'status' => false,
+                        'errors' => [
+                            'total_students' => ["Total students must be less than or equal to remaining students ($remainingStudents)"]
+                        ]
+                    ], 422);
+                }
+            }
+
             $class = SchoolClass::create($validator->validated());
 
             return response()->json([
@@ -208,6 +230,22 @@ class DashboardController extends Controller
                 'publisher' => 'nullable|string',
                 'syllabus' => 'nullable|string',
             ]);
+
+            $profileTotalStudents = auth()->user()->total_students;
+            if ($profileTotalStudents !== null) {
+                $currentTotalStudents = (int) SchoolClass::where('id', '!=', $request->id)->sum('total_students');
+                $remainingStudents = (int) $profileTotalStudents - $currentTotalStudents;
+                $remainingStudents = max(0, $remainingStudents);
+
+                if ((int) $request->total_students > $remainingStudents) {
+                    return response()->json([
+                        'status' => false,
+                        'errors' => [
+                            'total_students' => ["Total students must be less than or equal to remaining students ($remainingStudents)"]
+                        ]
+                    ], 422);
+                }
+            }
 
             SchoolClass::where('id', $request->id)->update($data);
 
@@ -422,48 +460,79 @@ class DashboardController extends Controller
     public function retailer()
     {
         $user = auth()->user();
+        $acknowledgedRfqIds = $this->acknowledgedRfqIds($user);
 
-        $sentRfqs = Rfq::where('user_id', $user->id)
-            ->latest()
-            ->take(10)
-            ->get()
-            ->map(function ($rfq) {
-                return [
-                    'type' => 'sent',
-                    'rfq' => $rfq,
-                ];
-            });
+        $followersCount = $this->rfqRecipientQuery($user)
+            ->distinct('user_id')
+            ->count('user_id');
 
-        $receivedRfqs = $this->rfqRecipientQuery($user)
-            ->where('user_id', '!=', $user->id)
-            ->latest()
-            ->take(10)
-            ->get()
-            ->map(function ($rfq) {
-                return [
-                    'type' => 'received',
-                    'rfq' => $rfq,
-                ];
-            });
+        $catalogueCount = Catalogue::where('user_id', $user->id)->count();
 
-        $operationLogs = $sentRfqs
-            ->concat($receivedRfqs)
-            ->sortByDesc(function ($item) {
-                return $item['rfq']->created_at;
+        $activeRequestCount = Rfq::where('user_id', $user->id)
+            ->where('status', 'active')
+            ->count();
+
+        $manageRecordsCount = PurchaseRecord::where('user_id', $user->id)->count();
+
+        $pendingRfqCount = $this->rfqRecipientQuery($user)
+            ->whereDoesntHave('receipts', function ($query) use ($user) {
+                $query->where('user_id', $user->id)->whereNotNull('received_at');
             })
-            ->take(10)
-            ->values();
+            ->count();
 
-        $locationFilters = $this->getRfqLocationFilters();
+        $stats = [
+            ['label' => 'Followers', 'icon' => 'fa-user', 'value' => $followersCount],
+            ['label' => 'Add to Cart', 'icon' => 'fa-cart-plus', 'value' => $catalogueCount],
+            ['label' => 'Active Request', 'icon' => 'fa-graduation-cap', 'value' => $activeRequestCount],
+            ['label' => 'Manage Records', 'icon' => 'fa-clipboard-list', 'value' => $manageRecordsCount],
+            ['label' => 'Notification RFQ', 'icon' => 'fa-bell', 'value' => $pendingRfqCount],
+        ];
 
-        return view('retailer.dashboard', array_merge([
-            'operationLogs' => $operationLogs,
-        ], $locationFilters, $this->getMasterLists()));
+        $operationLogsQuery = $this->rfqRecipientQuery($user)
+            ->where('user_id', '!=', $user->id)
+            ->latest();
+        $operationLogs = $operationLogsQuery->take(10)->get();
+
+        return view('retailer.dashboard', compact('operationLogs', 'acknowledgedRfqIds', 'stats'));
     }
 
     public function publisher()
     {
-        return view('publisher.dashboard');
+        $user = auth()->user();
+        $acknowledgedRfqIds = $this->acknowledgedRfqIds($user);
+
+        $followersCount = $this->rfqRecipientQuery($user)
+            ->distinct('user_id')
+            ->count('user_id');
+
+        $catalogueCount = Catalogue::where('user_id', $user->id)->count();
+
+        $activeRequestCount = Rfq::where('user_id', $user->id)
+            ->where('status', 'active')
+            ->count();
+
+        $manageRecordsCount = PurchaseRecord::where('user_id', $user->id)->count();
+
+        $pendingRfqCount = $this->rfqRecipientQuery($user)
+            ->whereDoesntHave('receipts', function ($query) use ($user) {
+                $query->where('user_id', $user->id)->whereNotNull('received_at');
+            })
+            ->count();
+
+        $stats = [
+            ['label' => 'Followers', 'icon' => 'fa-user', 'value' => $followersCount],
+            ['label' => 'Add to Cart', 'icon' => 'fa-cart-plus', 'value' => $catalogueCount],
+            ['label' => 'Active Request', 'icon' => 'fa-graduation-cap', 'value' => $activeRequestCount],
+            ['label' => 'Manage Records', 'icon' => 'fa-clipboard-list', 'value' => $manageRecordsCount],
+            ['label' => 'Notification RFQ', 'icon' => 'fa-bell', 'value' => $pendingRfqCount],
+        ];
+
+        $operationLogsQuery = $this->rfqRecipientQuery($user)
+            ->where('user_id', '!=', $user->id)
+            ->latest();
+        $operationLogs = $operationLogsQuery->take(10)->get();
+
+        return view('publisher.dashboard', compact('operationLogs', 'acknowledgedRfqIds', 'stats'));
     }
 
     public function profile()
@@ -479,19 +548,23 @@ class DashboardController extends Controller
 
             $data = $request->validate([
                 'business_name' => 'required',
-                'school_type' => 'nullable',
+                'contact_person' => 'required|string|max:255',
+                'business_category' => 'required|string|max:100',
                 'email' => 'required|email',
                 'mobile' => 'required',
                 'address' => 'nullable',
-                'total_students' => 'nullable|numeric',
                 'state' => 'nullable',
                 'city' => 'nullable',
-                'website_link' => 'nullable',
-                'established' => 'nullable',
-                'board' => 'nullable',
-                'about' => 'nullable',
+                'gst' => 'nullable|string|max:50',
+                'pan' => 'nullable|string|max:50',
+                'pincode' => 'nullable|string|max:20',
+                'document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
                 'profile' => 'nullable|image|max:2048',
             ]);
+
+            if ($request->hasFile('document')) {
+                $data['document'] = $request->file('document')->store('documents', 'public');
+            }
 
             if ($request->hasFile('profile')) {
                 $data['profile'] = $request->file('profile')->store('profiles', 'public');
@@ -731,7 +804,7 @@ class DashboardController extends Controller
         $rfq = Rfq::where('id', $id)->where('user_id', auth()->id())->firstOrFail();
 
         $responses = RfqResponse::query()
-            ->leftJoin('users', 'users.id', '=', 'rfq_responses.responder_user_id')
+            ->leftJoin('users', 'users.id', '=', 'rfq_responses.responder_company_id')
             ->where('rfq_responses.rfq_id', $rfq->id)
             ->orderByDesc('rfq_responses.submitted_at')
             ->get([
@@ -866,10 +939,39 @@ class DashboardController extends Controller
             ->where('id', $rfq->user_id)
             ->first();
 
+        $response = RfqResponse::where('rfq_id', $rfq->id)
+            ->where('responder_company_id', $user->id)
+            ->orderByDesc('submitted_at')
+            ->first();
+
         return response()->json([
             'success' => true,
             'rfq' => $rfq,
             'sender' => $sender,
+            'response' => $response,
+        ]);
+    }
+
+    public function distributor_send_rfq(Request $request, $id)
+    {
+        $rfq = Rfq::where('id', $id)->where('user_id', auth()->id())->firstOrFail();
+
+        $data = $request->validate([
+            'target_roles' => 'required|array|min:1',
+            'target_roles.*' => 'in:distributor,retailer,publisher',
+            'target_state' => 'nullable|string|max:100',
+            'target_city' => 'nullable|string|max:100',
+        ]);
+
+        $rfq->update([
+            'target_roles' => array_values($data['target_roles']),
+            'target_state' => $data['target_state'] ?? null,
+            'target_city' => $data['target_city'] ?? null,
+        ]);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'RFQ sent successfully',
         ]);
     }
 
@@ -946,6 +1048,271 @@ class DashboardController extends Controller
         ]);
     }
 
+    public function publisher_rfq_inbox()
+    {
+        $user = auth()->user();
+        $acknowledgedRfqIds = $this->acknowledgedRfqIds($user);
+
+        $activeRfqs = Rfq::where('status', 'active')->where('user_id', $user->id)->get();
+        $historyRfqs = Rfq::where('status', 'closed')->where('user_id', $user->id)->get();
+        $receivedRfqsQuery = $this->rfqRecipientQuery($user)
+            ->where('user_id', '!=', $user->id)
+            ->where('status', 'active')
+            ->latest();
+        $receivedRfqs = $receivedRfqsQuery->get();
+        $locationFilters = $this->getRfqLocationFilters();
+
+        return view('publisher.rfq-inbox', array_merge([
+            'activeRfqs' => $activeRfqs,
+            'historyRfqs' => $historyRfqs,
+            'receivedRfqs' => $receivedRfqs,
+            'acknowledgedRfqIds' => $acknowledgedRfqIds,
+        ], $locationFilters, $this->getMasterLists()));
+    }
+
+    public function publisher_receive_rfq($id)
+    {
+        $user = auth()->user();
+
+        $rfq = $this->rfqRecipientQuery($user)
+            ->where('id', $id)
+            ->where('user_id', '!=', $user->id)
+            ->firstOrFail();
+
+        RfqReceipt::updateOrCreate(
+            [
+                'rfq_id' => $rfq->id,
+                'user_id' => $user->id,
+            ],
+            [
+                'received_at' => now(),
+            ]
+        );
+
+        return response()->json([
+            'status' => true,
+            'message' => 'RFQ marked as received',
+        ]);
+    }
+
+    public function publisher_store_rfq(Request $request)
+    {
+        try {
+            $this->saveRfq($request);
+
+            return response()->json(['status' => true, 'message' => 'RFQ created successfully']);
+        } catch (\Exception $e) {
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function publisher_send_rfq(Request $request, $id)
+    {
+        $rfq = Rfq::where('id', $id)->where('user_id', auth()->id())->firstOrFail();
+
+        $data = $request->validate([
+            'target_roles' => 'required|array|min:1',
+            'target_roles.*' => 'in:distributor,retailer,publisher',
+            'target_state' => 'nullable|string|max:100',
+            'target_city' => 'nullable|string|max:100',
+        ]);
+
+        $rfq->update([
+            'target_roles' => array_values($data['target_roles']),
+            'target_state' => $data['target_state'] ?? null,
+            'target_city' => $data['target_city'] ?? null,
+        ]);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'RFQ sent successfully',
+        ]);
+    }
+
+    public function publisher_rfq_details($id)
+    {
+        $user = auth()->user();
+
+        $rfq = Rfq::where('id', $id)
+            ->where(function ($query) use ($user) {
+                $query->where('user_id', $user->id)
+                    ->orWhere(function ($recipientQuery) use ($user) {
+                        $this->rfqRecipientQuery($user, $recipientQuery);
+                    });
+            })
+            ->firstOrFail();
+
+        $sender = User::select('id', 'role', 'business_name', 'city', 'state')
+            ->where('id', $rfq->user_id)
+            ->first();
+
+        $response = RfqResponse::where('rfq_id', $rfq->id)
+            ->where('responder_company_id', $user->id)
+            ->orderByDesc('submitted_at')
+            ->first();
+
+        return response()->json([
+            'success' => true,
+            'rfq' => $rfq,
+            'sender' => $sender,
+            'response' => $response,
+        ]);
+    }
+
+    public function publisher_close_rfq($id)
+    {
+        $rfq = Rfq::where('id', $id)->where('user_id', auth()->id())->firstOrFail();
+        $rfq->update(['status' => 'closed']);
+
+        return response()->json(['status' => true, 'message' => 'RFQ closed successfully']);
+    }
+
+    public function publisher_store_rfq_response(Request $request)
+    {
+        $user = auth()->user();
+
+        $rfq = Rfq::where('id', $request->rfq_id)
+            ->where('user_id', '!=', $user->id)
+            ->where(function ($query) use ($user) {
+                $this->rfqRecipientQuery($user, $query);
+            })
+            ->firstOrFail();
+
+        $data = $request->validate([
+            'rfq_id' => 'required|integer',
+            'indicative_unit_price' => 'nullable|numeric|min:0',
+            'total_indicative_value' => 'nullable|numeric|min:0',
+            'available_quantity' => 'required|integer|min:1',
+            'delivery_from' => 'required|date',
+            'delivery_to' => 'required|date|after_or_equal:delivery_from',
+            'stock_status' => 'nullable|in:in_stock,partially_available,to_be_arranged',
+            'additional_notes' => 'nullable|string',
+            'confirm_indicative' => 'required|accepted',
+        ]);
+
+        $responseData = [
+            'rfq_id' => $rfq->id,
+            'responder_user_id' => $rfq->user_id,
+            'responder_company_id' => $user->id,
+            'responder_role' => $user->role,
+            'indicative_unit_price' => $data['indicative_unit_price'] ?? null,
+            'total_indicative_value' => $data['total_indicative_value'] ?? null,
+            'available_quantity' => $data['available_quantity'],
+            'delivery_from' => $data['delivery_from'],
+            'delivery_to' => $data['delivery_to'],
+            'stock_status' => $data['stock_status'] ?? null,
+            'additional_notes' => $data['additional_notes'] ?? null,
+            'status' => 'RESPONSE_SUBMITTED',
+            'submitted_at' => now(),
+        ];
+
+        RfqResponse::updateOrCreate(
+            [
+                'rfq_id' => $rfq->id,
+                'responder_company_id' => $user->id,
+            ],
+            $responseData
+        );
+
+        RfqReceipt::updateOrCreate(
+            [
+                'rfq_id' => $rfq->id,
+                'user_id' => $user->id,
+            ],
+            [
+                'received_at' => now(),
+            ]
+        );
+
+        return response()->json([
+            'status' => true,
+            'message' => 'RFQ response submitted successfully',
+        ]);
+    }
+
+    public function publisher_update_rfq(Request $request, $id)
+    {
+        return $this->update_rfq($request, $id);
+    }
+
+    public function publisher_manage_records()
+    {
+        $purchase_records = PurchaseRecord::where('user_id', auth()->id())->latest()->get();
+        return view('publisher.manage-records', compact('purchase_records'));
+    }
+
+    public function publisher_save_purchase_record(Request $request)
+    {
+        return $this->distributor_save_purchase_record($request);
+    }
+
+    public function publisher_update_purchase_record(Request $request)
+    {
+        return $this->distributor_update_purchase_record($request);
+    }
+
+    public function publisher_delete_purchase_record(Request $request)
+    {
+        return $this->distributor_delete_purchase_record($request);
+    }
+
+    public function publisher_download_invoice($id)
+    {
+        return $this->distributor_download_invoice($id);
+    }
+
+    public function retailer_rfq_inbox()
+    {
+        $user = auth()->user();
+        $acknowledgedRfqIds = $this->acknowledgedRfqIds($user);
+
+        $activeRfqs = Rfq::where('status', 'active')->where('user_id', $user->id)->get();
+        $historyRfqs = Rfq::where('status', 'closed')->where('user_id', $user->id)->get();
+        $receivedRfqsQuery = $this->rfqRecipientQuery($user)
+            ->where('user_id', '!=', $user->id)
+            ->where('status', 'active')
+            ->latest();
+        $receivedRfqs = $receivedRfqsQuery->get();
+        $locationFilters = $this->getRfqLocationFilters();
+
+        return view('retailer.rfq-inbox', array_merge([
+            'activeRfqs' => $activeRfqs,
+            'historyRfqs' => $historyRfqs,
+            'receivedRfqs' => $receivedRfqs,
+            'acknowledgedRfqIds' => $acknowledgedRfqIds,
+        ], $locationFilters, $this->getMasterLists()));
+    }
+
+    public function retailer_receive_rfq($id)
+    {
+        $user = auth()->user();
+
+        $rfq = $this->rfqRecipientQuery($user)
+            ->where('id', $id)
+            ->where('user_id', '!=', $user->id)
+            ->firstOrFail();
+
+        RfqReceipt::updateOrCreate(
+            [
+                'rfq_id' => $rfq->id,
+                'user_id' => $user->id,
+            ],
+            [
+                'received_at' => now(),
+            ]
+        );
+
+        return response()->json([
+            'status' => true,
+            'message' => 'RFQ marked as received',
+        ]);
+    }
+
     public function retailer_store_rfq(Request $request)
     {
         try {
@@ -958,6 +1325,29 @@ class DashboardController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+    }
+
+    public function retailer_send_rfq(Request $request, $id)
+    {
+        $rfq = Rfq::where('id', $id)->where('user_id', auth()->id())->firstOrFail();
+
+        $data = $request->validate([
+            'target_roles' => 'required|array|min:1',
+            'target_roles.*' => 'in:distributor,retailer,publisher',
+            'target_state' => 'nullable|string|max:100',
+            'target_city' => 'nullable|string|max:100',
+        ]);
+
+        $rfq->update([
+            'target_roles' => array_values($data['target_roles']),
+            'target_state' => $data['target_state'] ?? null,
+            'target_city' => $data['target_city'] ?? null,
+        ]);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'RFQ sent successfully',
+        ]);
     }
 
     public function retailer_rfq_details($id)
@@ -973,7 +1363,21 @@ class DashboardController extends Controller
             })
             ->firstOrFail();
 
-        return response()->json(['success' => true, 'rfq' => $rfq]);
+        $sender = User::select('id', 'role', 'business_name', 'city', 'state')
+            ->where('id', $rfq->user_id)
+            ->first();
+
+        $response = RfqResponse::where('rfq_id', $rfq->id)
+            ->where('responder_company_id', $user->id)
+            ->orderByDesc('submitted_at')
+            ->first();
+
+        return response()->json([
+            'success' => true,
+            'rfq' => $rfq,
+            'sender' => $sender,
+            'response' => $response,
+        ]);
     }
 
     public function retailer_close_rfq($id)
@@ -982,6 +1386,69 @@ class DashboardController extends Controller
         $rfq->update(['status' => 'closed']);
 
         return response()->json(['status' => true, 'message' => 'RFQ closed successfully']);
+    }
+
+    public function retailer_store_rfq_response(Request $request)
+    {
+        $user = auth()->user();
+
+        $rfq = Rfq::where('id', $request->rfq_id)
+            ->where('user_id', '!=', $user->id)
+            ->where(function ($query) use ($user) {
+                $this->rfqRecipientQuery($user, $query);
+            })
+            ->firstOrFail();
+
+        $data = $request->validate([
+            'rfq_id' => 'required|integer',
+            'indicative_unit_price' => 'nullable|numeric|min:0',
+            'total_indicative_value' => 'nullable|numeric|min:0',
+            'available_quantity' => 'required|integer|min:1',
+            'delivery_from' => 'required|date',
+            'delivery_to' => 'required|date|after_or_equal:delivery_from',
+            'stock_status' => 'nullable|in:in_stock,partially_available,to_be_arranged',
+            'additional_notes' => 'nullable|string',
+            'confirm_indicative' => 'required|accepted',
+        ]);
+
+        $responseData = [
+            'rfq_id' => $rfq->id,
+            'responder_user_id' => $rfq->user_id,
+            'responder_company_id' => $user->id,
+            'responder_role' => $user->role,
+            'indicative_unit_price' => $data['indicative_unit_price'] ?? null,
+            'total_indicative_value' => $data['total_indicative_value'] ?? null,
+            'available_quantity' => $data['available_quantity'],
+            'delivery_from' => $data['delivery_from'],
+            'delivery_to' => $data['delivery_to'],
+            'stock_status' => $data['stock_status'] ?? null,
+            'additional_notes' => $data['additional_notes'] ?? null,
+            'status' => 'RESPONSE_SUBMITTED',
+            'submitted_at' => now(),
+        ];
+
+        RfqResponse::updateOrCreate(
+            [
+                'rfq_id' => $rfq->id,
+                'responder_company_id' => $user->id,
+            ],
+            $responseData
+        );
+
+        RfqReceipt::updateOrCreate(
+            [
+                'rfq_id' => $rfq->id,
+                'user_id' => $user->id,
+            ],
+            [
+                'received_at' => now(),
+            ]
+        );
+
+        return response()->json([
+            'status' => true,
+            'message' => 'RFQ response submitted successfully',
+        ]);
     }
 
     private function getRfqLocationFilters(): array

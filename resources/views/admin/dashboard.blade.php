@@ -1,6 +1,7 @@
 @extends('layouts.dashboard')
 
 @section('content')
+
     <main class="container-fluid py-4">
 
         <!-- Page Header -->

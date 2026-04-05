@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\PublisherController;
 
 Route::get('/', function () {
     return view('home');
@@ -74,6 +75,7 @@ Route::middleware(['auth', 'role:distributor'])->group(function () {
 
     Route::get('/distributor/rfq-inbox', [DashboardController::class, 'distributor_rfq_inbox'])->name('distributor.rfq_inbox');
     Route::post('/distributor/store-rfq', [DashboardController::class, 'distributor_store_rfq'])->name('distributor.store_rfq');
+    Route::post('/distributor/send-rfq/{id}', [DashboardController::class, 'distributor_send_rfq'])->name('distributor.send_rfq');
     Route::post('/distributor/receive-rfq/{id}', [DashboardController::class, 'distributor_receive_rfq'])->name('distributor.receive_rfq');
     Route::post('/distributor/rfq-response', [DashboardController::class, 'distributor_store_rfq_response'])->name('distributor.rfq_response');
     Route::put('/distributor/update-rfq/{id}', [DashboardController::class, 'distributor_update_rfq'])->name('distributor.update_rfq');
@@ -93,13 +95,32 @@ Route::middleware(['auth', 'role:retailer'])->group(function () {
     Route::get('/retailer/profile', [DashboardController::class, 'retailer_profile'])->name('retailer.profile');
     Route::post('/retailer/profile/update', [DashboardController::class, 'retailer_update_profile'])->name('retailer.profile.update');
     Route::post('/retailer/store-rfq', [DashboardController::class, 'retailer_store_rfq'])->name('retailer.store_rfq');
+    Route::get('/retailer/rfq-inbox', [DashboardController::class, 'retailer_rfq_inbox'])->name('retailer.rfq_inbox');
+    Route::post('/retailer/send-rfq/{id}', [DashboardController::class, 'retailer_send_rfq'])->name('retailer.send_rfq');
+    Route::post('/retailer/receive-rfq/{id}', [DashboardController::class, 'retailer_receive_rfq'])->name('retailer.receive_rfq');
+    Route::post('/retailer/rfq-response', [DashboardController::class, 'retailer_store_rfq_response'])->name('retailer.rfq_response');
     Route::post('/retailer/close-rfq/{id}', [DashboardController::class, 'retailer_close_rfq'])->name('retailer.close_rfq');
     Route::get('/retailer/rfq-details/{id}', [DashboardController::class, 'retailer_rfq_details'])->name('retailer.rfq_details');
 });
 
 // publisher panel
 Route::middleware(['auth', 'role:publisher'])->group(function () {
-    Route::get('/publisher/dashboard', [DashboardController::class, 'publisher'])->name('publisher.dashboard');
-    Route::get('/publisher/profile', [DashboardController::class, 'publisher_profile'])->name('publisher.profile');
-    Route::post('/publisher/profile/update', [DashboardController::class, 'publisher_update_profile'])->name('publisher.profile.update');
+    Route::get('/publisher/dashboard', [PublisherController::class, 'dashboard'])->name('publisher.dashboard');
+    Route::get('/publisher/profile', [PublisherController::class, 'profile'])->name('publisher.profile');
+    Route::post('/publisher/profile/update', [PublisherController::class, 'update_profile'])->name('publisher.profile.update');
+
+    Route::get('/publisher/rfq-inbox', [PublisherController::class, 'rfq_inbox'])->name('publisher.rfq_inbox');
+    Route::post('/publisher/store-rfq', [PublisherController::class, 'store_rfq'])->name('publisher.store_rfq');
+    Route::post('/publisher/send-rfq/{id}', [PublisherController::class, 'send_rfq'])->name('publisher.send_rfq');
+    Route::post('/publisher/receive-rfq/{id}', [PublisherController::class, 'receive_rfq'])->name('publisher.receive_rfq');
+    Route::post('/publisher/rfq-response', [PublisherController::class, 'store_rfq_response'])->name('publisher.rfq_response');
+    Route::put('/publisher/update-rfq/{id}', [PublisherController::class, 'update_rfq'])->name('publisher.update_rfq');
+    Route::post('/publisher/close-rfq/{id}', [PublisherController::class, 'close_rfq'])->name('publisher.close_rfq');
+    Route::get('/publisher/rfq-details/{id}', [PublisherController::class, 'rfq_details'])->name('publisher.rfq_details');
+
+    Route::get('/publisher/manage-records', [PublisherController::class, 'manage_records'])->name('publisher.manage_records');
+    Route::post('/publisher/save-purchase-record', [PublisherController::class, 'save_purchase_record'])->name('publisher.save-purchase-record');
+    Route::post('/publisher/update-purchase-record', [PublisherController::class, 'update_purchase_record'])->name('publisher.update-purchase-record');
+    Route::post('/publisher/delete-purchase-record', [PublisherController::class, 'delete_purchase_record'])->name('publisher.delete-purchase-record');
+    Route::get('/publisher/download-invoice/{id}', [PublisherController::class, 'download_invoice'])->name('publisher.download-invoice');
 });

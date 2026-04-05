@@ -39,8 +39,8 @@
                 </div>
 
                 <div>
-                    <label>Publisher Type</label>
-                    <input type="text" name="school_type" value="{{ $profile->school_type }}">
+                    <label>Contact Person Name</label>
+                    <input type="text" name="contact_person" value="{{ $profile->contact_person }}">
                 </div>
 
                 <div>
@@ -59,8 +59,12 @@
                 </div>
 
                 <div>
-                    <label>Total Students</label>
-                    <input type="number" name="total_students" value="{{ $profile->total_students }}">
+                    <label>Publisher Type</label>
+                    <select name="publisher_type">
+                        <option value="">Select Type</option>
+                        <option value="Educational Publisher" {{ $profile->publisher_type === 'Educational Publisher' ? 'selected' : '' }}>Educational Publisher</option>
+                        <option value="Trade Publisher" {{ $profile->publisher_type === 'Trade Publisher' ? 'selected' : '' }}>Trade Publisher</option>
+                    </select>
                 </div>
 
                 <div>
@@ -97,6 +101,29 @@
                             </option>
                         @endforeach
                     </select>
+                </div>
+
+                <div>
+                    <label>GST Number</label>
+                    <input type="text" name="gst" value="{{ $profile->gst }}">
+                </div>
+
+                <div>
+                    <label>PAN Number</label>
+                    <input type="text" name="pan" value="{{ $profile->pan }}">
+                </div>
+
+                <div>
+                    <label>PIN Code</label>
+                    <input type="text" name="pincode" value="{{ $profile->pincode }}">
+                </div>
+
+                <div>
+                    <label>Registration Certificate</label>
+                    <input type="file" name="document" accept=".pdf,.jpg,.jpeg,.png">
+                    @if ($profile->document)
+                        <small class="text-muted d-block mt-1">Uploaded: {{ basename($profile->document) }}</small>
+                    @endif
                 </div>
             </div>
 
