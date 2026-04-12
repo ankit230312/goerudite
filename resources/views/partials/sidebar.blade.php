@@ -54,6 +54,10 @@
                     <a class="dropdown-item {{ request()->routeIs('admin.academic_sessions') ? 'active' : '' }}"
                         href="{{ route('admin.academic_sessions') }}"> Academic Sessions</a>
                 </li>
+                <li>
+                    <a class="dropdown-item {{ request()->routeIs('admin.mediums') ? 'active' : '' }}"
+                        href="{{ route('admin.mediums') }}"> Create Medium</a>
+                </li>
 
             </ul>
         </div>
@@ -105,5 +109,5 @@
         </a>
     @endif
 
-    <a href="{{ route('logout') }}" class="menu-item sign-out">🚪 Sign Out</a>
+    <a href="{{ route('logout') }}" class="menu-item sign-out"> Sign Out</a>
 </nav>

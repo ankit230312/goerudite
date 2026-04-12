@@ -47,19 +47,25 @@ Route::middleware(['auth', 'role:administrator'])->group(function () {
     Route::get('/admin/profile', [DashboardController::class, 'profile'])->name('admin.profile');
     Route::post('/admin/profile/update', [DashboardController::class, 'update_profile'])->name('admin.profile.update');
 
+    Route::get('/admin/mediums', [DashboardController::class, 'mediums'])->name('admin.mediums');
+    Route::post('/admin/save-medium', [DashboardController::class, 'save_medium'])->name('admin.save-medium');
+    Route::post('/admin/delete-medium', [DashboardController::class, 'delete_medium'])->name('admin.medium.delete');
+    Route::post('/admin/update-medium', [DashboardController::class, 'update_medium'])->name('admin.medium.update');
+    Route::get('/get-mediums/{board_id}', [DashboardController::class, 'getMediums']);
+
     Route::get('/admin/rfq-inbox', [DashboardController::class, 'rfq_inbox'])->name('admin.rfq_inbox');
     Route::post('/admin/store-rfq', [DashboardController::class, 'store_rfq'])->name('admin.store_rfq');
-    Route::post('/admin/send-rfq/{id}', [DashboardController::class, 'send_rfq'])->name('admin.send_rfq');
+    Route::post('/admin/send-rfq/{id}', [DashboardController::class, '_rfq'])->name('admin.send_rfq');
     Route::put('/admin/update-rfq/{id}', [DashboardController::class, 'update_rfq'])->name('admin.update_rfq');
     Route::post('/admin/close-rfq/{id}', [DashboardController::class, 'close_rfq'])->name('admin.close_rfq');
     Route::get('/admin/rfq-details/{id}', [DashboardController::class, 'rfq_details'])->name('admin.rfq_details');
     Route::get('/admin/rfq-responses/{id}', [DashboardController::class, 'rfq_responses'])->name('admin.rfq_responses');
 
-     Route::get('/admin/manage-records', [DashboardController::class, 'manage_records'])->name('admin.manage_records');
-     Route::post('/admin/save-purchase-record', [DashboardController::class, 'save_purchase_record'])->name('admin.save-purchase-record');
-     Route::post('/admin/update-purchase-record', [DashboardController::class, 'update_purchase_record'])->name('admin.update-purchase-record');
-     Route::post('/admin/delete-purchase-record', [DashboardController::class, 'delete_purchase_record'])->name('admin.delete-purchase-record');
-     Route::get('/admin/download-invoice/{id}', [DashboardController::class, 'download_invoice'])->name('admin.download-invoice');
+    Route::get('/admin/manage-records', [DashboardController::class, 'manage_records'])->name('admin.manage_records');
+    Route::post('/admin/save-purchase-record', [DashboardController::class, 'save_purchase_record'])->name('admin.save-purchase-record');
+    Route::post('/admin/update-purchase-record', [DashboardController::class, 'update_purchase_record'])->name('admin.update-purchase-record');
+    Route::post('/admin/delete-purchase-record', [DashboardController::class, 'delete_purchase_record'])->name('admin.delete-purchase-record');
+    Route::get('/admin/download-invoice/{id}', [DashboardController::class, 'download_invoice'])->name('admin.download-invoice');
 
 
 });
@@ -70,7 +76,7 @@ Route::middleware(['auth', 'role:distributor'])->group(function () {
     Route::get('/distributor/manage-cateloge', [DashboardController::class, 'manage_cateloge'])->name('distributor.manage_cateloge');
     Route::post('/distributor/save-catalogue', [DashboardController::class, 'save_catalogue'])->name('distributor.save_catalogue');
     Route::post('/distributor/update-catalogue', [DashboardController::class, 'update_catalogue'])->name('distributor.update_catalogue');
-        Route::post('/distributor/delete-catalogue', [DashboardController::class, 'delete_catalogue'])->name('distributor.delete_catalogue');
+    Route::post('/distributor/delete-catalogue', [DashboardController::class, 'delete_catalogue'])->name('distributor.delete_catalogue');
 
     Route::get('/distributor/profile', [DashboardController::class, 'distributor_profile'])->name('distributor.profile');
     Route::post('/distributor/profile/update', [DashboardController::class, 'distributor_update_profile'])->name('distributor.profile.update');
@@ -84,11 +90,11 @@ Route::middleware(['auth', 'role:distributor'])->group(function () {
     Route::post('/distributor/close-rfq/{id}', [DashboardController::class, 'distributor_close_rfq'])->name('distributor.close_rfq');
     Route::get('/distributor/rfq-details/{id}', [DashboardController::class, 'distributor_rfq_details'])->name('distributor.rfq_details');
 
-     Route::get('/distributor/manage-records', [DashboardController::class, 'distributor_manage_records'])->name('distributor.manage_records');
-     Route::post('/distributor/save-purchase-record', [DashboardController::class, 'distributor_save_purchase_record'])->name('distributor.save-purchase-record');
-     Route::post('/distributor/update-purchase-record', [DashboardController::class, 'distributor_update_purchase_record'])->name('distributor.update-purchase-record');
-     Route::post('/distributor/delete-purchase-record', [DashboardController::class, 'distributor_delete_purchase_record'])->name('distributor.delete-purchase-record');
-     Route::get('/distributor/download-invoice/{id}', [DashboardController::class, 'distributor_download_invoice'])->name('distributor.download-invoice');
+    Route::get('/distributor/manage-records', [DashboardController::class, 'distributor_manage_records'])->name('distributor.manage_records');
+    Route::post('/distributor/save-purchase-record', [DashboardController::class, 'distributor_save_purchase_record'])->name('distributor.save-purchase-record');
+    Route::post('/distributor/update-purchase-record', [DashboardController::class, 'distributor_update_purchase_record'])->name('distributor.update-purchase-record');
+    Route::post('/distributor/delete-purchase-record', [DashboardController::class, 'distributor_delete_purchase_record'])->name('distributor.delete-purchase-record');
+    Route::get('/distributor/download-invoice/{id}', [DashboardController::class, 'distributor_download_invoice'])->name('distributor.download-invoice');
 });
 
 // retailer panel

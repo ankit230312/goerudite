@@ -476,7 +476,7 @@
             <!-- HEADER -->
             <div class="rfq-header-modal">
                 <h3>Group-1</h3>
-                <button class="btn-save">Save</button>
+                {{-- <button class="btn-save">Save</button> --}}
             </div>
 
             <form id="rfqForm">
@@ -583,7 +583,7 @@
 
                 <!-- FOOTER -->
                 <div class="rfq-footer">
-                    <button type="button" class="btn-dark">+ Add Another Class Set</button>
+                    {{-- <button type="button" class="btn-dark">+ Add Another Class Set</button> --}}
 
                     <div class="footer-actions">
                         <button type="button" class="btn-outline" onclick="closeModal();">Cancel</button>

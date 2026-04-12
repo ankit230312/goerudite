@@ -4,60 +4,56 @@
     @php
         $profileTotalStudents = auth()->user()->total_students;
         $currentTotalStudents = $class_arr->sum('total_students');
-        $remainingStudents = $profileTotalStudents !== null
-            ? max(0, (int) $profileTotalStudents - (int) $currentTotalStudents)
-            : null;
+        $remainingStudents =
+            $profileTotalStudents !== null ? max(0, (int) $profileTotalStudents - (int) $currentTotalStudents) : null;
     @endphp
 
     <main class="content">
-        
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-                <div>
-                    <div class="page-title">Class-wise Strength</div>
-                    <div class="page-sub">Active Session</div>
-                </div>
 
-                <button class="btn-sm btn-solid" onclick="openAddModal()">➕ Add Class</button>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+            <div>
+                <div class="page-title">Class-wise Strength</div>
+                <div class="page-sub">Active Session</div>
             </div>
 
-            <div class="class-grid">
-                <!-- Repeat card -->
-                    @foreach($class_arr as $class)
-                        <div class="class-card">
-                            
-                            <span class="badge">Active</span>
+            <button class="btn-sm btn-solid" onclick="openAddModal()">➕ Add Class</button>
+        </div>
 
-                            <span class="delete-icon"
-                                onclick="openDeleteModal({{ $class->id }}, '{{ $class->class_name }}')">
-                                <i class="fa-solid fa-trash"></i>
-                            </span>
+        <div class="class-grid">
+            <!-- Repeat card -->
+            @foreach ($class_arr as $class)
+                <div class="class-card">
 
-                            <h4>{{ $class->class_name }}</h4>
+                    <span class="badge">Active</span>
 
-                            <div class="card-info">
-                                Sections: {{ $class->sections }}<br>
-                                Students: {{ $class->total_students }}
-                            </div>
+                    <span class="delete-icon" onclick="openDeleteModal({{ $class->id }}, '{{ $class->class_name }}')">
+                        <i class="fa-solid fa-trash"></i>
+                    </span>
 
-                            <div class="card-actions">
-                                <button class="btn-sm btn-outline"
-                                        onclick="openEditModal({{ $class }})">
-                                    Edit Records
-                                </button>
+                    <h4>{{ $class->class_name }}</h4>
 
-                                <button class="btn-sm btn-solid">
-                                    Procure Set
-                                </button>
-                            </div>
-                        </div>
-                  
-                    @endforeach            
+                    <div class="card-info">
+                        Sections: {{ $class->sections }}<br>
+                        Students: {{ $class->total_students }}
+                    </div>
+
+                    <div class="card-actions">
+                        <button class="btn-sm btn-outline" onclick="openEditModal({{ $class }})">
+                            Edit Records
+                        </button>
+
+                        <button class="btn-sm btn-solid">
+                            Procure Set
+                        </button>
+                    </div>
                 </div>
+            @endforeach
+        </div>
 
-            <!-- <div class="tip">
-                <strong>Pro Tip:</strong> Update student counts regularly. RFQs auto-calculate with 2% safety buffer.
-            </div> -->
-        
+        <!-- <div class="tip">
+                        <strong>Pro Tip:</strong> Update student counts regularly. RFQs auto-calculate with 2% safety buffer.
+                    </div> -->
+
 
 
     </main>
@@ -65,7 +61,7 @@
     <div id="addClassModal" class="modal">
         <div class="modal-box large">
             <form id="addClassForm">
-            @csrf
+                @csrf
                 <h3 class="modal-title">Add Class</h3>
 
                 <!-- BASIC CLASS DETAILS -->
@@ -81,7 +77,7 @@
                             <label>Academic Session</label>
                             <select name="academic_session" id="">
                                 <option value="">Select Academic Session</option>
-                                @foreach($academicSessions as $session)
+                                @foreach ($academicSessions as $session)
                                     <option value="{{ $session->name }}">{{ $session->name }}</option>
                                 @endforeach
                             </select>
@@ -89,21 +85,18 @@
 
                         <div>
                             <label>Board</label>
-                            <select name="board">
+                            <select name="board" id="boardSelect">
                                 <option value="">Select Board</option>
-                                @foreach($boards as $board)
-                                    <option value="{{ $board->name }}">{{ $board->name }}</option>
+                                @foreach ($boards as $board)
+                                    <option value="{{ $board->id }}">{{ $board->name }}</option>
                                 @endforeach
                             </select>
                         </div>
 
                         <div>
                             <label>Medium of Instruction</label>
-                            <select name="medium">
-                                <option value="">Select Medium of Instruction</option>
-                                <option value="English">English</option>
-                                <option value="Hindi">Hindi</option>
-                                <option value="Regional">Regional</option>
+                            <select name="medium" id="mediumSelect">
+                                <option value="">Select Medium</option>
                             </select>
                         </div>
 
@@ -121,7 +114,7 @@
                         <div>
                             <label>Total Students</label>
                             <input type="number" name="total_students"
-                                @if($remainingStudents !== null) max="{{ $remainingStudents }}" @endif>
+                                @if ($remainingStudents !== null) max="{{ $remainingStudents }}" @endif>
                         </div>
 
                         <div>
@@ -197,29 +190,26 @@
                             <label>Academic Session</label>
                             <select name="academic_session" id="edit_academic_session">
                                 <option value="">Select Academic Session</option>
-                                @foreach($academicSessions as $session)
+                                @foreach ($academicSessions as $session)
                                     <option value="{{ $session->name }}">{{ $session->name }}</option>
                                 @endforeach
                             </select>
                         </div>
 
-                        <div>
+                       <div>
                             <label>Board</label>
-                            <select name="board" id="edit_board">
+                            <select name="board" id="boardSelectedit">
                                 <option value="">Select Board</option>
-                                @foreach($boards as $board)
-                                    <option value="{{ $board->name }}">{{ $board->name }}</option>
+                                @foreach ($boards as $board)
+                                    <option value="{{ $board->id }}">{{ $board->name }}</option>
                                 @endforeach
                             </select>
                         </div>
 
                         <div>
                             <label>Medium of Instruction</label>
-                            <select name="medium" id="edit_medium">
+                            <select name="medium" id="mediumSelectedit">
                                 <option value="">Select Medium</option>
-                                <option value="English">English</option>
-                                <option value="Hindi">Hindi</option>
-                                <option value="Regional">Regional</option>
                             </select>
                         </div>
 
@@ -238,7 +228,8 @@
                         <input type="number" name="total_students" id="edit_total_students" placeholder="Total Students">
                         <input type="number" name="boys" id="edit_boys" placeholder="Boys">
                         <input type="number" name="girls" id="edit_girls" placeholder="Girls">
-                        <input type="number" name="expected_admissions" id="edit_expected_admissions" placeholder="Expected New Admissions">
+                        <input type="number" name="expected_admissions" id="edit_expected_admissions"
+                            placeholder="Expected New Admissions">
                     </div>
                 </div>
 
@@ -303,7 +294,8 @@
             }
 
             const totalStudents = Number(formData.get('total_students'));
-            if (remainingStudentsBase !== null && Number.isFinite(totalStudents) && totalStudents > remainingStudentsBase) {
+            if (remainingStudentsBase !== null && Number.isFinite(totalStudents) && totalStudents >
+                remainingStudentsBase) {
                 Toastify({
                     text: `Total students must be less than or equal to remaining students (${remainingStudentsBase})`,
                     duration: 3000,
@@ -315,57 +307,57 @@
             }
 
             fetch("{{ route('admin.save-class') }}", {
-                method: "POST",
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('input[name=_token]').value
-                },
-                body: formData
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.status) {
-                    closeModal();
-                    Toastify({
-                        text: "Class added successfully",
-                        duration: 3000,
-                        gravity: "top",
-                        position: "right",
-                        backgroundColor: "linear-gradient(135deg, #ff7a18, #ffb347)"
-                    }).showToast();
+                    method: "POST",
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('input[name=_token]').value
+                    },
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status) {
+                        closeModal();
+                        Toastify({
+                            text: "Class added successfully",
+                            duration: 3000,
+                            gravity: "top",
+                            position: "right",
+                            backgroundColor: "linear-gradient(135deg, #ff7a18, #ffb347)"
+                        }).showToast();
 
-                    setTimeout(() => location.reload(), 1000);
-                }else{
-                    let messages = '';
-
-                    if (data.errors) {
-                        messages = Object.values(data.errors).flat().join('\n');
-                    } else if (data.message) {
-                        messages = data.message;
+                        setTimeout(() => location.reload(), 1000);
                     } else {
-                        messages = 'Something went wrong';
+                        let messages = '';
+
+                        if (data.errors) {
+                            messages = Object.values(data.errors).flat().join('\n');
+                        } else if (data.message) {
+                            messages = data.message;
+                        } else {
+                            messages = 'Something went wrong';
+                        }
+                        Toastify({
+                            text: messages,
+                            duration: 3000,
+                            gravity: "top",
+                            position: "right",
+                            backgroundColor: "#ff4d4f"
+                        }).showToast();
                     }
+                })
+                .catch(() => {
                     Toastify({
-                        text: messages,
+                        text: "Server error. Try again.",
                         duration: 3000,
                         gravity: "top",
                         position: "right",
                         backgroundColor: "#ff4d4f"
                     }).showToast();
-                }
-            })
-            .catch(() => {
-                Toastify({
-                    text: "Server error. Try again.",
-                    duration: 3000,
-                    gravity: "top",
-                    position: "right",
-                    backgroundColor: "#ff4d4f"
-                }).showToast();
-            });
+                });
         });
 
         // update class
-        document.getElementById('editClassForm').addEventListener('submit', function(e){
+        document.getElementById('editClassForm').addEventListener('submit', function(e) {
             e.preventDefault();
 
             let formData = new FormData(this);
@@ -383,27 +375,92 @@
             }
 
             fetch("{{ route('admin.class.update') }}", {
-                method: "POST",
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: formData
-            })
-            .then(res => res.json())
-            .then(data => {
-                if(data.status){
-                    closeModal();
-                    Toastify({
-                        text: "Class updated successfully",
-                        duration: 3000,
-                        gravity: "top",
-                        position: "right",
-                        backgroundColor: "linear-gradient(135deg,#4CAF50,#81C784)"
-                    }).showToast();
+                    method: "POST",
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status) {
+                        closeModal();
+                        Toastify({
+                            text: "Class updated successfully",
+                            duration: 3000,
+                            gravity: "top",
+                            position: "right",
+                            backgroundColor: "linear-gradient(135deg,#4CAF50,#81C784)"
+                        }).showToast();
 
-                    setTimeout(()=>location.reload(),800);
-                }
-            });
+                        setTimeout(() => location.reload(), 800);
+                    }
+                });
+        });
+    </script>
+
+    <script>
+        document.getElementById('boardSelect').addEventListener('change', function() {
+            let boardId = this.value;
+
+            // Reset Medium Select
+            let mediumSelect = document.getElementById('mediumSelect');
+            mediumSelect.innerHTML = '<option value="">Loading...</option>';
+
+            if (boardId === "") {
+                mediumSelect.innerHTML = '<option value="">Select Medium</option>';
+                return;
+            }
+
+            fetch(`/get-mediums/${boardId}`)
+                .then(res => res.json())
+                .then(data => {
+                    mediumSelect.innerHTML = '<option value="">Select Medium</option>';
+
+                    data.forEach(item => {
+                        mediumSelect.innerHTML += `
+                    <option value="${item.medium_id}">
+                        ${item.medium_name}
+                    </option>`;
+                    });
+                })
+                .catch(err => {
+                    console.error(err);
+                    mediumSelect.innerHTML = '<option value="">Error loading</option>';
+                });
+        });
+    </script>
+
+
+ <script>
+        document.getElementById('boardSelectedit').addEventListener('change', function() {
+            let boardId = this.value;
+
+            // Reset Medium Select
+            let mediumSelect = document.getElementById('mediumSelectedit');
+            mediumSelect.innerHTML = '<option value="">Loading...</option>';
+
+            if (boardId === "") {
+                mediumSelect.innerHTML = '<option value="">Select Medium</option>';
+                return;
+            }
+
+            fetch(`/get-mediums/${boardId}`)
+                .then(res => res.json())
+                .then(data => {
+                    mediumSelect.innerHTML = '<option value="">Select Medium</option>';
+
+                    data.forEach(item => {
+                        mediumSelect.innerHTML += `
+                    <option value="${item.medium_id}">
+                        ${item.medium_name}
+                    </option>`;
+                    });
+                })
+                .catch(err => {
+                    console.error(err);
+                    mediumSelect.innerHTML = '<option value="">Error loading</option>';
+                });
         });
     </script>
 
@@ -418,8 +475,8 @@
             document.getElementById('edit_id').value = data.id;
             document.getElementById('edit_class_name').value = data.class_name;
             document.getElementById('edit_academic_session').value = data.academic_session;
-            document.getElementById('edit_board').value = data.board;
-            document.getElementById('edit_medium').value = data.medium;
+            document.getElementById('boardSelectedit').value = data.board;
+            document.getElementById('mediumSelectedit').value = data.medium;
             document.getElementById('edit_sections').value = data.sections;
             document.getElementById('edit_total_students').value = data.total_students;
             document.getElementById('edit_boys').value = data.boys;
@@ -453,29 +510,31 @@
 
         function deleteClass() {
             fetch("{{ route('admin.class.delete') }}", {
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: JSON.stringify({ id: deleteClassId })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.status) {
-                    closeModal();
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        id: deleteClassId
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status) {
+                        closeModal();
 
-                    Toastify({
-                        text: "Class deleted successfully",
-                        duration: 3000,
-                        gravity: "top",
-                        position: "right",
-                        backgroundColor: "#ff4d4f"
-                    }).showToast();
+                        Toastify({
+                            text: "Class deleted successfully",
+                            duration: 3000,
+                            gravity: "top",
+                            position: "right",
+                            backgroundColor: "#ff4d4f"
+                        }).showToast();
 
-                    setTimeout(() => location.reload(), 800);
-                }
-            });
+                        setTimeout(() => location.reload(), 800);
+                    }
+                });
         }
 
         function closeModal() {
@@ -484,6 +543,4 @@
             document.getElementById('deleteClassModal').style.display = 'none';
         }
     </script>
-
-
 @endsection

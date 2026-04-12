@@ -16,6 +16,7 @@ use App\Models\RfqReceipt;
 use App\Models\PurchaseRecord;
 use App\Models\Catalogue;
 use App\Models\RfqResponse;
+use App\Models\Medium;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
@@ -344,6 +345,117 @@ class DashboardController extends Controller
         ]);
     }
 
+    public function save_medium(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'board_id' => 'required|integer|exists:boards,id',
+                'medium_name' => 'required|string|max:255',
+                'status' => 'required|in:active,inactive',
+            ]);
+
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
+
+            $data = $validator->validated();
+            $data['user_id'] = auth()->id(); // If needed
+
+            $medium = Medium::create($data);
+
+            return response()->json([
+                'status' => true,
+                'medium' => $medium,
+            ]);
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => false,
+                'errors' => $e->errors(),
+            ], 422);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
+    public function update_medium(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'id' => 'required|integer|exists:mediums,medium_id',
+                'board_id' => 'required|integer|exists:boards,id',
+                'medium_name' => 'required|string|max:255',
+                'status' => 'required|in:active,inactive',
+            ]);
+
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
+
+            $data = $validator->validated();
+
+            // Fetch via correct primary key
+            $medium = Medium::where('medium_id', $data['id'])->first();
+
+            if (!$medium) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Medium not found',
+                ], 404);
+            }
+
+            // Update
+            $medium->update([
+                'board_id' => $data['board_id'],
+                'medium_name' => $data['medium_name'],
+                'status' => $data['status'],
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Medium updated successfully',
+                'medium' => $medium,
+            ]);
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => false,
+                'errors' => $e->errors(),
+            ], 422);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function delete_medium(Request $request)
+    {
+        Medium::where('medium_id', $request->id)->delete();
+
+        return response()->json([
+            'status' => true,
+        ]);
+    }
+
+    public function getMediums($board_id)
+    {
+        $mediums = Medium::where('board_id', $board_id)
+            ->where('status', 'active')
+            ->get(['medium_id', 'medium_name']);
+
+        return response()->json($mediums);
+    }
+
     public function save_academic_session(Request $request)
     {
         try {
@@ -544,12 +656,13 @@ class DashboardController extends Controller
 
     public function update_profile(Request $request)
     {
+
         try {
 
             $data = $request->validate([
                 'business_name' => 'required',
-                'contact_person' => 'required|string|max:255',
-                'business_category' => 'required|string|max:100',
+                'school_type' => 'required|string|max:255',
+                // 'business_category' => 'required|string|max:100',
                 'email' => 'required|email',
                 'mobile' => 'required',
                 'address' => 'nullable',
@@ -560,6 +673,11 @@ class DashboardController extends Controller
                 'pincode' => 'nullable|string|max:20',
                 'document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
                 'profile' => 'nullable|image|max:2048',
+                'total_students' => 'nullable|numeric',
+                'website_link' => 'nullable|string|max:255',
+                'established' => 'nullable',
+                'board' => 'nullable|string|max:100',
+                'about' => 'nullable|string',
             ]);
 
             if ($request->hasFile('document')) {
@@ -591,6 +709,16 @@ class DashboardController extends Controller
         #dd("rgjkerl");
         $profile = User::find(auth()->id());
         return view('distributor.profile', array_merge(compact('profile'), $this->getMasterLists()));
+    }
+
+    public function mediums()
+    {
+        $boards = Board::where('status', 'active')->latest()->get();
+
+        // Load mediums with board name
+        $mediums = Medium::with('board')->latest()->get();
+
+        return view('admin.medium', compact('boards', 'mediums'));
     }
 
     public function distributor_update_profile(Request $request)
@@ -1560,9 +1688,9 @@ class DashboardController extends Controller
                 'supplier' => 'required|string|max:255',
                 'quantity' => 'required|integer|min:1',
                 'amount' => 'required|numeric|min:0',
-                'invoice_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
-                'return_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
-                'document_name' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+                'invoice_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:12048',
+                'return_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:12048',
+                'document_name' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:12048',
             ]);
 
             if ($validator->fails()) {
@@ -1619,9 +1747,9 @@ class DashboardController extends Controller
                 'supplier' => 'required|string|max:255',
                 'quantity' => 'required|integer|min:1',
                 'amount' => 'required|numeric|min:0',
-                'invoice_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
-                'return_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
-                'document_name' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+                'invoice_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:12048',
+                'return_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:12048',
+                'document_name' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:12048',
             ]);
 
             if ($validator->fails()) {
