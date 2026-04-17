@@ -21,6 +21,8 @@ use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
+
+
     public function admin()
     {
         $user = auth()->user();
@@ -55,7 +57,7 @@ class DashboardController extends Controller
         $stats = [
             ['label' => 'Followers', 'icon' => 'fa-user', 'value' => $followersCount],
             ['label' => 'Add to Cart', 'icon' => 'fa-cart-plus', 'value' => $rfqCreatedCount],
-            ['label' => 'Total Students', 'icon' => 'fa-graduation-cap', 'value' => $remainingStudents],
+            ['label' => 'Remaining Students', 'icon' => 'fa-graduation-cap', 'value' => $remainingStudents],
             ['label' => 'Manage Records', 'icon' => 'fa-clipboard-list', 'value' => $manageRecordsCount],
             ['label' => 'Notification RFQ', 'icon' => 'fa-bell', 'value' => $pendingRfqCount],
         ];
@@ -134,15 +136,25 @@ class DashboardController extends Controller
 
     public function student_record()
     {
-        $class_arr = SchoolClass::latest()->get();
-        return view('admin.student-record', array_merge(compact('class_arr'), $this->getMasterLists()));
+        $user = auth()->user();
+        $class_arr = SchoolClass::where('user_id', $user->id)
+            ->latest()
+            ->get();
+
+        return view('admin.student-record', array_merge(
+            compact('class_arr'),
+            $this->getMasterLists()
+        ));
     }
 
     public function save_class(Request $request)
     {
+        $user = auth()->user();
+
         try {
 
             $validator = Validator::make($request->all(), [
+
                 'class_name' => 'required',
                 'academic_session' => 'required',
                 'board' => 'required',
@@ -156,6 +168,8 @@ class DashboardController extends Controller
                 'publisher' => 'nullable|string',
                 'syllabus' => 'nullable|string',
             ]);
+
+
 
             if ($validator->fails()) {
                 throw new ValidationException($validator);
@@ -190,7 +204,11 @@ class DashboardController extends Controller
                 }
             }
 
-            $class = SchoolClass::create($validator->validated());
+            $data = $validator->validated();
+            $data['user_id'] = $user->id;
+
+            $class = SchoolClass::create($data);
+
 
             return response()->json([
                 'status' => true,
@@ -325,7 +343,7 @@ class DashboardController extends Controller
         } catch (ValidationException $e) {
             return response()->json([
                 'status' => false,
-                'errors' => $e->errors(),
+                'errors' => $e->errors()
             ], 422);
         } catch (\Exception $e) {
             return response()->json([
@@ -713,10 +731,12 @@ class DashboardController extends Controller
 
     public function mediums()
     {
+        $user = auth()->user();
         $boards = Board::where('status', 'active')->latest()->get();
 
         // Load mediums with board name
-        $mediums = Medium::with('board')->latest()->get();
+
+        $mediums = Medium::with('board')->where('user_id', $user->id)->latest()->get();
 
         return view('admin.medium', compact('boards', 'mediums'));
     }
@@ -1859,9 +1879,9 @@ class DashboardController extends Controller
                 'supplier' => 'required|string|max:255',
                 'quantity' => 'required|integer|min:1',
                 'amount' => 'required|numeric|min:0',
-                'invoice_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
-                'return_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
-                'document_name' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+                'invoice_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:12048',
+                'return_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:12048',
+                'document_name' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:12048',
             ]);
 
             if ($validator->fails()) {
@@ -1918,9 +1938,9 @@ class DashboardController extends Controller
                 'supplier' => 'required|string|max:255',
                 'quantity' => 'required|integer|min:1',
                 'amount' => 'required|numeric|min:0',
-                'invoice_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
-                'return_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
-                'document_name' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+                'invoice_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:12048',
+                'return_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:12048',
+                'document_name' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:12048',
             ]);
 
             if ($validator->fails()) {
@@ -2169,6 +2189,276 @@ class DashboardController extends Controller
         $academicSessions = AcademicSession::where('status', 'active')->orderBy('name')->get();
 
         return compact('boards', 'academicSessions');
+    }
+
+    public function distributor_boards()
+    {
+        $boards = Board::latest()->get();
+        return view('distributor.boards', compact('boards'));
+
+    }
+    public function distributor_save_board(Request $request)
+    {
+
+
+        try {
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|string|max:255|unique:boards,name',
+                'status' => 'required|in:active,inactive',
+            ]);
+
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
+
+
+            $board = Board::create($validator->validated());
+
+            return response()->json([
+                'status' => true,
+                'board' => $board,
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => false,
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+    public function distributor_update_board(Request $request)
+    {
+        try {
+            $data = $request->validate([
+                'id' => 'required|exists:boards,id',
+                'name' => 'required|string|max:255|unique:boards,name,' . $request->id,
+                'status' => 'required|in:active,inactive',
+            ]);
+
+            $board = Board::findOrFail($data['id']);
+            $board->update([
+                'name' => $data['name'],
+                'status' => $data['status'],
+            ]);
+
+            return response()->json([
+                'status' => true,
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => false,
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+    public function distributor_delete_board(Request $request)
+    {
+        Board::where('id', $request->id)->delete();
+
+        return response()->json([
+            'status' => true,
+        ]);
+    }
+
+    public function distributor_academic_sessions()
+    {
+        $sessions = AcademicSession::latest()->get();
+        return view('admin.academic-sessions', compact('sessions'));
+    }
+
+    public function distributor_save_academic_session(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|string|max:255|unique:academic_sessions,name',
+                'status' => 'required|in:active,inactive',
+            ]);
+
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
+
+            $session = AcademicSession::create($validator->validated());
+
+            return response()->json([
+                'status' => true,
+                'session' => $session,
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => false,
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function distributor_update_academic_session(Request $request)
+    {
+        try {
+            $data = $request->validate([
+                'id' => 'required|exists:academic_sessions,id',
+                'name' => 'required|string|max:255|unique:academic_sessions,name,' . $request->id,
+                'status' => 'required|in:active,inactive',
+            ]);
+
+            $session = AcademicSession::findOrFail($data['id']);
+            $session->update([
+                'name' => $data['name'],
+                'status' => $data['status'],
+            ]);
+
+            return response()->json([
+                'status' => true,
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => false,
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function distributor_delete_academic_session(Request $request)
+    {
+        AcademicSession::where('id', $request->id)->delete();
+
+        return response()->json([
+            'status' => true,
+        ]);
+    }
+
+    public function distributor_save_medium(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'board_id' => 'required|integer|exists:boards,id',
+                'medium_name' => 'required|string|max:255',
+                'status' => 'required|in:active,inactive',
+            ]);
+
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
+
+            $data = $validator->validated();
+            $data['user_id'] = auth()->id(); // If needed
+
+            $medium = Medium::create($data);
+
+            return response()->json([
+                'status' => true,
+                'medium' => $medium,
+            ]);
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => false,
+                'errors' => $e->errors(),
+            ], 422);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
+    public function distributor_update_medium(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'id' => 'required|integer|exists:mediums,medium_id',
+                'board_id' => 'required|integer|exists:boards,id',
+                'medium_name' => 'required|string|max:255',
+                'status' => 'required|in:active,inactive',
+            ]);
+
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
+
+            $data = $validator->validated();
+
+            // Fetch via correct primary key
+            $medium = Medium::where('medium_id', $data['id'])->first();
+
+            if (!$medium) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Medium not found',
+                ], 404);
+            }
+
+            // Update
+            $medium->update([
+                'board_id' => $data['board_id'],
+                'medium_name' => $data['medium_name'],
+                'status' => $data['status'],
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Medium updated successfully',
+                'medium' => $medium,
+            ]);
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => false,
+                'errors' => $e->errors(),
+            ], 422);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function distributor_delete_medium(Request $request)
+    {
+        Medium::where('medium_id', $request->id)->delete();
+
+        return response()->json([
+            'status' => true,
+        ]);
+    }
+    public function distributor_mediums()
+    {
+        $boards = Board::where('status', 'active')->latest()->get();
+
+        // Load mediums with board name
+        $mediums = Medium::with('board')->latest()->get();
+
+        return view('admin.medium', compact('boards', 'mediums'));
     }
 
 }

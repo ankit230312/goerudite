@@ -20,7 +20,7 @@
             $stats = $stats ?? [
                 ['label' => 'Followers', 'icon' => 'fa-user', 'value' => 0],
                 ['label' => 'Add to Cart', 'icon' => 'fa-cart-plus', 'value' => 0],
-                ['label' => 'Total Students', 'icon' => 'fa-graduation-cap', 'value' => 0],
+                ['label' => 'Remaining Students', 'icon' => 'fa-graduation-cap', 'value' => 0],
                 ['label' => 'Manage Records', 'icon' => 'fa-clipboard-list', 'value' => 0],
                 ['label' => 'Notification RFQ', 'icon' => 'fa-bell', 'value' => 0],
             ];

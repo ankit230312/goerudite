@@ -358,7 +358,7 @@
 
                         <div class="rfq-meta">
                             <span>📅 {{ $rfq->created_at->format('Y-m-d') }}</span>
-                            <span>📦 Books: {{ count(json_decode($rfq->books ?? '[]', true) ?: []) }}</span>
+                            <span>📦 Books:  {{ count($rfq->books) }}</span>
                         </div>
                     </div>
 
@@ -523,6 +523,8 @@
                         <input type="text" name="subject[]" placeholder="Subject" required>
                         <input type="text" name="book_title[]" placeholder="Book Title" required>
                         <select name="publisher[]" class="publisher-select" required>
+                              <option value="">Select Publisher</option>
+
                             @foreach ($boards as $board)
                                 <option value="{{ $board->id }}">{{ $board->name }}</option>
                             @endforeach

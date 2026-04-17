@@ -42,11 +42,9 @@
                 <div>
                     <label>Business / Firm Name</label>
                     <input type="text" name="business_name" value="{{ $profile->business_name }}">
-<<<<<<< Updated upstream
-=======
                 </div>
 
-                
+
                 <div>
                     <label>Distributor Category</label>
                     <select name="business_category" required>
@@ -54,7 +52,6 @@
                         <option value="Books Distributor" {{ $profile->business_category === 'Books Distributor' ? 'selected' : '' }}>Books Distributor</option>
                         <option value="Stationery Distributor" {{ $profile->business_category === 'Stationery Distributor' ? 'selected' : '' }}>Stationery Distributor</option>
                     </select>
->>>>>>> Stashed changes
                 </div>
 
                 <div>
@@ -74,9 +71,6 @@
 
                 <div>
                     <label>GST Number</label>
-<<<<<<< Updated upstream
-                    <input type="number" name="gst" value="{{ $profile->gst }}">
-=======
                     <input type="text" name="gst" value="{{ $profile->gst }}">
                 </div>
 
@@ -88,7 +82,6 @@
                 <div>
                     <label>PIN Code</label>
                     <input type="text" name="pincode" value="{{ $profile->pincode }}">
->>>>>>> Stashed changes
                 </div>
 
                 <div>

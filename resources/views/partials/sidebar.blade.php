@@ -82,6 +82,29 @@
             class="menu-item {{ request()->routeIs('distributor.manage_records*') ? 'active' : '' }}">
              Manage Records
         </a>
+         <div class="dropdown">
+
+          <a href="#"
+            class="menu-item dropdown-toggle " type="button" id="masterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+             Manage Academy
+        </a>
+            <ul class="dropdown-menu" aria-labelledby="masterDropdown">
+
+                <li>
+                    <a class="dropdown-item {{ request()->routeIs('distributor.boards') ? 'active' : '' }}"
+                        href="{{ route('distributor.boards') }}"> Boards</a>
+                </li>
+                <li>
+                    <a class="dropdown-item {{ request()->routeIs('distributor.academic_sessions') ? 'active' : '' }}"
+                        href="{{ route('distributor.academic_sessions') }}"> Academic Sessions</a>
+                </li>
+                <li>
+                    <a class="dropdown-item {{ request()->routeIs('distributor.mediums') ? 'active' : '' }}"
+                        href="{{ route('distributor.mediums') }}"> Create Medium</a>
+                </li>
+
+            </ul>
+        </div>
     @endif
 
     @if (auth()->user()->role === 'retailer')

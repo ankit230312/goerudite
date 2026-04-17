@@ -30,6 +30,9 @@ Route::get('logout', [HomeController::class, 'logout'])->name('logout');
 
 
 // admin panel
+Route::get('/get-mediums/{board_id}', [DashboardController::class, 'getMediums'])
+    ->middleware('auth');
+ Route::get('/get-mediums/{board_id}', [DashboardController::class, 'getMediums']);
 Route::middleware(['auth', 'role:administrator'])->group(function () {
     Route::get('/admin/dashboard', [DashboardController::class, 'admin'])->name('admin.dashboard');
     Route::get('/admin/boards', [DashboardController::class, 'boards'])->name('admin.boards');
@@ -51,11 +54,11 @@ Route::middleware(['auth', 'role:administrator'])->group(function () {
     Route::post('/admin/save-medium', [DashboardController::class, 'save_medium'])->name('admin.save-medium');
     Route::post('/admin/delete-medium', [DashboardController::class, 'delete_medium'])->name('admin.medium.delete');
     Route::post('/admin/update-medium', [DashboardController::class, 'update_medium'])->name('admin.medium.update');
-    Route::get('/get-mediums/{board_id}', [DashboardController::class, 'getMediums']);
+
 
     Route::get('/admin/rfq-inbox', [DashboardController::class, 'rfq_inbox'])->name('admin.rfq_inbox');
     Route::post('/admin/store-rfq', [DashboardController::class, 'store_rfq'])->name('admin.store_rfq');
-    Route::post('/admin/send-rfq/{id}', [DashboardController::class, '_rfq'])->name('admin.send_rfq');
+    Route::post('/admin/send-rfq/{id}', [DashboardController::class, 'send_rfq'])->name('admin.send_rfq');
     Route::put('/admin/update-rfq/{id}', [DashboardController::class, 'update_rfq'])->name('admin.update_rfq');
     Route::post('/admin/close-rfq/{id}', [DashboardController::class, 'close_rfq'])->name('admin.close_rfq');
     Route::get('/admin/rfq-details/{id}', [DashboardController::class, 'rfq_details'])->name('admin.rfq_details');
@@ -95,6 +98,28 @@ Route::middleware(['auth', 'role:distributor'])->group(function () {
     Route::post('/distributor/update-purchase-record', [DashboardController::class, 'distributor_update_purchase_record'])->name('distributor.update-purchase-record');
     Route::post('/distributor/delete-purchase-record', [DashboardController::class, 'distributor_delete_purchase_record'])->name('distributor.delete-purchase-record');
     Route::get('/distributor/download-invoice/{id}', [DashboardController::class, 'distributor_download_invoice'])->name('distributor.download-invoice');
+
+
+    Route::get('/distributor/boards', [DashboardController::class, 'distributor_boards'])->name('distributor.boards');
+    Route::post('/distributor/save-board', [DashboardController::class, 'distributor_save_board'])->name('distributor.save-board');
+    Route::post('/distributor/update-board', [DashboardController::class, 'distributor_update_board'])->name('distributor.board.update');
+    Route::post('/distributor/delete-board', [DashboardController::class, 'distributor_delete_board'])->name('distributor.board.delete');
+
+
+
+    Route::get('/distributor/academic-sessions', [DashboardController::class, 'distributor_academic_sessions'])->name('distributor.academic_sessions');
+    Route::post('/distributor/save-academic-session', [DashboardController::class, 'distributor_save_academic_session'])->name('distributor.save-academic-session');
+    Route::post('/distributor/update-academic-session', [DashboardController::class, 'distributor_update_academic_session'])->name('distributor.academic-session.update');
+    Route::post('/distributor/delete-academic-session', [DashboardController::class, 'distributor_delete_academic_session'])->name('distributor.academic-session.delete');
+
+
+Route::get('/distributor/mediums', [DashboardController::class, 'distributor_mediums'])->name('distributor.mediums');
+    Route::post('/distributor/save-medium', [DashboardController::class, 'distributor_save_medium'])->name('distributor.save-medium');
+    Route::post('/distributor/delete-medium', [DashboardController::class, 'distributor_delete_medium'])->name('distributor.medium.delete');
+    Route::post('/distributor/update-medium', [DashboardController::class, 'distributor_update_medium'])->name('distributor.medium.update');
+
+
+
 });
 
 // retailer panel
