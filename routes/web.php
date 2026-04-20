@@ -32,7 +32,7 @@ Route::get('logout', [HomeController::class, 'logout'])->name('logout');
 // admin panel
 Route::get('/get-mediums/{board_id}', [DashboardController::class, 'getMediums'])
     ->middleware('auth');
- Route::get('/get-mediums/{board_id}', [DashboardController::class, 'getMediums']);
+Route::get('/get-mediums/{board_id}', [DashboardController::class, 'getMediums']);
 Route::middleware(['auth', 'role:administrator'])->group(function () {
     Route::get('/admin/dashboard', [DashboardController::class, 'admin'])->name('admin.dashboard');
     Route::get('/admin/boards', [DashboardController::class, 'boards'])->name('admin.boards');
@@ -113,7 +113,7 @@ Route::middleware(['auth', 'role:distributor'])->group(function () {
     Route::post('/distributor/delete-academic-session', [DashboardController::class, 'distributor_delete_academic_session'])->name('distributor.academic-session.delete');
 
 
-Route::get('/distributor/mediums', [DashboardController::class, 'distributor_mediums'])->name('distributor.mediums');
+    Route::get('/distributor/mediums', [DashboardController::class, 'distributor_mediums'])->name('distributor.mediums');
     Route::post('/distributor/save-medium', [DashboardController::class, 'distributor_save_medium'])->name('distributor.save-medium');
     Route::post('/distributor/delete-medium', [DashboardController::class, 'distributor_delete_medium'])->name('distributor.medium.delete');
     Route::post('/distributor/update-medium', [DashboardController::class, 'distributor_update_medium'])->name('distributor.medium.update');
@@ -127,13 +127,54 @@ Route::middleware(['auth', 'role:retailer'])->group(function () {
     Route::get('/retailer/dashboard', [DashboardController::class, 'retailer'])->name('retailer.dashboard');
     Route::get('/retailer/profile', [DashboardController::class, 'retailer_profile'])->name('retailer.profile');
     Route::post('/retailer/profile/update', [DashboardController::class, 'retailer_update_profile'])->name('retailer.profile.update');
-    Route::post('/retailer/store-rfq', [DashboardController::class, 'retailer_store_rfq'])->name('retailer.store_rfq');
+
+
     Route::get('/retailer/rfq-inbox', [DashboardController::class, 'retailer_rfq_inbox'])->name('retailer.rfq_inbox');
+    Route::post('/retailer/store-rfq', [DashboardController::class, 'retailer_store_rfq'])->name('retailer.store_rfq');
     Route::post('/retailer/send-rfq/{id}', [DashboardController::class, 'retailer_send_rfq'])->name('retailer.send_rfq');
     Route::post('/retailer/receive-rfq/{id}', [DashboardController::class, 'retailer_receive_rfq'])->name('retailer.receive_rfq');
     Route::post('/retailer/rfq-response', [DashboardController::class, 'retailer_store_rfq_response'])->name('retailer.rfq_response');
+    Route::put('/retailer/update-rfq/{id}', [DashboardController::class, 'retailer_update_rfq'])->name('retailer.update_rfq');
     Route::post('/retailer/close-rfq/{id}', [DashboardController::class, 'retailer_close_rfq'])->name('retailer.close_rfq');
     Route::get('/retailer/rfq-details/{id}', [DashboardController::class, 'retailer_rfq_details'])->name('retailer.rfq_details');
+
+
+
+    Route::get('/retailer/manage-catalogue', [DashboardController::class, 'retailer_manage_catalogue'])->name('retailer.manage_catalogue');
+    Route::post('/retailer/save-catalogue', [DashboardController::class, 'retailer_save_catalogue'])->name('retailer.save_catalogue');
+    Route::post('/retailer/update-catalogue', [DashboardController::class, 'retailer_update_catalogue'])->name('retailer.update_catalogue');
+    Route::post('/retailer/delete-catalogue', [DashboardController::class, 'retailer_delete_catalogue'])->name('retailer.delete_catalogue');
+
+
+
+
+
+    Route::get('/retailer/manage-records', [DashboardController::class, 'retailer_manage_records'])->name('retailer.manage_records');
+    Route::post('/retailer/save-purchase-record', [DashboardController::class, 'retailer_save_purchase_record'])->name('retailer.save-purchase-record');
+    Route::post('/retailer/update-purchase-record', [DashboardController::class, 'retailer_update_purchase_record'])->name('retailer.update-purchase-record');
+    Route::post('/retailer/delete-purchase-record', [DashboardController::class, 'retailer_delete_purchase_record'])->name('retailer.delete-purchase-record');
+    Route::get('/retailer/download-invoice/{id}', [DashboardController::class, 'retailer_download_invoice'])->name('retailer.download-invoice');
+
+
+
+
+    Route::get('/retailer/boards', [DashboardController::class, 'retailer_boards'])->name('retailer.boards');
+    Route::post('/retailer/save-board', [DashboardController::class, 'retailer_save_board'])->name('retailer.save-board');
+    Route::post('/retailer/update-board', [DashboardController::class, 'retailer_update_board'])->name('retailer.board.update');
+    Route::post('/retailer/delete-board', [DashboardController::class, 'retailer_delete_board'])->name('retailer.board.delete');
+
+
+    Route::get('/retailer/academic-sessions', [DashboardController::class, 'retailer_academic_sessions'])->name('retailer.academic_sessions');
+    Route::post('/retailer/save-academic-session', [DashboardController::class, 'retailer_save_academic_session'])->name('retailer.save-academic-session');
+    Route::post('/retailer/update-academic-session', [DashboardController::class, 'retailer_update_academic_session'])->name('retailer.academic-session.update');
+    Route::post('/retailer/delete-academic-session', [DashboardController::class, 'retailer_delete_academic_session'])->name('retailer.academic-session.delete');
+
+
+    Route::get('/retailer/mediums', [DashboardController::class, 'retailer_mediums'])->name('retailer.mediums');
+    Route::post('/retailer/save-medium', [DashboardController::class, 'retailer_save_medium'])->name('retailer.save-medium');
+    Route::post('/retailer/delete-medium', [DashboardController::class, 'retailer_delete_medium'])->name('retailer.medium.delete');
+    Route::post('/retailer/update-medium', [DashboardController::class, 'retailer_update_medium'])->name('retailer.medium.update');
+
 });
 
 // publisher panel

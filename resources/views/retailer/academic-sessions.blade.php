@@ -10,7 +10,7 @@
 
             <button class="btn-sm btn-solid" onclick="openAddModal()">➕ Add Session</button>
         </div>
-{{ auth()->user()->role }}
+
         <div class="table-wrap">
             <table class="table">
                 <thead>
@@ -146,8 +146,8 @@
                         return;
                     }
                 }
-                console.log("ROUTE:", "{{ route('distributor.save-academic-session') }}");
-                fetch("{{ route('distributor.save-academic-session') }}", {
+
+                fetch("{{ route('retailer.save-academic-session') }}", {
                         method: "POST",
                         headers: {
                             'X-CSRF-TOKEN': document.querySelector('input[name=_token]').value
@@ -203,7 +203,7 @@
 
                 let formData = new FormData(this);
 
-                fetch("{{ route('distributor.academic-session.update') }}", {
+                fetch("{{ route('retailer.academic-session.update') }}", {
                         method: "POST",
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
@@ -253,7 +253,7 @@
             }
 
             function deleteSession() {
-                fetch("{{ route('distributor.academic-session.delete') }}", {
+                fetch("{{ route('retailer.academic-session.delete') }}", {
                         method: "POST",
                         headers: {
                             'Content-Type': 'application/json',

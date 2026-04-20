@@ -7,7 +7,7 @@
     <div class="page-title">Manage Profile</div>
 
     <div class="profile-card">
-
+{{-- @dd($profile) --}}
         @php
             $profileUrl = $profile->profile ? asset('storage/' . $profile->profile) : null;
         @endphp
@@ -96,7 +96,8 @@
                     <label>Registration Certificate</label>
                     <input type="file" name="document" accept=".pdf,.jpg,.jpeg,.png">
                     @if ($profile->document)
-                        <small class="text-muted d-block mt-1">Uploaded: {{ basename($profile->document) }}</small>
+                        {{-- <small class="text-muted d-block mt-1">Uploaded: {{ basename($profile->document) }}</small> --}}
+                        <a href="{{ asset('storage/' . $profile->document) }}" target="_blank">See Document</a>
                     @endif
                 </div>
             </div>

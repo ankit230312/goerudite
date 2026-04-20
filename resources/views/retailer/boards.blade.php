@@ -5,11 +5,11 @@
     <main class="content">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
             <div>
-                <div class="page-title">Academic Session Master</div>
-                <div class="page-sub">Create and manage academic sessions</div>
+                <div class="page-title">Board Master</div>
+                <div class="page-sub">Create and manage boards</div>
             </div>
 
-            <button class="btn-sm btn-solid" onclick="openAddModal()">➕ Add Session</button>
+            <button class="btn-sm btn-solid" onclick="openAddModal()">➕ Add Board</button>
         </div>
 
         <div class="table-wrap">
@@ -23,19 +23,19 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($sessions as $session)
+                    @forelse($boards as $board)
                         <tr>
-                            <td>{{ $session->id }}</td>
-                            <td>{{ $session->name }}</td>
-                            <td>{{ ucfirst($session->status) }}</td>
+                            <td>{{ $board->id }}</td>
+                            <td>{{ $board->name }}</td>
+                            <td>{{ ucfirst($board->status) }}</td>
                             <td>
-                                <button class="btn-sm btn-outline" onclick="openEditModal({{ $session }})">Edit</button>
-                                <button class="btn-sm btn-solid danger" onclick="openDeleteModal({{ $session->id }}, '{{ $session->name }}')">Delete</button>
+                                <button class="btn-sm btn-outline" onclick="openEditModal({{ $board }})">Edit</button>
+                                <button class="btn-sm btn-solid danger" onclick="openDeleteModal({{ $board->id }}, '{{ $board->name }}')">Delete</button>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" style="text-align:center;color:#777;">No academic sessions found.</td>
+                            <td colspan="4" style="text-align:center;color:#777;">No boards found.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -43,18 +43,18 @@
         </div>
     </main>
 
-    <!-- ADD SESSION MODAL -->
-    <div id="addSessionModal" class="modal">
+    <!-- ADD BOARD MODAL -->
+    <div id="addBoardModal" class="modal">
         <div class="modal-box">
-            <form id="addSessionForm">
+            <form id="addBoardForm">
                 @csrf
-                <h3 class="modal-title">Add Academic Session</h3>
+                <h3 class="modal-title">Add Board</h3>
 
                 <div class="form-section">
                     <div class="form-grid">
                         <div>
-                            <label>Session Name</label>
-                            <input type="text" name="name" placeholder="2026-27">
+                            <label>Board Name</label>
+                            <input type="text" name="name" placeholder="Board Name">
                         </div>
 
                         <div>
@@ -76,19 +76,19 @@
         </div>
     </div>
 
-    <!-- EDIT SESSION MODAL -->
-    <div id="editSessionModal" class="modal">
+    <!-- EDIT BOARD MODAL -->
+    <div id="editBoardModal" class="modal">
         <div class="modal-box">
-            <form id="editSessionForm">
+            <form id="editBoardForm">
                 @csrf
                 <input type="hidden" name="id" id="edit_id">
 
-                <h3 class="modal-title">Edit Academic Session</h3>
+                <h3 class="modal-title">Edit Board</h3>
 
                 <div class="form-section">
                     <div class="form-grid">
                         <div>
-                            <label>Session Name</label>
+                            <label>Board Name</label>
                             <input type="text" name="name" id="edit_name">
                         </div>
 
@@ -111,28 +111,30 @@
         </div>
     </div>
 
-    <!-- DELETE SESSION MODAL -->
-    <div id="deleteSessionModal" class="modal">
+    <!-- DELETE BOARD MODAL -->
+    <div id="deleteBoardModal" class="modal">
         <div class="modal-box">
-            <h3>Delete Academic Session</h3>
+            <h3>Delete Board</h3>
             <p id="deleteText" style="margin-bottom:15px;color:#555;">
                 Are you sure?
             </p>
 
             <div class="modal-actions">
                 <button class="btn-sm btn-outline" onclick="closeModal()">Cancel</button>
-                <button class="btn-sm btn-solid danger" onclick="deleteSession()">Delete</button>
+                <button class="btn-sm btn-solid danger" onclick="deleteBoard()">Delete</button>
             </div>
         </div>
     </div>
-@push('scripts')
+
     <script>
-        // add session
-        document.getElementById('addSessionForm').addEventListener('submit', function(e) {
+        // add board
+        document.getElementById('addBoardForm').addEventListener('submit', function(e) {
             e.preventDefault();
 
             let form = this;
             let formData = new FormData(form);
+
+
 
             for (let [key, value] of formData.entries()) {
                 if (!value.trim()) {
@@ -147,7 +149,7 @@
                 }
             }
 
-            fetch("{{ route('admin.save-academic-session') }}", {
+            fetch("{{ route('retailer.save-board') }}", {
                 method: "POST",
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('input[name=_token]').value
@@ -159,7 +161,7 @@
                 if (data.status) {
                     closeModal();
                     Toastify({
-                        text: "Academic session added successfully",
+                        text: "Board added successfully",
                         duration: 3000,
                         gravity: "top",
                         position: "right",
@@ -197,13 +199,13 @@
             });
         });
 
-        // update session
-        document.getElementById('editSessionForm').addEventListener('submit', function(e){
+        // update board
+        document.getElementById('editBoardForm').addEventListener('submit', function(e){
             e.preventDefault();
 
             let formData = new FormData(this);
 
-            fetch("{{ route('admin.academic-session.update') }}", {
+            fetch("{{ route('retailer.board.update') }}", {
                 method: "POST",
                 headers: {
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
@@ -215,7 +217,7 @@
                 if(data.status){
                     closeModal();
                     Toastify({
-                        text: "Academic session updated successfully",
+                        text: "Board updated successfully",
                         duration: 3000,
                         gravity: "top",
                         position: "right",
@@ -230,7 +232,7 @@
 
     <script>
         function openAddModal() {
-            document.getElementById('addSessionModal').style.display = 'flex';
+            document.getElementById('addBoardModal').style.display = 'flex';
         }
 
         function openEditModal(data) {
@@ -238,28 +240,28 @@
             document.getElementById('edit_name').value = data.name;
             document.getElementById('edit_status').value = data.status;
 
-            document.getElementById('editSessionModal').style.display = 'flex';
+            document.getElementById('editBoardModal').style.display = 'flex';
         }
 
-        let deleteSessionId = null;
+        let deleteBoardId = null;
 
         function openDeleteModal(id, name) {
-            deleteSessionId = id;
+            deleteBoardId = id;
 
             document.getElementById('deleteText').innerText =
                 `Are you sure you want to delete "${name}"? This action cannot be undone.`;
 
-            document.getElementById('deleteSessionModal').style.display = 'flex';
+            document.getElementById('deleteBoardModal').style.display = 'flex';
         }
 
-        function deleteSession() {
-            fetch("{{ route('admin.academic-session.delete') }}", {
+        function deleteBoard() {
+            fetch("{{ route('retailer.board.delete') }}", {
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 },
-                body: JSON.stringify({ id: deleteSessionId })
+                body: JSON.stringify({ id: deleteBoardId })
             })
             .then(res => res.json())
             .then(data => {
@@ -267,7 +269,7 @@
                     closeModal();
 
                     Toastify({
-                        text: "Academic session deleted successfully",
+                        text: "Board deleted successfully",
                         duration: 3000,
                         gravity: "top",
                         position: "right",
@@ -280,10 +282,10 @@
         }
 
         function closeModal() {
-            document.getElementById('addSessionModal').style.display = 'none';
-            document.getElementById('editSessionModal').style.display = 'none';
-            document.getElementById('deleteSessionModal').style.display = 'none';
+            document.getElementById('addBoardModal').style.display = 'none';
+            document.getElementById('editBoardModal').style.display = 'none';
+            document.getElementById('deleteBoardModal').style.display = 'none';
         }
     </script>
-@endpush
+
 @endsection

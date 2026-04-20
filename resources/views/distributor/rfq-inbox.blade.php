@@ -628,7 +628,7 @@
 
                 <!-- FOOTER -->
                 <div class="rfq-footer">
-                    <button type="button" class="btn-dark">+ Add Another Class Set</button>
+                    {{-- <button type="button" class="btn-dark">+ Add Another Class Set</button> --}}
 
                     <div class="footer-actions">
                         <button type="button" class="btn-outline" onclick="closeModal();">Cancel</button>
