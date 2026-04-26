@@ -57,7 +57,7 @@
                 </li>
                 <li>
                     <a class="dropdown-item {{ request()->routeIs('admin.mediums') ? 'active' : '' }}"
-                        href="{{ route('admin.mediums') }}"> Create Medium</a>
+                        href="{{ route('admin.mediums') }}"> Create Regional (Medium)</a>
                 </li>
 
             </ul>
@@ -101,7 +101,7 @@
                 </li>
                 <li>
                     <a class="dropdown-item {{ request()->routeIs('distributor.mediums') ? 'active' : '' }}"
-                        href="{{ route('distributor.mediums') }}"> Create Medium</a>
+                        href="{{ route('distributor.mediums') }}"> Create Regional (Medium)</a>
                 </li>
 
             </ul>
@@ -140,7 +140,7 @@
                 </li>
                 <li>
                     <a class="dropdown-item {{ request()->routeIs('retailer.mediums') ? 'active' : '' }}"
-                        href="{{ route('retailer.mediums') }}"> Create Medium</a>
+                        href="{{ route('retailer.mediums') }}"> Create Regional (Medium)</a>
                 </li>
 
             </ul>

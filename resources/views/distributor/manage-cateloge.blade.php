@@ -587,7 +587,17 @@
                         }
 
                         if (data.errors) {
-                            const errors = Object.values(data.errors).flat().join('\n');
+                            let errors = Object.values(data.errors).flat().map(err => {
+                                // Convert KB to MB if message contains kilobytes
+                                const match = err.match(/(\d+)\s?kilobytes/i);
+                                if (match) {
+                                    const kb = parseInt(match[1]);
+                                    const mb = (kb / 1024).toFixed(2);
+                                    return err.replace(match[0], `${mb} MB`);
+                                }
+                                return err;
+                            }).join('\n');
+
                             showToast(errors, 'error');
                             return;
                         }
