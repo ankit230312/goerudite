@@ -861,6 +861,10 @@
 
 
     <script>
+    let boards = @json($boards);
+</script>
+
+    <script>
         const distributorCurrentUserId = {{ auth()->id() }};
 
         function switchTab(type, tabButton = null) {
@@ -881,25 +885,31 @@
                 tabButton.classList.add('active');
             }
         }
+function addBookRow() {
 
-        function addBookRow() {
-            let row = `
-            <div class="book-row">
-                <input type="text" name="class_name[]" placeholder="Class Name" required>
-                <input type="text" name="subject[]" placeholder="Subject" required>
-                <input type="text" name="book_title[]" placeholder="Book Title" required>
-                <select name="publisher[]">
-                    <option>Publisher</option>
-                    <option>NCERT</option>
-                    <option>Oxford</option>
-                    <option>Other</option>
-                </select>
-                <input type="text" name="edition[]" placeholder="Edition / Year">
-                <input type="number" name="quantity[]" placeholder="Qty" min="1" required>
-                <button type="button" class="delete-book" onclick="this.parentElement.remove()">🗑</button>
-            </div>`;
-            document.getElementById('booksWrapper').insertAdjacentHTML('beforeend', row);
-        }
+    let publisherOptions = `<option value="">Select Publisher</option>`;
+
+    boards.forEach(board => {
+        publisherOptions += `<option value="${board.id}">${board.name}</option>`;
+    });
+
+    let row = `
+    <div class="book-row">
+        <input type="text" name="class_name[]" placeholder="Class Name" required>
+        <input type="text" name="subject[]" placeholder="Subject" required>
+        <input type="text" name="book_title[]" placeholder="Book Title" required>
+
+        <select name="publisher[]" class="publisher-select" required>
+            ${publisherOptions}
+        </select>
+
+        <input type="text" name="edition[]" placeholder="Edition / Year">
+        <input type="number" name="quantity[]" placeholder="Qty" min="1" required>
+        <button type="button" class="delete-book" onclick="this.parentElement.remove()">🗑</button>
+    </div>`;
+
+    document.getElementById('booksWrapper').insertAdjacentHTML('beforeend', row);
+}
 
         function openCreateRfq() {
             document.getElementById('createRfqModal').style.display = 'flex';

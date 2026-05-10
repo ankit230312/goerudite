@@ -28,6 +28,7 @@
                 data-bs-wrap="false" data-bs-touch="true">
                 <div class="carousel-indicators">
                     @forelse($catalogues as $index => $catalogue)
+
                         <button type="button" data-bs-target="#catalogueCarousel" data-bs-slide-to="{{ $index }}"
                             class="{{ $index === 0 ? 'active' : '' }}" aria-current="{{ $index === 0 ? 'true' : 'false' }}"
                             aria-label="Slide {{ $index + 1 }}"></button>
@@ -95,7 +96,8 @@
                                         <div class="catalogue-details-grid">
                                             <div class="detail-row">
                                                 <span class="detail-label">Medium</span>
-                                                <span class="detail-value">{{ $catalogue->mediumDetail->medium_name ?? '-' }}</span>
+
+                                                <span class="detail-value">{{ $catalogue->mediumDetail->medium_name ?: '-' }}</span>
                                                 <span class="detail-label">Session</span>
                                                 <span class="detail-value">{{ $catalogue->academic_session ?: '-' }}</span>
                                                 <span class="detail-label">ISBN-13</span>
@@ -338,7 +340,7 @@
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label fw-bold small">Applicable Board</label>
-                                    <select class="form-select form-select-sm" name="applicable_board"  id="applicable_board" required>
+                                    <select class="form-select form-select-sm" name="applicable_board" id="applicable_board" required>
                                         <option value="">Select board</option>
                                         @foreach ($boards as $board)
                                             <option value="{{ $board->id }}">{{ $board->name }}</option>
@@ -348,7 +350,7 @@
                             </div>
 
                             <div class="row g-3 mb-4">
-                                <div class="col-md-3">
+                                <div>
                                     <label>Medium of Instruction</label>
                                     <select name="medium" id="mediumSelect">
                                         <option value="">Select Medium</option>
@@ -557,8 +559,8 @@
                 const formData = new FormData(form);
                 const isEdit = !!formData.get('catalogue_id');
                 const submitUrl = isEdit ?
-                    "{{ route('retailer.update_catalogue') }}" :
-                    "{{ route('retailer.save_catalogue') }}";
+                    "{{ route('publisher.update_catalogue') }}" :
+                    "{{ route('publisher.save_catalogue') }}";
                 const successMessage = isEdit ?
                     'Catalogue updated successfully.' :
                     'Catalogue saved successfully.';
@@ -584,7 +586,17 @@
                         }
 
                         if (data.errors) {
-                            const errors = Object.values(data.errors).flat().join('\n');
+                            let errors = Object.values(data.errors).flat().map(err => {
+                                // Convert KB to MB if message contains kilobytes
+                                const match = err.match(/(\d+)\s?kilobytes/i);
+                                if (match) {
+                                    const kb = parseInt(match[1]);
+                                    const mb = (kb / 1024).toFixed(2);
+                                    return err.replace(match[0], `${mb} MB`);
+                                }
+                                return err;
+                            }).join('\n');
+
                             showToast(errors, 'error');
                             return;
                         }
@@ -666,7 +678,7 @@
                 let id = this.getAttribute('data-id');
 
                 if (confirm("Are you sure you want to delete?")) {
-                    fetch("{{ route('retailer.delete_catalogue') }}", {
+                    fetch("{{ route('publisher.delete_catalogue') }}", {
                             method: "POST",
                             headers: {
                                 "Content-Type": "application/json",
@@ -689,8 +701,9 @@
             });
         });
     </script>
+
     <Script>
-        document.getElementById('applicable_board').addEventListener('change', function() {
+           document.getElementById('applicable_board').addEventListener('change', function() {
             let boardId = this.value;
 
             // Reset Medium Select

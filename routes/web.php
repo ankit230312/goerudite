@@ -197,4 +197,28 @@ Route::middleware(['auth', 'role:publisher'])->group(function () {
     Route::post('/publisher/update-purchase-record', [PublisherController::class, 'update_purchase_record'])->name('publisher.update-purchase-record');
     Route::post('/publisher/delete-purchase-record', [PublisherController::class, 'delete_purchase_record'])->name('publisher.delete-purchase-record');
     Route::get('/publisher/download-invoice/{id}', [PublisherController::class, 'download_invoice'])->name('publisher.download-invoice');
+
+
+    Route::get('/publisher/manage-cateloge', [DashboardController::class, 'publisher_manage_cateloge'])->name('publisher.manage_cateloge');
+    Route::post('/publisher/save-catalogue', [DashboardController::class, 'publisher_save_catalogue'])->name('publisher.save_catalogue');
+    Route::post('/publisher/update-catalogue', [DashboardController::class, 'publisher_update_catalogue'])->name('publisher.update_catalogue');
+    Route::post('/publisher/delete-catalogue', [DashboardController::class, 'publisher_delete_catalogue'])->name('publisher.delete_catalogue');
+
+    Route::get('/publisher/boards', [DashboardController::class, 'publisher_boards'])->name('publisher.boards');
+    Route::post('/publisher/save-board', [DashboardController::class, 'publisher_save_board'])->name('publisher.save-board');
+    Route::post('/publisher/update-board', [DashboardController::class, 'publisher_update_board'])->name('publisher.board.update');
+    Route::post('/publisher/delete-board', [DashboardController::class, 'publisher_delete_board'])->name('publisher.board.delete');
+
+    Route::get('/publisher/academic-sessions', [DashboardController::class, 'publisher_academic_sessions'])->name('publisher.academic_sessions');
+    Route::post('/publisher/save-academic-session', [DashboardController::class, 'publisher_save_academic_session'])->name('publisher.save-academic-session');
+    Route::post('/publisher/update-academic-session', [DashboardController::class, 'publisher_update_academic_session'])->name('publisher.academic-session.update');
+    Route::post('/publisher/delete-academic-session', [DashboardController::class, 'publisher_delete_academic_session'])->name('publisher.academic-session.delete');
+
+
+    Route::get('/publisher/mediums', [DashboardController::class, 'publisher_mediums'])->name('publisher.mediums');
+    Route::post('/publisher/save-medium', [DashboardController::class, 'publisher_save_medium'])->name('publisher.save-medium');
+    Route::post('/publisher/delete-medium', [DashboardController::class, 'publisher_delete_medium'])->name('publisher.medium.delete');
+    Route::post('/publisher/update-medium', [DashboardController::class, 'publisher_update_medium'])->name('publisher.medium.update');
+
+
 });

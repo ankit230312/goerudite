@@ -28,6 +28,7 @@
                 data-bs-wrap="false" data-bs-touch="true">
                 <div class="carousel-indicators">
                     @forelse($catalogues as $index => $catalogue)
+
                         <button type="button" data-bs-target="#catalogueCarousel" data-bs-slide-to="{{ $index }}"
                             class="{{ $index === 0 ? 'active' : '' }}" aria-current="{{ $index === 0 ? 'true' : 'false' }}"
                             aria-label="Slide {{ $index + 1 }}"></button>
@@ -95,7 +96,8 @@
                                         <div class="catalogue-details-grid">
                                             <div class="detail-row">
                                                 <span class="detail-label">Medium</span>
-                                                <span class="detail-value">{{ $catalogue->medium ?: '-' }}</span>
+
+                                                <span class="detail-value">{{ $catalogue->mediumDetail->medium_name ?: '-' }}</span>
                                                 <span class="detail-label">Session</span>
                                                 <span class="detail-value">{{ $catalogue->academic_session ?: '-' }}</span>
                                                 <span class="detail-label">ISBN-13</span>
@@ -338,23 +340,20 @@
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label fw-bold small">Applicable Board</label>
-                                    <select class="form-select form-select-sm" name="applicable_board" required>
+                                    <select class="form-select form-select-sm" name="applicable_board" id="applicable_board" required>
                                         <option value="">Select board</option>
                                         @foreach ($boards as $board)
-                                            <option value="{{ $board->name }}">{{ $board->name }}</option>
+                                            <option value="{{ $board->id }}">{{ $board->name }}</option>
                                         @endforeach
                                     </select>
                                 </div>
                             </div>
 
                             <div class="row g-3 mb-4">
-                                <div class="col-md-3">
-                                    <label class="form-label fw-bold small">Medium</label>
-                                    <select class="form-select form-select-sm" name="medium" required>
-                                        <option value="">Select medium</option>
-                                        <option value="English">English</option>
-                                        <option value="Hindi">Hindi</option>
-                                        <option value="Regional">Regional</option>
+                                <div>
+                                    <label>Medium of Instruction</label>
+                                    <select name="medium" id="mediumSelect">
+                                        <option value="">Select Medium</option>
                                     </select>
                                 </div>
                                 <div class="col-md-3">
@@ -702,4 +701,37 @@
             });
         });
     </script>
+
+    <Script>
+           document.getElementById('applicable_board').addEventListener('change', function() {
+            let boardId = this.value;
+
+            // Reset Medium Select
+            let mediumSelect = document.getElementById('mediumSelect');
+            mediumSelect.innerHTML = '<option value="">Loading...</option>';
+
+            if (boardId === "") {
+                mediumSelect.innerHTML = '<option value="">Select Medium</option>';
+                return;
+            }
+
+            fetch(`/get-mediums/${boardId}`)
+                .then(res => res.json())
+                .then(data => {
+                    console.log('Received mediums:', data);
+                    mediumSelect.innerHTML = '<option value="">Select Medium</option>';
+
+                    data.forEach(item => {
+                        mediumSelect.innerHTML += `
+                    <option value="${item.medium_id}">
+                        ${item.medium_name}
+                    </option>`;
+                    });
+                })
+                .catch(err => {
+                    console.error(err);
+                    mediumSelect.innerHTML = '<option value="">Error loading</option>';
+                });
+        });
+    </Script>
 @endpush

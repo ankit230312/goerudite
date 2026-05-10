@@ -149,7 +149,9 @@
 
     @if (auth()->user()->role === 'publisher')
         <a href="{{ route('publisher.dashboard') }}" class="menu-item"> Publisher Hub</a>
+        <a href="{{ route('publisher.manage_cateloge') }}" class="menu-item"> Catalogue</a>
         <a href="{{ route('publisher.profile') }}"
+
             class="menu-item {{ request()->routeIs('publisher.profile') ? 'active' : '' }}">
             Publisher Profile
         </a>
@@ -161,6 +163,30 @@
             class="menu-item {{ request()->routeIs('publisher.manage_records*') ? 'active' : '' }}">
             Manage Records
         </a>
+
+          <div class="dropdown">
+
+            <a href="#" class="menu-item dropdown-toggle " type="button" id="masterDropdown"
+                data-bs-toggle="dropdown" aria-expanded="false">
+                Manage Academy
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="masterDropdown">
+
+                <li>
+                    <a class="dropdown-item {{ request()->routeIs('publisher.boards') ? 'active' : '' }}"
+                        href="{{ route('publisher.boards') }}"> Boards</a>
+                </li>
+                <li>
+                    <a class="dropdown-item {{ request()->routeIs('publisher.academic_sessions') ? 'active' : '' }}"
+                        href="{{ route('publisher.academic_sessions') }}"> Academic Sessions</a>
+                </li>
+                <li>
+                    <a class="dropdown-item {{ request()->routeIs('publisher.mediums') ? 'active' : '' }}"
+                        href="{{ route('publisher.mediums') }}"> Create Regional (Medium)</a>
+                </li>
+
+            </ul>
+        </div>
     @endif
 
     <a href="{{ route('logout') }}" class="menu-item sign-out"> Sign Out</a>

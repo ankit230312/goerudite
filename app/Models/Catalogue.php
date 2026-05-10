@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+
+
 class Catalogue extends Model
 {
     use HasFactory;
@@ -40,4 +42,9 @@ class Catalogue extends Model
     {
         return $this->belongsTo(User::class);
     }
+    public function mediumDetail()
+    {
+        return $this->belongsTo(Medium::class, 'medium', 'medium_id');
+    }
 }
+

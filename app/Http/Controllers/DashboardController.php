@@ -192,8 +192,8 @@ class DashboardController extends Controller
 
 
             if ($profileTotalStudents !== null) {
-              $currentTotalStudents = (int) SchoolClass::where('user_id', auth()->id())
-    ->sum('total_students');
+                $currentTotalStudents = (int) SchoolClass::where('user_id', auth()->id())
+                    ->sum('total_students');
 
 
                 $remainingStudents = (int) $profileTotalStudents - $currentTotalStudents;
@@ -2045,8 +2045,15 @@ class DashboardController extends Controller
 
     public function manage_cateloge()
     {
-        $catalogues = Catalogue::where('user_id', auth()->id())->latest()->get();
-        return view('distributor.manage-cateloge', array_merge(compact('catalogues'), $this->getMasterLists()));
+        $catalogues = Catalogue::with('mediumDetail')
+            ->where('user_id', auth()->id())
+            ->latest()
+            ->get();
+
+        return view(
+            'distributor.manage-cateloge',
+            array_merge(compact('catalogues'), $this->getMasterLists())
+        );
     }
 
     public function save_catalogue(Request $request)
@@ -2468,10 +2475,12 @@ class DashboardController extends Controller
 
     public function distributor_mediums()
     {
+        $user = auth()->user();
         $boards = Board::where('status', 'active')->latest()->get();
 
         // Load mediums with board name
-        $mediums = Medium::with('board')->latest()->get();
+
+        $mediums = Medium::with('board')->where('user_id', $user->id)->latest()->get();
 
         return view('distributor.medium', compact('boards', 'mediums'));
     }
@@ -2480,7 +2489,13 @@ class DashboardController extends Controller
 
     public function retailer_manage_catalogue()
     {
-        $catalogues = Catalogue::where('user_id', auth()->id())->latest()->get();
+
+        $catalogues = Catalogue::with('mediumDetail')
+            ->where('user_id', auth()->id())
+            ->latest()
+            ->get();
+
+
         return view('retailer.manage-cateloge', array_merge(compact('catalogues'), $this->getMasterLists()));
     }
 
@@ -2503,7 +2518,7 @@ class DashboardController extends Controller
                 'mrp' => 'required|numeric|min:0',
                 'category' => 'nullable|string|max:100',
                 'cover_upload' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-                'sample_upload' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+                'sample_upload' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
                 'description' => 'nullable|string',
                 'confirm_catalogue' => 'required|accepted',
             ]);
@@ -2965,12 +2980,14 @@ class DashboardController extends Controller
     }
 
 
-     public function retailer_mediums()
+    public function retailer_mediums()
     {
+        $user = auth()->user();
         $boards = Board::where('status', 'active')->latest()->get();
 
         // Load mediums with board name
-        $mediums = Medium::with('board')->latest()->get();
+
+        $mediums = Medium::with('board')->where('user_id', $user->id)->latest()->get();
 
         return view('retailer.medium', compact('boards', 'mediums'));
     }
@@ -3075,5 +3092,437 @@ class DashboardController extends Controller
         return response()->json([
             'status' => true,
         ]);
+    }
+
+
+    public function publisher_manage_cateloge()
+    {
+        $catalogues = Catalogue::with('mediumDetail')
+            ->where('user_id', auth()->id())
+            ->latest()
+            ->get();
+
+        return view(
+            'publisher.manage-cateloge',
+            array_merge(compact('catalogues'), $this->getMasterLists())
+        );
+    }
+    public function publisher_save_catalogue(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'catalogue_title' => 'required|string|max:255',
+                'publisher_brand_name' => 'nullable|string|max:255',
+                'academic_session' => 'required|string|max:50',
+                'applicable_board' => 'required|string|max:100',
+                'medium' => 'required|string|max:100',
+                'print_length' => 'nullable|integer|min:1',
+                'published_on' => 'nullable|date',
+                'isbn_13' => 'nullable|string|max:100',
+                'isbn_10' => 'nullable|string|max:100',
+                'reading_age' => 'nullable|string|max:100',
+                'dimensions' => 'nullable|string|max:255',
+                'volume_part_numbers' => 'nullable|string|max:255',
+                'mrp' => 'required|numeric|min:0',
+                'category' => 'nullable|string|max:100',
+                'cover_upload' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+                'sample_upload' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+                'description' => 'nullable|string',
+                'confirm_catalogue' => 'required|accepted',
+            ]);
+
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
+
+            $data = $validator->validated();
+            $data['user_id'] = auth()->id();
+            $data['confirmed'] = true;
+
+            if ($request->hasFile('cover_upload')) {
+                $data['cover_file'] = $request->file('cover_upload')->store('catalogues', 'public');
+            }
+
+            if ($request->hasFile('sample_upload')) {
+                $data['sample_file'] = $request->file('sample_upload')->store('catalogues', 'public');
+            }
+
+            unset($data['cover_upload'], $data['sample_upload'], $data['confirm_catalogue']);
+
+            Catalogue::create($data);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Catalogue saved successfully'
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => false,
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function publisher_delete_catalogue(Request $request)
+    {
+        try {
+            $catalogue = Catalogue::where('id', $request->id)->where('user_id', auth()->id())->firstOrFail();
+            $catalogue->delete();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Catalogue deleted successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function publisher_update_catalogue(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'catalogue_id' => 'required|exists:catalogues,id',
+                'catalogue_title' => 'required|string|max:255',
+                'publisher_brand_name' => 'nullable|string|max:255',
+                'academic_session' => 'required|string|max:50',
+                'applicable_board' => 'required|string|max:100',
+                'medium' => 'required|string|max:100',
+                'print_length' => 'nullable|integer|min:1',
+                'published_on' => 'nullable|date',
+                'isbn_13' => 'nullable|string|max:100',
+                'isbn_10' => 'nullable|string|max:100',
+                'reading_age' => 'nullable|string|max:100',
+                'dimensions' => 'nullable|string|max:255',
+                'volume_part_numbers' => 'nullable|string|max:255',
+                'mrp' => 'required|numeric|min:0',
+                'category' => 'nullable|string|max:100',
+                'cover_upload' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+                'sample_upload' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+                'description' => 'nullable|string',
+                'confirm_catalogue' => 'required|accepted',
+            ]);
+
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
+
+            $catalogue = Catalogue::where('id', $request->catalogue_id)
+                ->where('user_id', auth()->id())
+                ->firstOrFail();
+
+            $data = $validator->validated();
+            $data['confirmed'] = true;
+
+            if ($request->hasFile('cover_upload')) {
+                $data['cover_file'] = $request->file('cover_upload')->store('catalogues', 'public');
+            }
+
+            if ($request->hasFile('sample_upload')) {
+                $data['sample_file'] = $request->file('sample_upload')->store('catalogues', 'public');
+            }
+
+            unset($data['catalogue_id'], $data['cover_upload'], $data['sample_upload'], $data['confirm_catalogue']);
+
+            $catalogue->update($data);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Catalogue updated successfully'
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => false,
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function publisher_boards()
+    {
+        $boards = Board::latest()->get();
+        return view('publisher.boards', compact('boards'));
+    }
+    public function publisher_save_board(Request $request)
+    {
+
+
+        try {
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|string|max:255|unique:boards,name',
+                'status' => 'required|in:active,inactive',
+            ]);
+
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
+
+
+            $board = Board::create($validator->validated());
+
+            return response()->json([
+                'status' => true,
+                'board' => $board,
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => false,
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+    public function publisher_update_board(Request $request)
+    {
+        try {
+            $data = $request->validate([
+                'id' => 'required|exists:boards,id',
+                'name' => 'required|string|max:255|unique:boards,name,' . $request->id,
+                'status' => 'required|in:active,inactive',
+            ]);
+
+            $board = Board::findOrFail($data['id']);
+            $board->update([
+                'name' => $data['name'],
+                'status' => $data['status'],
+            ]);
+
+            return response()->json([
+                'status' => true,
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => false,
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+    public function publisher_delete_board(Request $request)
+    {
+        Board::where('id', $request->id)->delete();
+
+        return response()->json([
+            'status' => true,
+        ]);
+    }
+
+
+    public function publisher_academic_sessions()
+    {
+        $sessions = AcademicSession::latest()->get();
+        return view('publisher.academic-sessions', compact('sessions'));
+    }
+
+    public function publisher_save_academic_session(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|string|max:255|unique:academic_sessions,name',
+                'status' => 'required|in:active,inactive',
+            ]);
+
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
+
+            $session = AcademicSession::create($validator->validated());
+
+            return response()->json([
+                'status' => true,
+                'session' => $session,
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => false,
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function publisher_update_academic_session(Request $request)
+    {
+        try {
+            $data = $request->validate([
+                'id' => 'required|exists:academic_sessions,id',
+                'name' => 'required|string|max:255|unique:academic_sessions,name,' . $request->id,
+                'status' => 'required|in:active,inactive',
+            ]);
+
+            $session = AcademicSession::findOrFail($data['id']);
+            $session->update([
+                'name' => $data['name'],
+                'status' => $data['status'],
+            ]);
+
+            return response()->json([
+                'status' => true,
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => false,
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function publisher_delete_academic_session(Request $request)
+    {
+        AcademicSession::where('id', $request->id)->delete();
+
+        return response()->json([
+            'status' => true,
+        ]);
+    }
+
+    public function publisher_save_medium(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'board_id' => 'required|integer|exists:boards,id',
+                'medium_name' => 'required|string|max:255',
+                'status' => 'required|in:active,inactive',
+            ]);
+
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
+
+            $data = $validator->validated();
+            $data['user_id'] = auth()->id(); // If needed
+
+            $medium = Medium::create($data);
+
+            return response()->json([
+                'status' => true,
+                'medium' => $medium,
+            ]);
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => false,
+                'errors' => $e->errors(),
+            ], 422);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
+    public function publisher_update_medium(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'id' => 'required|integer|exists:mediums,medium_id',
+                'board_id' => 'required|integer|exists:boards,id',
+                'medium_name' => 'required|string|max:255',
+                'status' => 'required|in:active,inactive',
+            ]);
+
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
+
+            $data = $validator->validated();
+
+            // Fetch via correct primary key
+            $medium = Medium::where('medium_id', $data['id'])->first();
+
+            if (!$medium) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Medium not found',
+                ], 404);
+            }
+
+            // Update
+            $medium->update([
+                'board_id' => $data['board_id'],
+                'medium_name' => $data['medium_name'],
+                'status' => $data['status'],
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Medium updated successfully',
+                'medium' => $medium,
+            ]);
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => false,
+                'errors' => $e->errors(),
+            ], 422);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function publisher_delete_medium(Request $request)
+    {
+        Medium::where('medium_id', $request->id)->delete();
+
+        return response()->json([
+            'status' => true,
+        ]);
+    }
+      public function publisher_mediums()
+    {
+      $user = auth()->user();
+        $boards = Board::where('status', 'active')->latest()->get();
+
+        // Load mediums with board name
+
+        $mediums = Medium::with('board')->where('user_id', $user->id)->latest()->get();
+
+        return view('publisher.medium', compact('boards', 'mediums'));
     }
 }
