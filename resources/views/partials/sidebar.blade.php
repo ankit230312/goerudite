@@ -120,7 +120,7 @@
             RFQ Inbox
         </a>
         <a href="{{ route('retailer.manage_records') }}"
-            class="menu-item {{ request()->routeIs('retailer.manage_records') ? 'active' : '' }}"> My Orders</a>
+            class="menu-item {{ request()->routeIs('retailer.manage_records') ? 'active' : '' }}"> Manage Records</a>
 
         <div class="dropdown">
 

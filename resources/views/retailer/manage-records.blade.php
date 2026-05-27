@@ -30,7 +30,7 @@
                             <div class="card-info">
                                 Item: {{ $record->item_name }}<br>
                                 Supplier: {{ $record->supplier }}<br>
-                                Amount: ${{ $record->amount }}
+                                Amount: ₹{{ $record->amount }}
                             </div>
 
                             <div class="card-actions">

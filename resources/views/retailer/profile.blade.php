@@ -33,6 +33,10 @@
         <form id="profileForm" enctype="multipart/form-data">
 
             <div class="profile-grid">
+                  <div>
+                    <label>Shop Name</label>
+                    <input type="text" name="name" value="{{ $profile->name }}">
+                </div>
                 <div>
                     <label>Business Name</label>
                     <input type="text" name="business_name" value="{{ $profile->business_name }}">
@@ -54,7 +58,7 @@
                 </div>
 
                 <div>
-                    <label>Registered Address</label>
+                    <label>Shop Address</label>
                     <input type="text" name="address" value="{{ $profile->address }}">
                 </div>
 
@@ -93,7 +97,7 @@
                 </div>
 
                 <div>
-                    <label>Registration Certificate</label>
+                    <label>Trade License</label>
                     <input type="file" name="document" accept=".pdf,.jpg,.jpeg,.png">
                     @if ($profile->document)
                         {{-- <small class="text-muted d-block mt-1">Uploaded: {{ basename($profile->document) }}</small> --}}

@@ -8,11 +8,36 @@
                 <p class="text-muted mb-0">Operational RFQ Activity</p>
             </div>
             <div class="col-4 text-end">
-                <button class="common-btn" type="button" data-bs-toggle="modal" data-bs-target="#publisherRfqModal">
+                {{-- <button class="common-btn" type="button" data-bs-toggle="modal" data-bs-target="#publisherRfqModal">
                     SEND RFQ
-                </button>
+                </button> --}}
             </div>
         </div>
+
+         @php
+    $stats = $stats ?? [
+    ['label' => 'Followers', 'icon' => 'fa-user', 'value' => 0],
+    ['label' => 'Add to Cart', 'icon' => 'fa-cart-plus', 'value' => 0],
+    ['label' => 'Active Request', 'icon' => 'fa-graduation-cap', 'value' => 0],
+    ['label' => 'Manage Records', 'icon' => 'fa-clipboard-list', 'value' => 0],
+    ['label' => 'Notification RFQ', 'icon' => 'fa-bell', 'value' => 0],
+    ['label' => 'live Lead', 'icon' => 'fa-eye', 'value' => 0],
+    ];
+    @endphp
+    <div class="row g-3 mb-4">
+        @foreach ($stats as $s)
+        <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
+            <div class="card text-center h-100 bg-white  shadow-sm">
+                <div class="card-body">
+                    <i class="fas {{ $s['icon'] }} fa-2x text-orange mb-2"></i>
+                    <div class="text-muted small">{{ strtoupper($s['label']) }}</div>
+                    <h3 class="fw-bold mb-1 text-orange">{{ $s['value'] ?? 0 }}</h3>
+
+                </div>
+            </div>
+        </div>
+        @endforeach
+    </div>
 
         <div class="row">
             <div class="col-12">

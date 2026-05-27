@@ -33,6 +33,10 @@
         <form id="profileForm" enctype="multipart/form-data">
 
             <div class="profile-grid">
+                 <div>
+                    <label>Publishing House Name</label>
+                    <input type="text" name="name" value="{{ $profile->name }}">
+                </div>
                 <div>
                     <label>Publisher Name</label>
                     <input type="text" name="business_name" value="{{ $profile->business_name }}">
@@ -81,15 +85,15 @@
                     </select>
                 </div>
 
-                <div>
+                {{-- <div>
                     <label>Website Link</label>
                     <input type="text" name="website_link" value="{{ $profile->website_link }}">
-                </div>
+                </div> --}}
 
-                <div>
+                {{-- <div>
                     <label>Established In</label>
                     <input type="text" name="established" value="{{ $profile->established }}">
-                </div>
+                </div> --}}
 
                 <div>
                     <label>Board</label>
@@ -122,8 +126,8 @@
                     <label>Registration Certificate</label>
                     <input type="file" name="document" accept=".pdf,.jpg,.jpeg,.png">
                     @if ($profile->document)
-                        <small class="text-muted d-block mt-1">Uploaded: {{ basename($profile->document) }}</small>
-                    @endif
+                            <a href="{{ asset('storage/' . $profile->document) }}" target="_blank">See Document</a>
+                        @endif
                 </div>
             </div>
 

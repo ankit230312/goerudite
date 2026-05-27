@@ -566,7 +566,7 @@
                         <input type="text" name="subject[]" placeholder="Subject" required>
                         <input type="text" name="book_title[]" placeholder="Book Title" required>
                         <select name="publisher[]" class="publisher-select" required>
-                            <option value="">Select Publisher</option>
+                            <option value="">Select Board</option>
 
                             @foreach ($boards as $board)
                                 <option value="{{ $board->id }}">{{ $board->name }}</option>
@@ -622,7 +622,7 @@
                 <div class="confirmation-box">
                     <label>
                         <input type="checkbox" name="confirm_rfq" required>
-                        I confirm that this RFQ is created by the school for quotation purposes only.
+                        I confirm that this RFQ is created by the Retailer for quotation purposes only.
                     </label>
                 </div>
 
@@ -860,6 +860,10 @@
     </div>
 
 
+     <script>
+    let boards = @json($boards);
+</script>
+
     <script>
         const distributorCurrentUserId = {{ auth()->id() }};
 
@@ -882,24 +886,31 @@
             }
         }
 
-        function addBookRow() {
-            let row = `
-            <div class="book-row">
-                <input type="text" name="class_name[]" placeholder="Class Name" required>
-                <input type="text" name="subject[]" placeholder="Subject" required>
-                <input type="text" name="book_title[]" placeholder="Book Title" required>
-                <select name="publisher[]">
-                    <option>Publisher</option>
-                    <option>NCERT</option>
-                    <option>Oxford</option>
-                    <option>Other</option>
-                </select>
-                <input type="text" name="edition[]" placeholder="Edition / Year">
-                <input type="number" name="quantity[]" placeholder="Qty" min="1" required>
-                <button type="button" class="delete-book" onclick="this.parentElement.remove()">🗑</button>
-            </div>`;
-            document.getElementById('booksWrapper').insertAdjacentHTML('beforeend', row);
-        }
+       function addBookRow() {
+
+    let publisherOptions = `<option value="">Select Board</option>`;
+
+    boards.forEach(board => {
+        publisherOptions += `<option value="${board.id}">${board.name}</option>`;
+    });
+
+    let row = `
+    <div class="book-row">
+        <input type="text" name="class_name[]" placeholder="Class Name" required>
+        <input type="text" name="subject[]" placeholder="Subject" required>
+        <input type="text" name="book_title[]" placeholder="Book Title" required>
+
+        <select name="publisher[]" class="publisher-select" required>
+            ${publisherOptions}
+        </select>
+
+        <input type="text" name="edition[]" placeholder="Edition / Year">
+        <input type="number" name="quantity[]" placeholder="Qty" min="1" required>
+        <button type="button" class="delete-book" onclick="this.parentElement.remove()">🗑</button>
+    </div>`;
+
+    document.getElementById('booksWrapper').insertAdjacentHTML('beforeend', row);
+}
 
         function openCreateRfq() {
             document.getElementById('createRfqModal').style.display = 'flex';
@@ -1355,7 +1366,7 @@
 
         $(document).ready(function() {
             $('.publisher-select').select2({
-                placeholder: "Select Publisher",
+                placeholder: "Select Board",
                 allowClear: true,
                 width: '100%'
             });

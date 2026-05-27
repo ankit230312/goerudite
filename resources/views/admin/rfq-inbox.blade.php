@@ -523,7 +523,7 @@
                         <input type="text" name="subject[]" placeholder="Subject" required>
                         <input type="text" name="book_title[]" placeholder="Book Title" required>
                         <select name="publisher[]" class="publisher-select" required>
-                              <option value="">Select Publisher</option>
+                              <option value="">Select Board</option>
 
                             @foreach ($boards as $board)
                                 <option value="{{ $board->id }}">{{ $board->name }}</option>
@@ -911,7 +911,7 @@
         const boards = @json($boards);
         document.addEventListener('DOMContentLoaded', function() {
             $('.publisher-select').select2({
-                placeholder: "Select Publisher",
+                placeholder: "Select Board",
                 allowClear: true,
                 width: '100%' // optional
             });

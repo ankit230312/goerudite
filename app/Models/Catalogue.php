@@ -13,6 +13,7 @@ class Catalogue extends Model
 
     protected $fillable = [
         'user_id',
+        'name',
         'catalogue_title',
         'publisher_brand_name',
         'academic_session',
@@ -27,6 +28,7 @@ class Catalogue extends Model
         'volume_part_numbers',
         'mrp',
         'category',
+        'subcategory',
         'cover_file',
         'sample_file',
         'description',

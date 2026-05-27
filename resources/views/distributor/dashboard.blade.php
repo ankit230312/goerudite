@@ -23,6 +23,7 @@
     ['label' => 'Active Request', 'icon' => 'fa-graduation-cap', 'value' => 0],
     ['label' => 'Manage Records', 'icon' => 'fa-clipboard-list', 'value' => 0],
     ['label' => 'Notification RFQ', 'icon' => 'fa-bell', 'value' => 0],
+    ['label' => 'live Lead', 'icon' => 'fa-eye', 'value' => 0],
     ];
     @endphp
     <div class="row g-3 mb-4">

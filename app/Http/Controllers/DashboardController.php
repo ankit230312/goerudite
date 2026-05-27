@@ -582,6 +582,7 @@ class DashboardController extends Controller
             ['label' => 'Active Request', 'icon' => 'fa-graduation-cap', 'value' => $activeRequestCount],
             ['label' => 'Manage Records', 'icon' => 'fa-clipboard-list', 'value' => $manageRecordsCount],
             ['label' => 'Notification RFQ', 'icon' => 'fa-bell', 'value' => $pendingRfqCount],
+            ['label' => 'Live Leads', 'icon' => 'fa-eye', 'value' => 0],
         ];
 
         $operationLogsQuery = $this->rfqRecipientQuery($user)
@@ -621,6 +622,7 @@ class DashboardController extends Controller
             ['label' => 'Active Request', 'icon' => 'fa-graduation-cap', 'value' => $activeRequestCount],
             ['label' => 'Manage Records', 'icon' => 'fa-clipboard-list', 'value' => $manageRecordsCount],
             ['label' => 'Notification RFQ', 'icon' => 'fa-bell', 'value' => $pendingRfqCount],
+            ['label' => 'Live Leads', 'icon' => 'fa-eye', 'value' => 0],
         ];
 
         $operationLogsQuery = $this->rfqRecipientQuery($user)
@@ -660,6 +662,7 @@ class DashboardController extends Controller
             ['label' => 'Active Request', 'icon' => 'fa-graduation-cap', 'value' => $activeRequestCount],
             ['label' => 'Manage Records', 'icon' => 'fa-clipboard-list', 'value' => $manageRecordsCount],
             ['label' => 'Notification RFQ', 'icon' => 'fa-bell', 'value' => $pendingRfqCount],
+            ['label' => 'Live Leads', 'icon' => 'fa-eye', 'value' => 0],
         ];
 
         $operationLogsQuery = $this->rfqRecipientQuery($user)
@@ -805,6 +808,7 @@ class DashboardController extends Controller
         try {
 
             $data = $request->validate([
+                'name' => 'nullable|max:255',
                 'business_name' => 'required',
                 'business_category' => 'required|string|max:100',
                 'contact_person' => 'required|string|max:255',
@@ -831,7 +835,7 @@ class DashboardController extends Controller
             if ($request->hasFile('profile')) {
                 $data['profile'] = $request->file('profile')->store('profiles', 'public');
             }
-
+// dd($data);
             User::updateOrCreate(
                 ['id' => auth()->id()],
                 $data
@@ -859,6 +863,8 @@ class DashboardController extends Controller
         try {
 
             $data = $request->validate([
+                'name' => 'nullable|max:255',
+                'contact_person' => 'required|string|max:255',
                 'business_name' => 'required',
                 'school_type' => 'nullable',
                 'email' => 'required|email',
@@ -2049,7 +2055,7 @@ class DashboardController extends Controller
             ->where('user_id', auth()->id())
             ->latest()
             ->get();
-
+        // dd($catalogues);
         return view(
             'distributor.manage-cateloge',
             array_merge(compact('catalogues'), $this->getMasterLists())
@@ -2074,6 +2080,7 @@ class DashboardController extends Controller
                 'volume_part_numbers' => 'nullable|string|max:255',
                 'mrp' => 'required|numeric|min:0',
                 'category' => 'nullable|string|max:100',
+                'sub_category' => 'nullable|string|max:100',
                 'cover_upload' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
                 'sample_upload' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
                 'description' => 'nullable|string',

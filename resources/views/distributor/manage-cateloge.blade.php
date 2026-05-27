@@ -18,8 +18,8 @@
                 <button class="btn btn-dark me-2" data-bs-toggle="modal" data-bs-target="#baseDetailsModal">
                     <i class="fas fa-plus"></i> ADD CATALOGUE
                 </button>
-                <a href="#" class="common-btn" data-bs-toggle="modal" data-bs-target="#classRfqModal">RAISE
-                    RFQ</a>
+                {{-- <a href="#" class="common-btn" data-bs-toggle="modal" data-bs-target="#classRfqModal">RAISE
+                    RFQ</a> --}}
             </div>
         </div>
 
@@ -28,7 +28,6 @@
                 data-bs-wrap="false" data-bs-touch="true">
                 <div class="carousel-indicators">
                     @forelse($catalogues as $index => $catalogue)
-
                         <button type="button" data-bs-target="#catalogueCarousel" data-bs-slide-to="{{ $index }}"
                             class="{{ $index === 0 ? 'active' : '' }}" aria-current="{{ $index === 0 ? 'true' : 'false' }}"
                             aria-label="Slide {{ $index + 1 }}"></button>
@@ -79,6 +78,7 @@
                                                     'volume_part_numbers' => $catalogue->volume_part_numbers,
                                                     'mrp' => $catalogue->mrp,
                                                     'category' => $catalogue->category,
+                                                    'sub_category' => $catalogue->sub_category,
                                                     'description' => $catalogue->description,
                                                     'confirmed' => (bool) $catalogue->confirmed,
                                                 ];
@@ -97,7 +97,8 @@
                                             <div class="detail-row">
                                                 <span class="detail-label">Medium</span>
 
-                                                <span class="detail-value">{{ $catalogue->mediumDetail->medium_name ?: '-' }}</span>
+                                                <span
+                                                    class="detail-value">{{ isset($catalogue->mediumDetail->medium_name) ? $catalogue->mediumDetail->medium_name : '-' }}</span>
                                                 <span class="detail-label">Session</span>
                                                 <span class="detail-value">{{ $catalogue->academic_session ?: '-' }}</span>
                                                 <span class="detail-label">ISBN-13</span>
@@ -290,7 +291,7 @@
                 </div>
             </div>
         </div>
-        <div class="row">
+        {{-- <div class="row">
             <div class="col-12">
                 <div class="proto-tip-section p-4 mb-4">
                     <div class="d-flex align-items-start gap-3">
@@ -305,7 +306,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> --}}
 
         <div class="modal fade" id="baseDetailsModal" tabindex="-1">
             <div class="modal-dialog modal-xl">
@@ -340,7 +341,8 @@
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label fw-bold small">Applicable Board</label>
-                                    <select class="form-select form-select-sm" name="applicable_board" id="applicable_board" required>
+                                    <select class="form-select form-select-sm" name="applicable_board"
+                                        id="applicable_board" required>
                                         <option value="">Select board</option>
                                         @foreach ($boards as $board)
                                             <option value="{{ $board->id }}">{{ $board->name }}</option>
@@ -403,12 +405,17 @@
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label fw-bold small">Category</label>
-                                    <select class="form-select form-select-sm" name="category">
-                                        <option value="">Select category</option>
-                                        <option value="Fiction">Fiction</option>
-                                        <option value="Non-Fiction">Non-Fiction</option>
-                                        <option value="Textbook">Textbook</option>
-                                        <option value="Reference">Reference</option>
+
+                                    <select class="form-select form-select-sm" name="category" id="category">
+                                        <option value="">Select Category</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label class="form-label fw-bold small">Sub Category</label>
+
+                                    <select class="form-select form-select-sm" name="sub_category" id="sub_category">
+                                        <option value="">Select Sub Category</option>
                                     </select>
                                 </div>
                                 <div class="col-md-3">
@@ -528,9 +535,20 @@
                 setField('dimensions', catalogue.dimensions);
                 setField('volume_part_numbers', catalogue.volume_part_numbers);
                 setField('mrp', catalogue.mrp);
-                setField('category', catalogue.category);
+                // setField('sub_category', catalogue.sub_category);
                 setField('description', catalogue.description);
                 setField('confirm_catalogue', catalogue.confirmed);
+
+                setField('category', catalogue.category);
+                const categorySelect = document.getElementById('category');
+                const subCategorySelect = document.getElementById('sub_category');
+
+                categorySelect.dispatchEvent(new Event('change'));
+
+                // Wait for subcategories to load
+                setTimeout(() => {
+                    setField('sub_category', catalogue.sub_category);
+                }, 200);
 
                 const modal = bootstrap.Modal.getOrCreateInstance(catalogueModalEl);
                 modal.show();
@@ -703,7 +721,7 @@
     </script>
 
     <Script>
-           document.getElementById('applicable_board').addEventListener('change', function() {
+        document.getElementById('applicable_board').addEventListener('change', function() {
             let boardId = this.value;
 
             // Reset Medium Select

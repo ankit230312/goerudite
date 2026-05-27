@@ -566,7 +566,7 @@
                         <input type="text" name="subject[]" placeholder="Subject" required>
                         <input type="text" name="book_title[]" placeholder="Book Title" required>
                         <select name="publisher[]" class="publisher-select" required>
-                            <option value="">Select Publisher</option>
+                            <option value="">Select Board</option>
 
                             @foreach ($boards as $board)
                                 <option value="{{ $board->id }}">{{ $board->name }}</option>
@@ -622,7 +622,7 @@
                 <div class="confirmation-box">
                     <label>
                         <input type="checkbox" name="confirm_rfq" required>
-                        I confirm that this RFQ is created by the school for quotation purposes only.
+                        I confirm that this RFQ is created by the Distributor for quotation purposes only.
                     </label>
                 </div>
 
@@ -887,7 +887,7 @@
         }
 function addBookRow() {
 
-    let publisherOptions = `<option value="">Select Publisher</option>`;
+    let publisherOptions = `<option value="">Select Board</option>`;
 
     boards.forEach(board => {
         publisherOptions += `<option value="${board.id}">${board.name}</option>`;
@@ -1365,7 +1365,7 @@ function addBookRow() {
 
         $(document).ready(function() {
             $('.publisher-select').select2({
-                placeholder: "Select Publisher",
+                placeholder: "Select Board",
                 allowClear: true,
                 width: '100%'
             });

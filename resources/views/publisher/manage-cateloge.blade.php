@@ -18,8 +18,8 @@
                 <button class="btn btn-dark me-2" data-bs-toggle="modal" data-bs-target="#baseDetailsModal">
                     <i class="fas fa-plus"></i> ADD CATALOGUE
                 </button>
-                <a href="#" class="common-btn" data-bs-toggle="modal" data-bs-target="#classRfqModal">RAISE
-                    RFQ</a>
+                {{-- <a href="#" class="common-btn" data-bs-toggle="modal" data-bs-target="#classRfqModal">RAISE
+                    RFQ</a> --}}
             </div>
         </div>
 
@@ -290,7 +290,7 @@
                 </div>
             </div>
         </div>
-        <div class="row">
+        {{-- <div class="row">
             <div class="col-12">
                 <div class="proto-tip-section p-4 mb-4">
                     <div class="d-flex align-items-start gap-3">
@@ -305,7 +305,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> --}}
 
         <div class="modal fade" id="baseDetailsModal" tabindex="-1">
             <div class="modal-dialog modal-xl">
@@ -401,14 +401,19 @@
                                     <input type="number" class="form-control form-control-sm" name="mrp"
                                         placeholder="450" required>
                                 </div>
-                                <div class="col-md-3">
+                                   <div class="col-md-3">
                                     <label class="form-label fw-bold small">Category</label>
-                                    <select class="form-select form-select-sm" name="category">
-                                        <option value="">Select category</option>
-                                        <option value="Fiction">Fiction</option>
-                                        <option value="Non-Fiction">Non-Fiction</option>
-                                        <option value="Textbook">Textbook</option>
-                                        <option value="Reference">Reference</option>
+
+                                    <select class="form-select form-select-sm" name="category" id="category">
+                                        <option value="">Select Category</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label class="form-label fw-bold small">Sub Category</label>
+
+                                    <select class="form-select form-select-sm" name="sub_category" id="sub_category">
+                                        <option value="">Select Sub Category</option>
                                     </select>
                                 </div>
                                 <div class="col-md-3">
@@ -528,9 +533,24 @@
                 setField('dimensions', catalogue.dimensions);
                 setField('volume_part_numbers', catalogue.volume_part_numbers);
                 setField('mrp', catalogue.mrp);
-                setField('category', catalogue.category);
+                // setField('category', catalogue.category);
                 setField('description', catalogue.description);
                 setField('confirm_catalogue', catalogue.confirmed);
+
+////
+
+  setField('category', catalogue.category);
+                const categorySelect = document.getElementById('category');
+                const subCategorySelect = document.getElementById('sub_category');
+
+                categorySelect.dispatchEvent(new Event('change'));
+
+                // Wait for subcategories to load
+                setTimeout(() => {
+                    setField('sub_category', catalogue.sub_category);
+                }, 200);
+
+                //////
 
                 const modal = bootstrap.Modal.getOrCreateInstance(catalogueModalEl);
                 modal.show();
