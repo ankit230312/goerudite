@@ -1,6 +1,58 @@
 @extends('layouts.dashboard')
 
 @section('content')
+<style>
+    .modal-box.rfq-box {
+    width: 95%;
+    max-width: 1100px;
+    background: #fff;
+    border-radius: 14px;
+    padding: 22px 26px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+    max-height: 90vh;
+    overflow-y: auto;
+}
+.rfq-header-modal {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #000;
+    padding: 14px 18px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+.rfq-details-content {
+    display: grid;
+    gap: 20px;
+}
+.rfq-details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+}
+.rfq-details-section {
+    background: #f9f9f9;
+    border-radius: 10px;
+    padding: 15px;
+    border-left: 4px solid #ff7a18;
+}
+.rfq-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 25px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.btn-outline {
+            border: 1px solid #ff7a18;
+            background: #fff;
+            color: #ff7a18;
+            padding: 8px 14px;
+            border-radius: 8px;
+        }
+
+</style>
     <main class="container-fluid py-4">
         <div class="row mb-4 align-items-center">
             <div class="col-8">
@@ -61,7 +113,7 @@
                                     <span class="{{ $isReceived ? 'text-success' : 'text-danger' }}">
                                         {{ $isReceived ? 'Received RFQ' : 'Sent RFQ' }}
                                     </span><br>
-                                    <a href="#" class="small" onclick="viewPublisherRfqDetails({{ $rfq->id }}); return false;">View Details</a>
+                                    <a href="#" class="small" onclick="viewDetails({{ $rfq->id }}); return false;">View Details</a>
                                 </div>
                             </li>
                         @empty
@@ -193,7 +245,7 @@
         </div>
     </div>
 
-    <div class="modal fade" id="publisherRfqDetailsModal" tabindex="-1" aria-hidden="true">
+    {{-- <div class="modal fade" id="publisherRfqDetailsModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -203,9 +255,42 @@
                 <div class="modal-body" id="publisherRfqDetailsBody"></div>
             </div>
         </div>
-    </div>
+    </div> --}}
+ <div id="viewDetailsModal" class="modal">
+        <div class="modal-box rfq-box">
+            <div class="rfq-header-modal">
+                <h3>RFQ Details</h3>
+                <!-- <button clasy'/s="btn-save" onclick="editRfq()">Edit</button> -->
+            </div>
 
+            <div id="detailsContent">
+                <!-- Details will be loaded here -->
+            </div>
+
+            <div class="rfq-footer">
+                {{-- <button class="btn-dark" id="closeRfqBtn" onclick="openCloseRfqModal()">Close RFQ</button> --}}
+                <div class="footer-actions">
+                    <button class="btn-outline" onclick="closeModal();">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <script>
+        const distributorCurrentUserId = {{ auth()->id() }};
+
+         function formatDate(dateStr) {
+            if (!dateStr) {
+                return 'N/A';
+            }
+            const date = new Date(dateStr);
+            if (Number.isNaN(date.getTime())) {
+                return dateStr;
+            }
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}-${month}-${year}`;
+        }
         function addPublisherBookRow() {
             const row = document.createElement('div');
             row.className = 'row g-2 mb-2';
@@ -306,6 +391,89 @@
                     const modal = new bootstrap.Modal(document.getElementById('publisherRfqDetailsModal'));
                     modal.show();
                 });
+        }
+
+
+
+         function viewDetails(id) {
+            fetch(`/publisher/rfq-details/${id}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const rfq = data.rfq;
+                        const response = data.response || null;
+                        let books = rfq.books;
+
+                        // convert string → array
+                        if (typeof books === 'string') {
+                            books = JSON.parse(books);
+                        }
+
+                        let content = `
+                            <div class="rfq-details-content">
+                                <div class="rfq-details-grid">
+                                    <div class="rfq-details-section">
+                                        <h5>School Information</h5>
+                                        <p><strong>School:</strong> ${rfq.school_name}</p>
+                                        <p><strong>City:</strong> ${rfq.city}</p>
+                                        <p><strong>Session:</strong> ${rfq.academic_session}</p>
+                                    </div>
+                                    <div class="rfq-details-section">
+                                        <h5>Timeline & Priority</h5>
+                                        <p><strong>Delivery:</strong> ${formatDate(rfq.delivery_from)} to ${formatDate(rfq.delivery_to)}</p>
+                                        <p><strong>Urgency:</strong> ${rfq.urgency}</p>
+                                        <p><strong>Closing Date:</strong> ${formatDate(rfq.rfq_closing_date)}</p>
+                                    </div>
+                                </div>
+                                <div class="rfq-details-section">
+                                    <h5>Additional Notes</h5>
+                                    <p>${rfq.notes || 'N/A'}</p>
+                                </div>
+                                <div class="rfq-details-section">
+                                    <h5>Target Audience</h5>
+                                    <p><strong>Roles:</strong> ${(rfq.target_roles || []).join(', ') || 'N/A'}</p>
+                                    <p><strong>State:</strong> ${rfq.target_state || 'All States'}</p>
+                                    <p><strong>City:</strong> ${rfq.target_city || 'All Cities'}</p>
+                                </div>
+                                <div class="rfq-details-section">
+                                    <h6>Book Requirements</h6>
+                                    <ul>
+                        `;
+
+                        books.forEach(book => {
+                            content += `<li><strong>${book.class_name} - ${book.subject}</strong><br>${book.book_title} (${book.quantity})</li>`;
+                        });
+                        content += '</ul></div>';
+
+                        if (response) {
+                            content += `
+                                <div class="rfq-details-section">
+                                    <h5>Your Response</h5>
+                                    <p><strong>Indicative Unit Price:</strong> ${response.indicative_unit_price ?? 'N/A'}</p>
+                                    <p><strong>Total Indicative Value:</strong> ${response.total_indicative_value ?? 'N/A'}</p>
+                                    <p><strong>Available Quantity:</strong> ${response.available_quantity ?? 'N/A'}</p>
+                                    <p><strong>Delivery:</strong> ${formatDate(response.delivery_from)} to ${formatDate(response.delivery_to)}</p>
+                                    <p><strong>Stock Status:</strong> ${response.stock_status ? response.stock_status.replace(/_/g, ' ') : 'N/A'}</p>
+                                    <p><strong>Notes:</strong> ${response.additional_notes || 'N/A'}</p>
+                                    <p><strong>Submitted At:</strong> ${formatDate(response.submitted_at)}</p>
+                                </div>
+                            `;
+                        }
+
+                        content += '</div>';
+                        document.getElementById('detailsContent').innerHTML = content;
+                        const modal = document.getElementById('viewDetailsModal');
+                        modal.dataset.rfqId = id;
+                        const canClose = Number(rfq.user_id) === distributorCurrentUserId;
+                        // document.getElementById('closeRfqBtn').style.display = canClose ? 'inline-block' : 'none';
+                        modal.style.display = 'flex';
+                    }
+                });
+        }
+
+
+        function closeModal() {
+            document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
         }
     </script>
 @endsection

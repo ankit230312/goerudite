@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Catalogue;
 use App\Models\User;
 
 
@@ -36,33 +37,30 @@ class HomeController extends Controller
         return view('contact');
     }
 
-    public function catalog(Request $request)
-    {
-        $productsPerPage = 8;
+  public function catalog(Request $request)
+{
+    $productsPerPage = 8;
 
-        // TEMP data (replace with Product::paginate later)
-        $totalProducts = 48;
-        $products = collect(range(1, $totalProducts));
+    $catalogues = Catalogue::with('mediumDetail')
+        ->paginate($productsPerPage);
 
-        $paginatedProducts = $products->forPage(
-            $request->get('page', 1),
-            $productsPerPage
-        );
-
-        return view('catalog', [
-            'products' => $paginatedProducts,
-            'totalProducts' => $totalProducts,
-            'productsPerPage' => $productsPerPage
-        ]);
-    }
+    return view('catalog', [
+        'catalogues'       => $catalogues,
+        'productsPerPage'  => $productsPerPage,
+        'totalProducts'    => $catalogues->total(),
+    ]);
+}
 
     // public function catalog_detail(Request $request, $id)
-    public function catalog_detail()
-    {
-        // return view('catalog-detail', ['productId' => $id]);
-        return view('catalog-detail');
 
-    }
+
+public function catalog_detail($id)
+{
+    $catalogue = Catalogue::with('mediumDetail')
+        ->findOrFail($id);
+
+    return view('catalog-detail', compact('catalogue'));
+}
 
     public function login_register()
     {

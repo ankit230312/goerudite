@@ -861,8 +861,8 @@
 
 
     <script>
-    let boards = @json($boards);
-</script>
+        let boards = @json($boards);
+    </script>
 
     <script>
         const distributorCurrentUserId = {{ auth()->id() }};
@@ -885,15 +885,16 @@
                 tabButton.classList.add('active');
             }
         }
-function addBookRow() {
 
-    let publisherOptions = `<option value="">Select Board</option>`;
+        function addBookRow() {
 
-    boards.forEach(board => {
-        publisherOptions += `<option value="${board.id}">${board.name}</option>`;
-    });
+            let publisherOptions = `<option value="">Select Board</option>`;
 
-    let row = `
+            boards.forEach(board => {
+                publisherOptions += `<option value="${board.id}">${board.name}</option>`;
+            });
+
+            let row = `
     <div class="book-row">
         <input type="text" name="class_name[]" placeholder="Class Name" required>
         <input type="text" name="subject[]" placeholder="Subject" required>
@@ -908,8 +909,8 @@ function addBookRow() {
         <button type="button" class="delete-book" onclick="this.parentElement.remove()">🗑</button>
     </div>`;
 
-    document.getElementById('booksWrapper').insertAdjacentHTML('beforeend', row);
-}
+            document.getElementById('booksWrapper').insertAdjacentHTML('beforeend', row);
+        }
 
         function openCreateRfq() {
             document.getElementById('createRfqModal').style.display = 'flex';

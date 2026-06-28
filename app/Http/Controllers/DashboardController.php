@@ -756,7 +756,7 @@ class DashboardController extends Controller
             $data = $request->validate([
                 'contact_person' => 'required|string|max:255',
                 'business_name' => 'required|string|max:255',
-                'business_category' => 'required|string|max:100',
+                'business_category' => 'nullable|string|max:100',
                 'email' => 'required|email',
                 'mobile' => 'required|string|max:20',
                 'address' => 'nullable|string',

@@ -15,7 +15,7 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(to right, #4d7cfe, #b24dfe);
+            background: linear-gradient(to right, #f36522, #555);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -69,7 +69,7 @@
             color: #333;
             font-size: 2rem;
             font-weight: 700;
-            background: linear-gradient(135deg, #b24dfe, #0f1624);
+            background: linear-gradient(135deg, #f36522, #f36522);
             background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -107,7 +107,7 @@
             padding: 15px;
             border: none;
             border-radius: 12px;
-            background: linear-gradient(135deg, #b24dfe, #0f1624);
+            background: linear-gradient(135deg, #f36522, #f36522);
             color: white;
             font-size: 18px;
             font-weight: 600;

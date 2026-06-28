@@ -1,7 +1,58 @@
 @extends('layouts.dashboard')
 
 @section('content')
+<style>
+    .modal-box.rfq-box {
+    width: 95%;
+    max-width: 1100px;
+    background: #fff;
+    border-radius: 14px;
+    padding: 22px 26px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+    max-height: 90vh;
+    overflow-y: auto;
+}
+.rfq-header-modal {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #000;
+    padding: 14px 18px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+.rfq-details-content {
+    display: grid;
+    gap: 20px;
+}
+.rfq-details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+}
+.rfq-details-section {
+    background: #f9f9f9;
+    border-radius: 10px;
+    padding: 15px;
+    border-left: 4px solid #ff7a18;
+}
+.rfq-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 25px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.btn-outline {
+            border: 1px solid #ff7a18;
+            background: #fff;
+            color: #ff7a18;
+            padding: 8px 14px;
+            border-radius: 8px;
+        }
 
+</style>
     <main class="container-fluid py-4">
 
         <!-- Page Header -->
@@ -52,10 +103,6 @@
 
                     <ul class="list-group list-group-flush">
                         @forelse($operationLogs as $rfq)
-
-
-
-
                             @php($isReceived = in_array($rfq->id, $acknowledgedRfqIds ?? []))
 
                             <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -78,11 +125,11 @@
 
                                     <br>
                                     <a href="#" class="small"
-                                        onclick="viewDistributorRfq({{ $rfq->id }}); return false;">
+                                        onclick="viewDetails({{ $rfq->id }}); return false;">
                                         View RFQ
                                     </a><br>
 
-                                    @if ($rfq->action !== 'responded')
+                                    {{-- @if ($rfq->action !== 'responded')
                                         @if (!$isReceived)
                                             <a href="javascript:void(0);" class="small text-primary"
                                                 onclick="markRfqReceivedFromDashboard({{ $rfq->id }})">
@@ -91,7 +138,7 @@
                                         @else
                                             <span class="small text-success">Received Done</span>
                                         @endif
-                                    @endif
+                                    @endif --}}
                                 </div>
                             </li>
 
@@ -99,6 +146,27 @@
                             <li class="list-group-item">No records found.</li>
                         @endforelse
                     </ul>
+                </div>
+            </div>
+
+
+            <div id="viewDetailsModal" class="modal">
+                <div class="modal-box rfq-box">
+                    <div class="rfq-header-modal">
+                        <h3>RFQ Details</h3>
+                        <!-- <button clasy'/s="btn-save" onclick="editRfq()">Edit</button> -->
+                    </div>
+
+                    <div id="detailsContent">
+                        <!-- Details will be loaded here -->
+                    </div>
+
+                    <div class="rfq-footer">
+                        {{-- <button class="btn-dark" onclick="openCloseRfqModal()">Close RFQ</button> --}}
+                        <div class="footer-actions">
+                            <button class="btn-outline" onclick="closeModal();">Close</button>
+                        </div>
+                    </div>
                 </div>
             </div>
             {{-- <div class="col-6 lg:col-5">
@@ -202,6 +270,145 @@
         </div>
 
 
+        <script>
+            function formatDate(dateStr) {
+                const date = new Date(dateStr);
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const year = date.getFullYear();
+                return `${day}-${month}-${year}`;
+            }
 
+            function viewDetails(id) {
+                fetch(`/admin/rfq-details/${id}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!data.success) {
+                            return;
+                        }
+
+                        const rfq = data.rfq;
+                        let books = rfq.books;
+
+                        // convert string → array
+                        if (typeof books === 'string') {
+                            books = JSON.parse(books);
+                        }
+
+                        let content = `
+                        <div class="rfq-details-content">
+                            <div class="rfq-details-grid">
+                                <div class="rfq-details-section">
+                                    <h5>School Information</h5>
+                                    <p><strong>School:</strong> ${rfq.school_name}</p>
+                                    <p><strong>City:</strong> ${rfq.city}</p>
+                                    <p><strong>Session:</strong> ${rfq.academic_session}</p>
+                                </div>
+                                <div class="rfq-details-section">
+                                    <h5>Timeline & Priority</h5>
+                                    <p><strong>Delivery:</strong> ${formatDate(rfq.delivery_from)} to ${formatDate(rfq.delivery_to)}</p>
+                                    <p><strong>Urgency:</strong> ${rfq.urgency}</p>
+                                    <p><strong>Closing Date:</strong> ${formatDate(rfq.rfq_closing_date)}</p>
+                                </div>
+                            </div>
+                            <div class="rfq-details-section">
+                                <h5>Additional Notes</h5>
+                                <p>${rfq.notes || 'N/A'}</p>
+                            </div>
+                            <div class="rfq-details-section">
+                                <h5>Target Audience</h5>
+                                <p><strong>Roles:</strong> ${(rfq.target_roles || []).join(', ') || 'N/A'}</p>
+                                <p><strong>State:</strong> ${rfq.target_state || 'All States'}</p>
+                                <p><strong>City:</strong> ${rfq.target_city || 'All Cities'}</p>
+                            </div>
+                            <div class="rfq-details-section">
+                                <h6>Book Requirements</h6>
+                                <ul>
+                    `;
+
+                        if (Array.isArray(books) && books.length) {
+                            books.forEach(book => {
+                                content +=
+                                    `<li><strong>${book.class_name} - ${book.subject}</strong><br>${book.book_title} (${book.quantity})</li>`;
+                            });
+                        } else {
+                            content += '<li>No books listed.</li>';
+                        }
+
+                        content += '</ul></div></div>';
+                        document.getElementById('detailsContent').innerHTML = content;
+
+                        const modal = document.getElementById('viewDetailsModal');
+                        modal.dataset.rfqId = id;
+                        modal.style.display = 'flex';
+
+                        fetch(`/admin/rfq-responses/${id}`)
+                            .then(res => res.json())
+                            .then(resData => {
+                                if (!resData.success) {
+                                    return;
+                                }
+
+                                const responses = resData.responses || [];
+                                let responseHtml = `
+                                <div class="rfq-details-section">
+                                    <h5>Responses</h5>
+                            `;
+
+                                if (!responses.length) {
+                                    responseHtml += '<p class="text-muted">No responses received yet.</p>';
+                                } else {
+                                    responseHtml += `
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-bordered mb-0">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Responder</th>
+                                                    <th>Role</th>
+                                                    <th>City / State</th>
+                                                    <th>Unit Price</th>
+                                                    <th>Total Value</th>
+                                                    <th>Qty</th>
+                                                    <th>Delivery</th>
+                                                    <th>Stock</th>
+                                                    <th>Notes</th>
+                                                    <th>Submitted</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                `;
+
+                                    responses.forEach(item => {
+                                        const location = [item.city, item.state].filter(Boolean).join(', ') ||
+                                            'N/A';
+                                        responseHtml += `
+                                        <tr>
+                                            <td>${item.business_name || 'N/A'}</td>
+                                            <td>${item.responder_role || 'N/A'}</td>
+                                            <td>${location}</td>
+                                            <td>${item.indicative_unit_price ?? 'N/A'}</td>
+                                            <td>${item.total_indicative_value ?? 'N/A'}</td>
+                                            <td>${item.available_quantity ?? 'N/A'}</td>
+                                            <td>${formatDate(item.delivery_from)} to ${formatDate(item.delivery_to)}</td>
+                                            <td>${item.stock_status ? item.stock_status.replace(/_/g, ' ') : 'N/A'}</td>
+                                            <td>${item.additional_notes || 'N/A'}</td>
+                                            <td>${formatDate(item.submitted_at)}</td>
+                                        </tr>
+                                    `;
+                                    });
+
+                                    responseHtml += '</tbody></table></div>';
+                                }
+
+                                responseHtml += '</div>';
+                                document.getElementById('detailsContent').insertAdjacentHTML('beforeend', responseHtml);
+                            });
+                    });
+            }
+
+            function closeModal() {
+            document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+        }
+        </script>
     </main>
 @endsection

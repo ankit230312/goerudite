@@ -17,8 +17,8 @@ Route::get('pricing', [HomeController::class, 'pricing'])->name('pricing');
 Route::get('about-us', [HomeController::class, 'about'])->name('about');
 Route::get('contact-us', [HomeController::class, 'contact'])->name('contact');
 Route::get('catalog', [HomeController::class, 'catalog'])->name('catalog');
-// Route::get('catalog-detail/{id}', [HomeController::class, 'catalog_detail'])->name('catalog.detail');
-Route::get('catalog-detail', [HomeController::class, 'catalog_detail'])->name('catalog.detail');
+Route::get('catalog-detail/{id}', [HomeController::class, 'catalog_detail'])->name('catalog.detail');
+// Route::get('catalog-detail', [HomeController::class, 'catalog_detail'])->name('catalog.detail');
 
 
 Route::get('login-register', [HomeController::class, 'login_register'])->name('login-register');
@@ -27,6 +27,7 @@ Route::post('register-user', [HomeController::class, 'store'])->name('user.regis
 Route::get('login', [HomeController::class, 'login'])->name('login');
 Route::post('login-submit', [HomeController::class, 'login_submit'])->name('login.submit');
 Route::get('logout', [HomeController::class, 'logout'])->name('logout');
+
 
 
 // admin panel
